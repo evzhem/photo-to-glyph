@@ -4,7 +4,9 @@ import org.junit.Test
 
 class M2Test {
     @Test fun mirrorIsPixelExactAndNonmutating() = M2Checks.mirrorIsPixelExactAndNonmutating()
+
     @Test fun suggestedSizeDoesNotGuessA4() = M2Checks.suggestedSizeDoesNotGuessA4()
+
     @Test fun quarterTurnsArePixelExact() = M2Checks.quarterTurnsArePixelExact()
 
     @Test fun cropIsPixelExactAndRejectsOutside() = M2Checks.cropIsPixelExactAndRejectsOutside()

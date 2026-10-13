@@ -96,7 +96,11 @@ internal class PreparationAdapter(
             val quad =
                 if (supplied != null) {
                     require(supplied.size == QUAD_NUMBERS && supplied.all { it.isFinite() })
-                    supplied.chunked(2).map { Vec2(it[0], it[1]) }.let { points -> PageQuad(points[0], points[1], points[2], points[BOTTOM_LEFT_INDEX]) }.also { it.requireInside(image) }
+                    supplied
+                        .chunked(2)
+                        .map { Vec2(it[0], it[1]) }
+                        .let { points -> PageQuad(points[0], points[1], points[2], points[BOTTOM_LEFT_INDEX]) }
+                        .also { it.requireInside(image) }
                 } else {
                     detected ?: PageQuad.fullImage(image)
                 }

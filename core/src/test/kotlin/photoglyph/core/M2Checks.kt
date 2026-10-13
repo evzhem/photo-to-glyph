@@ -9,14 +9,14 @@ import photoglyph.core.img.GrayImage
 import photoglyph.core.img.PageQuad
 import photoglyph.core.img.cropImage
 import photoglyph.core.img.detectPageQuad
-import photoglyph.core.img.mirrorHorizontal
-import photoglyph.core.img.suggestedRectifiedSize
 import photoglyph.core.img.mapPagePoint
+import photoglyph.core.img.mirrorHorizontal
 import photoglyph.core.img.otsuThreshold
 import photoglyph.core.img.prepareImage
 import photoglyph.core.img.rectifyPerspective
 import photoglyph.core.img.resizeToMaxEdge
 import photoglyph.core.img.rotateQuarterTurns
+import photoglyph.core.img.suggestedRectifiedSize
 import photoglyph.core.img.whiteProjectionColumns
 import photoglyph.core.img.whiteProjectionRows
 import java.io.File
