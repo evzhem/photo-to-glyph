@@ -1,0 +1,67 @@
+# Gradle / Kotlin / Android build artifacts
+.gradle/
+.kotlin/
+**/build/
+local.properties
+*.apk
+*.aab
+*.dex
+*.class
+*.jar
+*.hprof
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Standalone M0 toolchain and generated reports/images
+.toolchain/
+.m0-work/
+artifacts/
+
+# IDE and operating system
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Do not commit foreign font sets (including companion files)
+*.gfont
+*.gfont.txt
+
+# Signing keys, credentials, environment/secrets
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+secrets/
+credentials/
+**/secrets.properties
+**/keystore.properties
+**/google-services.json
+**/service-account*.json
+
+# User photographs are private. Only our explicitly synthetic PNGs are allowed.
+user-photos/
+private/
+*.jpg
+*.jpeg
+*.heic
+*.heif
+*.webp
+*.png
+!tools/fixtures/synthetic/**/*.png
+
+# Local caches and temporary downloads
+__pycache__/
+*.pyc
+*.log
+*.zip
+*.tar.gz
