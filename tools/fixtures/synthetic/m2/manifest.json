@@ -1,0 +1,55 @@
+{
+  "provenance": "Original Python analytic camera-ray/plane fixture, no production code used",
+  "synthetic": true,
+  "yawDegrees": 30,
+  "rollDegrees": 6,
+  "referenceWidth": 420,
+  "referenceHeight": 594,
+  "photoWidth": 720,
+  "photoHeight": 840,
+  "quad": [
+    [
+      203.4673541642617,
+      91.54003757538891
+    ],
+    [
+      639.8864296917641,
+      54.99239760445556
+    ],
+    [
+      557.8808919055559,
+      835.2229713669612
+    ],
+    [
+      138.59730188561946,
+      708.7373571188634
+    ]
+  ],
+  "gridColumns": [
+    24,
+    86,
+    148,
+    210,
+    272,
+    334,
+    396
+  ],
+  "gridRows": [
+    56,
+    102,
+    148,
+    194,
+    240,
+    286,
+    332,
+    378,
+    424,
+    470,
+    516,
+    562
+  ],
+  "sha256": {
+    "grid-reference.png": "f760e839fa7d58d7b2364ec929c0fb84a9c0486d4559dac6ef06b8f581871f09",
+    "grid-yaw30-side-light.png": "b3884de82a2dd090c3a9171996b7c26f0d6fea5a4dd0dabd81ec64822e48e04f"
+  }
+}

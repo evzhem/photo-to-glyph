@@ -44,7 +44,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    FoundationScreen()
+                    var demo by remember { mutableStateOf(false) }
+                    if (demo) {
+                        Column {
+                            Button(onClick = { demo = false }) { Text(stringResource(R.string.back_to_preparation)) }
+                            FoundationScreen()
+                        }
+                    } else {
+                        PreparationScreen(onDemo = { demo = true })
+                    }
                 }
             }
         }

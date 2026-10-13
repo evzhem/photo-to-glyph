@@ -14,6 +14,12 @@ data class PipelineParams(
     val benchmarkWarmupRuns: Int = 2,
     val benchmarkMeasuredRuns: Int = 5,
     val processingBudgetMs: Double = 2_000.0,
+    // M2 raster preparation and conservative bright-paper detection.
+    val pageDetectionMaxEdgePx: Int = 480,
+    val pageMinBrightFraction: Double = 0.15,
+    val pageMaxBrightFraction: Double = 0.95,
+    val pageMinQuadFraction: Double = 0.20,
+    val maxPreparedPixels: Int = 1_000_000,
 ) {
     init {
         require(adaptiveWindowSizePx > 0 && adaptiveWindowSizePx % 2 == 1) {
@@ -28,6 +34,11 @@ data class PipelineParams(
         require(svgDecimalPlaces in 0..MAX_USEFUL_DOUBLE_DECIMALS)
         require(benchmarkWarmupRuns >= 0 && benchmarkMeasuredRuns > 0)
         require(processingBudgetMs.isFinite() && processingBudgetMs > 0.0)
+        require(pageDetectionMaxEdgePx > 0 && maxPreparedPixels > 0)
+        require(pageMinBrightFraction.isFinite() && pageMaxBrightFraction.isFinite())
+        require(pageMinBrightFraction > 0.0 && pageMaxBrightFraction < 1.0 && pageMinBrightFraction < pageMaxBrightFraction)
+        require(pageMinQuadFraction.isFinite() && pageMinQuadFraction in 0.0..1.0)
+
     }
 }
 
