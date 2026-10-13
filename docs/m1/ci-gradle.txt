@@ -1,0 +1,315 @@
+Downloading https://services.gradle.org/distributions/gradle-8.11.1-bin.zip
+.............10%.............20%.............30%.............40%.............50%.............60%.............70%.............80%.............90%.............100%
+
+Welcome to Gradle 8.11.1!
+
+Here are the highlights of this release:
+ - Parallel load and store for Configuration Cache
+ - Java compilation errors at the end of the build output
+ - Consolidated report for warnings and deprecations
+
+For more details see https://docs.gradle.org/8.11.1/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :assemble UP-TO-DATE
+> Task :app:detekt
+> Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:loadKtlintReporters
+> Task :app:runKtlintCheckOverAndroidTestDebugSourceSet NO-SOURCE
+> Task :app:ktlintAndroidTestDebugSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverAndroidTestReleaseSourceSet NO-SOURCE
+> Task :app:ktlintAndroidTestReleaseSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverAndroidTestSourceSet NO-SOURCE
+> Task :app:ktlintAndroidTestSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverDebugSourceSet NO-SOURCE
+> Task :app:ktlintDebugSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverKotlinScripts
+> Task :app:ktlintKotlinScriptCheck
+> Task :app:runKtlintCheckOverMainSourceSet
+> Task :app:ktlintMainSourceSetCheck
+> Task :app:runKtlintCheckOverReleaseSourceSet NO-SOURCE
+> Task :app:ktlintReleaseSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverTestDebugSourceSet NO-SOURCE
+> Task :app:ktlintTestDebugSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverTestFixturesDebugSourceSet NO-SOURCE
+> Task :app:ktlintTestFixturesDebugSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverTestFixturesReleaseSourceSet NO-SOURCE
+> Task :app:ktlintTestFixturesReleaseSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverTestFixturesSourceSet NO-SOURCE
+> Task :app:ktlintTestFixturesSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverTestReleaseSourceSet NO-SOURCE
+> Task :app:ktlintTestReleaseSourceSetCheck SKIPPED
+> Task :app:runKtlintCheckOverTestSourceSet NO-SOURCE
+> Task :app:ktlintTestSourceSetCheck SKIPPED
+> Task :core:processResources NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :core:compileKotlin
+> Task :core:compileJava NO-SOURCE
+> Task :core:classes UP-TO-DATE
+> Task :app:checkDebugAarMetadata
+> Task :core:jar
+> Task :app:generateDebugResValues
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:mergeDebugResources
+> Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:javaPreCompileDebug
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:generateDebugAndroidTestResValues
+> Task :app:extractProguardFiles
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:buildKotlinToolingMetadata
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:checkReleaseAarMetadata
+> Task :app:generateReleaseResValues
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:processDebugResources
+> Task :app:mergeReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:parseReleaseLocalResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:processReleaseManifestForPackage
+> Task :app:processReleaseResources
+> Task :app:compileDebugKotlin
+> Task :app:compileReleaseKotlin
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:generateDebugLintReportModel
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:compileDebugUnitTestKotlin NO-SOURCE
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes
+> Task :app:processDebugUnitTestJavaRes NO-SOURCE
+> Task :app:testDebugUnitTest NO-SOURCE
+> Task :app:javaPreCompileRelease
+> Task :app:compileReleaseJavaWithJavac NO-SOURCE
+> Task :app:bundleReleaseClassesToRuntimeJar
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:compileReleaseUnitTestKotlin NO-SOURCE
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileReleaseUnitTest
+> Task :app:compileReleaseUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processReleaseJavaRes
+> Task :app:processReleaseUnitTestJavaRes NO-SOURCE
+> Task :app:testReleaseUnitTest NO-SOURCE
+> Task :app:test UP-TO-DATE
+> Task :cli:detekt
+> Task :cli:loadKtlintReporters
+> Task :cli:runKtlintCheckOverKotlinScripts
+> Task :cli:ktlintKotlinScriptCheck
+> Task :cli:runKtlintCheckOverMainSourceSet
+> Task :cli:ktlintMainSourceSetCheck
+> Task :cli:runKtlintCheckOverTestSourceSet
+> Task :cli:ktlintTestSourceSetCheck
+> Task :cli:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :cli:compileKotlin
+> Task :cli:compileJava NO-SOURCE
+> Task :cli:processResources
+> Task :cli:classes
+> Task :cli:jar
+> Task :cli:compileTestKotlin
+> Task :cli:compileTestJava NO-SOURCE
+> Task :cli:processTestResources NO-SOURCE
+> Task :cli:testClasses UP-TO-DATE
+> Task :app:lintAnalyzeDebug
+
+> Task :cli:test
+
+SandboxApiTest > oversizedInputsReleaseTheCoreForRecovery PASSED
+
+SandboxApiTest > fiveFixturesExecuteActualCore PASSED
+
+SandboxApiTest > uploadedPngExecutesActualCore PASSED
+
+SandboxApiTest > invalidParametersReleaseTheCoreForRecovery PASSED
+
+SandboxApiTest > badImagesReleaseTheCoreForRecovery PASSED
+
+SandboxApiTest > uploadedJpegExecutesActualCore PASSED
+
+SandboxApiTest > routesAndLocalesPreserveAWorkingCore PASSED
+
+SandboxApiTest > parameterChangesReachActualCore PASSED
+
+> Task :cli:check
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///home/runner/work/photo-to-glyph/photo-to-glyph/app/build/reports/lint-results-debug.html
+
+> Task :core:detekt
+> Task :app:lintDebug
+> Task :app:lint
+> Task :app:check
+> Task :core:loadKtlintReporters
+> Task :core:runKtlintCheckOverKotlinScripts
+> Task :core:ktlintKotlinScriptCheck
+> Task :core:runKtlintCheckOverMainSourceSet
+> Task :core:ktlintMainSourceSetCheck
+> Task :core:runKtlintCheckOverTestSourceSet
+> Task :core:ktlintTestSourceSetCheck
+> Task :core:processTestResources NO-SOURCE
+> Task :tools:detekt NO-SOURCE
+> Task :tools:loadKtlintReporters
+> Task :tools:runKtlintCheckOverKotlinScripts
+> Task :tools:ktlintKotlinScriptCheck
+> Task :core:compileTestKotlin
+
+> Task :tools:verifyFixtures
+PASS fixture: tools/fixtures/synthetic/m0/1046.png
+PASS fixture: tools/fixtures/synthetic/m0/1041.png
+PASS fixture: tools/fixtures/synthetic/m0/1074.png
+PASS fixture: tools/fixtures/synthetic/m0/1064.png
+PASS fixture: tools/fixtures/synthetic/m0/1092.png
+PASS fixture: tools/fixtures/synthetic/m0/manifest.json
+PASS fixture: tools/fixtures/synthetic/golden/bar-20-input.png
+PASS fixture: tools/fixtures/synthetic/golden/bar-20-expected.png
+
+> Task :core:compileTestJava NO-SOURCE
+> Task :core:testClasses UP-TO-DATE
+
+> Task :core:test
+
+CoreSourcePolicyTest > actualProductionSourcesHaveNoAndroidImports PASSED
+
+CoreSourcePolicyTest > ignoresNestedCommentsAndStringExamples PASSED
+
+CoreSourcePolicyTest > rejectsQualifiedWildcardAndAliasedAndroidImports PASSED
+
+LegacyCoreSuiteTest > runThe21ExistingProductionCoreChecks STANDARD_OUT
+    PASS GrayscaleTest.bt601 -> toGrayscale
+    PASS GrayscaleTest.alphaOnWhite -> toGrayscale
+    PASS AdaptiveThresholdTest.localMeanAndOffset -> adaptiveThreshold
+    PASS AdaptiveThresholdTest.clippedBorderWindow -> adaptiveThreshold
+    PASS DespeckleTest.strict12pxBoundary -> removeSmallComponents
+    PASS DespeckleTest.eightConnectivity -> removeSmallComponents
+    PASS ZhangSuenTest.golden20px -> zhangSuen
+    PASS ZhangSuenTest.fixedPointAndBorder -> zhangSuen
+    PASS ZhangSuenTest.preserveLoop -> zhangSuen, skeletonToPolylines
+    PASS SkeletonToPolylinesTest.zheAtLeast3Open -> vectorize, skeletonToPolylines
+    PASS SkeletonToPolylinesTest.cornerAndDiagonal -> skeletonToPolylines
+    PASS SkeletonToPolylinesTest.cycleEdgeCoverage -> skeletonToPolylines
+    PASS SkeletonToPolylinesTest.pruneStrictlyBelow2px -> skeletonToPolylines
+    PASS SkeletonToPolylinesTest.dotAndEmpty -> skeletonToPolylines, strokesToSvg, requireStrokeOnlySvg
+    PASS RdpTest.handSpecifiedSimplification -> simplifyRdp
+    PASS RdpTest.zeroEpsilonAndShortPaths -> simplifyRdp
+    PASS SvgNoFillTest.fiveActualExports -> vectorize, strokesToSvg, requireStrokeOnlySvg
+    PASS SvgNoFillTest.rejectCorruptedExport -> strokesToSvg, requireStrokeOnlySvg
+    PASS SvgNoFillTest.rejectClosureAndUseDecimalPoint -> strokesToSvg, requireStrokeOnlySvg
+    PASS PipelineTest.deterministicAndImmutable -> vectorize
+    PASS PipelineTest.blankImage -> vectorize, strokesToSvg, requireStrokeOnlySvg
+    Tests: 21, passed: 21, failed: 0
+
+LegacyCoreSuiteTest > runThe21ExistingProductionCoreChecks PASSED
+
+> Task :core:check
+> Task :tools:check
+> Task :check
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:compressDebugAssets
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeDebugJavaResource
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugNativeLibs
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so.
+
+> Task :app:generateReleaseLintVitalReportModel
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:mergeReleaseNativeLibs
+
+> Task :app:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so.
+
+> Task :app:extractReleaseNativeSymbolTables
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:dexBuilderRelease
+> Task :app:desugarReleaseFileDependencies
+> Task :app:mergeReleaseStartupProfile
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:lintVitalReportRelease SKIPPED
+> Task :app:lintVitalRelease SKIPPED
+> Task :app:mergeReleaseArtProfile
+> Task :app:mergeExtDexRelease
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:compressReleaseAssets
+> Task :app:mergeDexRelease
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:mergeReleaseJavaResource
+> Task :app:optimizeReleaseResources
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :cli:startScripts
+> Task :app:compileReleaseArtProfile
+> Task :cli:distTar
+> Task :cli:distZip
+> Task :cli:assemble
+> Task :cli:build
+> Task :core:assemble
+> Task :core:build
+> Task :tools:assemble UP-TO-DATE
+> Task :tools:build
+
+> Task :cli:smoke
+INPUT: original synthetic 300x300 PNGs, 6 px strokes; not real handwriting
+TIMING: PNG decode + core + SVG serialization/validation; excludes JVM startup/output writes; 2 warmups + 5 measured runs
+char | strokes | closed | graph cycles | split chains | cold ms | median ms | max ms
+Ж | 8 | 0 | 0 | 0 | 532.894 | 25.850 | 532.894
+Б | 3 | 0 | 1 | 1 | 15.480 | 12.258 | 15.480
+в | 3 | 0 | 2 | 0 | 10.528 | 11.412 | 13.493
+Ш | 3 | 0 | 0 | 0 | 8.911 | 8.378 | 9.654
+ф | 5 | 0 | 2 | 0 | 10.176 | 9.074 | 10.176
+PASS smoke: 5/5 nonempty glyphs, zero closed polylines, explicit no-fill strokes, within budget
+Outputs: /home/runner/work/photo-to-glyph/photo-to-glyph/cli/build/smoke/<codepoint>.svg, intermediate PNGs, metrics.csv
+
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+> Task :app:assemble
+> Task :app:build
+> Task :build
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/verification-1791912662080.json
+
+BUILD SUCCESSFUL in 4m 5s
+134 actionable tasks: 134 executed

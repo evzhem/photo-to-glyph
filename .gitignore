@@ -68,3 +68,6 @@ __pycache__/
 *.log
 *.zip
 *.tar.gz
+
+# Original synthetic browser evidence only; never user photographs.
+!docs/m1/sandbox-synthetic.png

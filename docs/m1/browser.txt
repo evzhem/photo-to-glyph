@@ -1,0 +1,8 @@
+PASS Browser.initialSyntheticZhe -> HTTP vectorize, strokesToSvg, requireStrokeOnlySvg; 8 real paths, no fills
+PASS Browser.fiveFixtureSelection -> real vectorize + no-fill SVG; rendered counts equal server results
+PASS Browser.parameterAndSkeletonControls -> PipelineParams, vectorize, simplifyRdp; server-generated skeleton PNG
+PASS Browser.ruEnStrings -> server resources and existing real processing result; no hardcoded translated UI
+PASS Browser.explicitConsentUpload -> real image decode + vectorize; controlled synthetic file only
+PASS Browser.downloadActualSvg -> strokesToSvg output, not a fake .gfont or screenshot
+PASS Browser.mobileAndNoJsErrors -> same real core preview, no horizontal overflow
+Browser checks passed: actual sandbox interactions; no Android device/OCR/gfont claim

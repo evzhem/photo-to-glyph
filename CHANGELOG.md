@@ -4,11 +4,14 @@ All notable changes are documented here. Code and commits are in English; report
 
 ## [Unreleased]
 
-### M1 — 2026-10-13 (in progress)
+### M1 — 2026-10-13
 
 - Add the official checksum-pinned Gradle 8.11.1 wrapper and :core/:app/:cli/:tools build structure, ktlint/detekt and Android 8.0+ Compose foundation.
 - Bridge the existing real-core M0 suite into JUnit and add a production source-policy function with architectural tests for forbidden Android imports.
-- Add GitHub Actions build/test/smoke with actual command output and debug APK artifacts. Verification and the requested diagnostic sandbox are in progress; completion is not claimed.
+- Verify the actual Gradle build/core tests/CLI smoke on GitHub Actions, including an unchanged-source commit (`eaeb99b`); publish complete logs and the generated debug APK. Record the network-blocked local Gradle attempt separately, never as a successful local Android build.
+- Add a live browser diagnostic sandbox backed by the actual core, parameter controls, intermediate PNGs, no-fill SVG download, explicit upload consent, in-memory image processing and bounded inputs; no OCR, font storage or fake .gfont output.
+- Add eight HTTP/integration/recovery test cases shared by JUnit and a clearly labeled standalone runner, plus seven actual browser checks on our own synthetic inputs.
+- Apply mechanical ktlint formatting only to M0 sources; no accepted mathematical behavior or contracts are changed. Keep test provenance and pixel goldens intact.
 
 ### Requirements clarification — 2026-10-13
 
