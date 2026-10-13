@@ -117,7 +117,7 @@ Commits: English, e.g. `M3: add baseline estimation with projection profile`, at
 ## Questions to resolve with the user at the relevant milestone
 
 - `.gfont`: units, font size, service entries, and whether `.gfont.txt` is mandatory (M9).
-- Minimum Android version; proposed API 26 (before Android implementation).
+- Minimum Android version: API 26 (Android 8.0), following the proposal and the user's instruction to continue with M1. M1 uses compile/target SDK 35; release target requirements must be revisited before M10.
 - Distribution: GitHub Releases APK or Google Play (before release work).
 - Ordinary notebook photos without a mandatory grid are now the requested primary workflow (`docs/01-требования-mvp.md`). Resolve its segmentation/recognition approach and the affected original milestone scope before implementation; do not ask the already answered product-direction question again.
 

@@ -1,0 +1,74 @@
+name: Build and verify
+
+on:
+  push:
+    branches: [main, 'arena/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+concurrency:
+  group: photoglyph-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Verify Gradle wrapper checksum
+        run: echo '2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046  gradle/wrapper/gradle-wrapper.jar' | sha256sum --check
+      - name: Build, test the core and smoke the pipeline
+        id: verification
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew --console=plain --no-daemon build :core:test :cli:smoke 2>&1 | tee verification.txt
+      - name: Publish complete verification output
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const text = fs.existsSync('verification.txt') ? fs.readFileSync('verification.txt', 'utf8') : 'Build step did not run.';
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: context.sha,
+              name: 'Verification output',
+              status: 'completed',
+              conclusion: '${{ steps.verification.outcome }}' === 'success' ? 'success' : 'failure',
+              output: {
+                title: 'Actual Gradle build / core tests / CLI smoke',
+                summary: 'Full command output is recorded below; this check does not replace the build job.',
+                text: '```text\n' + text.slice(0, 62000) + '\n```'
+              }
+            });
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '## Verification\n\n```text\n' + text + '\n```\n');
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-evidence
+          path: |
+            verification.txt
+            core/build/reports/tests/
+            cli/build/reports/tests/
+            **/build/reports/detekt/
+            cli/build/smoke/
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        with:
+          name: photoglyph-m1-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

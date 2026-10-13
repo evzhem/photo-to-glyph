@@ -14,5 +14,9 @@ indent_size = 2
 [*.{sh,py}]
 indent_size = 4
 
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+max_line_length = off
+
 [*.md]
 trim_trailing_whitespace = false

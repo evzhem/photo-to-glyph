@@ -1,0 +1,23 @@
+# Keep bug/exception/naming checks active. Pixel algorithms are deliberately
+# iterative and longer than CRUD methods; these limits do not disable detekt.
+complexity:
+  LongMethod:
+    threshold: 200
+  CyclomaticComplexMethod:
+    threshold: 45
+  NestedBlockDepth:
+    threshold: 8
+  LongParameterList:
+    ignoreDataClasses: true
+style:
+  MaxLineLength:
+    active: false # ktlint formatting is configured independently.
+  MagicNumber:
+    ignoreNumbers: ['-1', '0', '1', '2', '4', '6', '8', '255']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+  ReturnCount:
+    max: 6
+  ThrowsCount:
+    max: 6

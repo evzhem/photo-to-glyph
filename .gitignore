@@ -8,6 +8,7 @@ local.properties
 *.dex
 *.class
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.hprof
 captures/
 .externalNativeBuild/
@@ -17,6 +18,7 @@ captures/
 .cache/
 .toolchain/
 .m0-work/
+.m1-work/
 artifacts/
 
 # IDE and operating system

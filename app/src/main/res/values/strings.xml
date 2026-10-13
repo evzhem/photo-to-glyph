@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">PhotoGlyph</string>
+  <string name="milestone_label">M1 · Application foundation</string>
+  <string name="headline">Your handwriting, drawn as strokes</string>
+  <string name="intro">The application is being built. This screen tests the real Kotlin core on an original synthetic letter, not handwriting recognition.</string>
+  <string name="run_demo">Test the core</string>
+  <string name="running_demo">Processing…</string>
+  <string name="demo_result">Synthetic Ж: %1$d strokes, %2$d closed polylines.</string>
+  <string name="demo_failed">The core example could not be processed.</string>
+  <string name="library_title">My alphabets</string>
+  <string name="library_empty">Your sets will appear here when photo input and local storage are implemented.</string>
+  <string name="export_note">Partial sets will be saved separately as .gfont. KDraw will handle missing-character substitution. Export is not implemented in M1.</string>
+</resources>

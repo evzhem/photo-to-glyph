@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">PhotoGlyph</string>
+  <string name="milestone_label">M1 · Каркас приложения</string>
+  <string name="headline">Ваш почерк — настоящими штрихами</string>
+  <string name="intro">Приложение в разработке. Этот экран проверяет настоящее Kotlin-ядро на собственном синтетическом примере, а не распознаёт почерк.</string>
+  <string name="run_demo">Проверить ядро</string>
+  <string name="running_demo">Обрабатываем…</string>
+  <string name="demo_result">Синтетическая Ж: штрихов — %1$d, замкнутых полилиний — %2$d.</string>
+  <string name="demo_failed">Не удалось обработать пример ядром.</string>
+  <string name="library_title">Мои алфавиты</string>
+  <string name="library_empty">Ваши наборы появятся здесь после реализации ввода фотографий и локального хранения.</string>
+  <string name="export_note">Неполные наборы будут сохраняться отдельно в .gfont. Подстановка отсутствующих букв — задача KDraw. Экспорт в M1 ещё не реализован.</string>
+</resources>

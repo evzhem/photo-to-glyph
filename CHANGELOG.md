@@ -4,6 +4,12 @@ All notable changes are documented here. Code and commits are in English; report
 
 ## [Unreleased]
 
+### M1 — 2026-10-13 (in progress)
+
+- Add the official checksum-pinned Gradle 8.11.1 wrapper and :core/:app/:cli/:tools build structure, ktlint/detekt and Android 8.0+ Compose foundation.
+- Bridge the existing real-core M0 suite into JUnit and add a production source-policy function with architectural tests for forbidden Android imports.
+- Add GitHub Actions build/test/smoke with actual command output and debug APK artifacts. Verification and the requested diagnostic sandbox are in progress; completion is not claimed.
+
 ### Requirements clarification — 2026-10-13
 
 - Record the user's notebook-photo, fonts-only workflow and allow independently saved/exported partial alphabets without fabricating missing glyphs.
