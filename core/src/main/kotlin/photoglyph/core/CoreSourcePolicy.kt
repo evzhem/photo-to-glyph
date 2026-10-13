@@ -1,11 +1,5 @@
 package photoglyph.core
 
-/** A forbidden dependency in executable Kotlin source, not a comment/example. */
-data class CoreImportViolation(
-    val importName: String,
-    val lineNumber: Int,
-)
-
 /** Pure source-policy function used by the M1 architectural test on actual core files. */
 fun findForbiddenAndroidImports(source: String): List<CoreImportViolation> {
     val code = maskCommentsAndStrings(source)

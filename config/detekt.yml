@@ -1,6 +1,12 @@
 # Keep bug/exception/naming checks active. Pixel algorithms are deliberately
 # iterative and longer than CRUD methods; these limits do not disable detekt.
 complexity:
+  # Narrow exceptions for accepted, function-oriented M0 algorithms. Do not
+  # rewrite their predicates/early-continue structure just to satisfy heuristics.
+  ComplexCondition:
+    excludes: ['**/SkeletonToPolylines.kt']
+  LoopWithTooManyJumpStatements:
+    excludes: ['**/SkeletonToPolylines.kt', '**/ZhangSuen.kt']
   TooManyFunctions:
     thresholdInFiles: 16 # Small HTTP/codec adapter helpers share one cohesive file.
   LongMethod:
@@ -12,6 +18,8 @@ complexity:
   LongParameterList:
     ignoreDataClasses: true
 naming:
+  MatchingDeclarationName:
+    excludes: ['**/SkeletonToPolylines.kt', '**/ZhangSuen.kt', '**/Vectorize.kt']
   FunctionNaming:
     ignoreAnnotated: ['Composable'] # Compose functions conventionally use PascalCase.
 style:
