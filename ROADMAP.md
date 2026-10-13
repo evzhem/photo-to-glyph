@@ -2,7 +2,13 @@
 
 Source of truth: `AGENTS.md` and `docs/`. Work strictly in order, **one milestone per cycle**: implement → report → wait for the user's “да”. Do not start M1 before the M0 report and approval. If the user says “авто”, continue in order but still report every milestone.
 
-Estimates are person-days, not promises of elapsed time. Total: **31–43 person-days**.
+Estimates are person-days, not promises of elapsed time. Total for the **original plan**: **31–43 person-days**.
+
+## User clarification — 2026-10-13
+
+`docs/01-требования-mvp.md` records the clarified target: ordinary notebook photos, multiple **partial** handwriting sets, local phone storage without an account, and separate `.gfont` exports. KDraw owns cross-set substitution; PhotoGlyph must not merge sets or fabricate missing glyphs. Page composition/printing is not part of the requested fonts-only workflow.
+
+The table below preserves the original plan for traceability; it is **not a confirmed estimate for free-text handwriting recognition**. Reconcile M2/M3 input/segmentation and M6/M7 export/page scope with the user before implementing those stages. Do not silently delete the originally required grid/editor/no-fill features or invent a replacement recognition pipeline or estimate. The grid can remain an additional input method, not a prerequisite for every photo. No next milestone has been authorized by these clarifications.
 
 | Milestone | Scope | Acceptance criteria | Person-days | Status |
 | --- | --- | --- | ---: | --- |
@@ -40,4 +46,4 @@ Remove, in this order if time is constrained:
 
 ## Pending decisions
 
-Proposed Android minimum: API 26; user confirmation required. Confirm GitHub Releases APK vs Google Play and whether grid-free photos are required in MVP. `.gfont` units/font size/service entries/companion text file remain unconfirmed until M9.
+Proposed Android minimum: API 26; user confirmation required. Confirm GitHub Releases APK vs Google Play. Grid-free notebook photos are the clarified primary workflow; their segmentation/recognition approach and revised milestone scope still need agreement, not a repeated question about whether the user wants them. `.gfont` units/font size/service entries/companion text file remain unconfirmed until M9. KDraw-owned substitution is user-reported and needs real-program validation in M9.

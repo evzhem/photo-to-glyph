@@ -6,7 +6,13 @@ This document, `ROADMAP.md` and `docs/` are the source of truth. If a task contr
 
 PhotoGlyph is an Android application that converts photographs of handwritten letters into **centerline strokes**, lets the user repair those strokes, and exports a handwriting set for KDraw / Kvenjoy pen plotters (the customer's device is Хорус 3 Pro). Outline tracing is not an acceptable substitute: it makes a pen draw the outline twice.
 
-Supported repertoire: Cyrillic А–Я / а–я including Ё/ё, Latin letters, digits and basic punctuation. The grid sheet, manual stroke editor and no-fill invariant cannot be cut from the MVP.
+Supported repertoire: Cyrillic А–Я / а–я including Ё/ё, Latin letters, digits and basic punctuation. The grid sheet, manual stroke editor and no-fill invariant cannot be cut from the MVP. A grid feature does not mean the user's requested primary notebook-photo workflow must require a grid.
+
+### User clarifications after M0
+
+See `docs/01-требования-mvp.md`. The requested primary workflow is ordinary handwritten text → separately saved/exported handwriting sets. Sets may be **incomplete**; missing characters do not block saving/export, and must never be fabricated. Store multiple named sets locally on the phone, without an account/cloud library. **KDraw, not PhotoGlyph**, owns cross-set missing-character substitution: export each set separately, with no automatic merging or invented cross-archive metadata. The user described KDraw's behavior; its real-file/device compatibility still needs M9 validation.
+
+Free-text capture changes the original M2/M3 scope, and page composition/printing is not part of the user's requested fonts-only workflow. Reconcile those future milestone scopes before implementing them; do not invent a recognizer, training data or a new schedule. The original grid generator can remain an additional input method. These clarifications do not approve M1 or change accepted production code/model contracts.
 
 1. Tests must execute production functions from `core/src/main/kotlin`, not copies of their logic. Every report names the actual functions executed by each test. Delete fake or placeholder tests.
 2. Before claiming completion, run `./gradlew build :core:test :cli:smoke` and include its complete output. **Before M1**, when Gradle does not exist, run the real standalone M0 compilation/test/smoke command and include its complete output instead. Never fabricate Gradle results.
@@ -113,6 +119,6 @@ Commits: English, e.g. `M3: add baseline estimation with projection profile`, at
 - `.gfont`: units, font size, service entries, and whether `.gfont.txt` is mandatory (M9).
 - Minimum Android version; proposed API 26 (before Android implementation).
 - Distribution: GitHub Releases APK or Google Play (before release work).
-- Is photo-without-grid required for MVP, or is the reliable grid-only workflow sufficient? (before planning that optional feature).
+- Ordinary notebook photos without a mandatory grid are now the requested primary workflow (`docs/01-требования-mvp.md`). Resolve its segmentation/recognition approach and the affected original milestone scope before implementation; do not ask the already answered product-direction question again.
 
 Do not block the authorized M0 synthetic spike on these future decisions.

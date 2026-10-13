@@ -4,6 +4,12 @@ All notable changes are documented here. Code and commits are in English; report
 
 ## [Unreleased]
 
+### Requirements clarification — 2026-10-13
+
+- Record the user's notebook-photo, fonts-only workflow and allow independently saved/exported partial alphabets without fabricating missing glyphs.
+- Confirm local phone storage without accounts/cloud sync, and KDraw-owned cross-set substitution; PhotoGlyph must not merge sets or invent fallback metadata.
+- Flag the original input/segmentation/page milestones and 31–43 person-day estimate for scope reconciliation before implementation. No M1 or recognition/storage/export functionality is claimed or started.
+
 ### M0 — 2026-10-13
 
 - Establish the MIT license, engineering specification, full M0–M10 roadmap (31–43 person-days), README and repository hygiene rules in the first project commit.
