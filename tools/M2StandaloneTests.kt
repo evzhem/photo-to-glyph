@@ -5,6 +5,7 @@ import photoglyph.cli.sandbox.PreparationApiChecks
 
 fun main() {
     val cases = listOf(
+        "transparentResizeHasNoHalo -> resizeToMaxEdge" to M2Checks::transparentResizeHasNoHalo,
         "mirrorIsPixelExactAndNonmutating -> mirrorHorizontal" to M2Checks::mirrorIsPixelExactAndNonmutating,
         "suggestedSizeDoesNotGuessA4 -> suggestedRectifiedSize" to M2Checks::suggestedSizeDoesNotGuessA4,
         "quarterTurnsArePixelExact -> rotateQuarterTurns" to M2Checks::quarterTurnsArePixelExact,

@@ -17,8 +17,8 @@ fun rectifyPerspective(
     val matrix = unitSquareHomography(quad)
     val pixels =
         IntArray(Math.multiplyExact(width, height)) { index ->
-            val source = project(matrix, Vec2((index % width + 0.5) / width, (index / width + 0.5) / height))
-            sampleArgb(image, source.x - 0.5, source.y - 0.5)
+            val source = project(matrix, Vec2((index % width + PIXEL_CENTER_OFFSET) / width, (index / width + PIXEL_CENTER_OFFSET) / height))
+            sampleArgb(image, source.x - PIXEL_CENTER_OFFSET, source.y - PIXEL_CENTER_OFFSET)
         }
     return ArgbImage(width, height, pixels)
 }

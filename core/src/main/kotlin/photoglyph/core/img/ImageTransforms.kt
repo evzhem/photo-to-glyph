@@ -78,7 +78,7 @@ fun resizeToMaxEdge(
     val height = max(1, (image.height * scale).roundToInt())
     val pixels =
         IntArray(Math.multiplyExact(width, height)) { index ->
-            sampleArgb(image, (index % width + 0.5) * image.width / width - 0.5, (index / width + 0.5) * image.height / height - 0.5)
+            sampleArgb(image, (index % width + PIXEL_CENTER_OFFSET) * image.width / width - PIXEL_CENTER_OFFSET, (index / width + PIXEL_CENTER_OFFSET) * image.height / height - PIXEL_CENTER_OFFSET)
         }
     return ArgbImage(width, height, pixels)
 }
@@ -99,13 +99,21 @@ internal fun sampleArgb(
     val fractionY = clippedY - top
     val values = intArrayOf(image[top * image.width + left], image[top * image.width + right], image[bottom * image.width + left], image[bottom * image.width + right])
     val weights = doubleArrayOf((1 - fractionX) * (1 - fractionY), fractionX * (1 - fractionY), (1 - fractionX) * fractionY, fractionX * fractionY)
-    var result = 0
-    for (shift in ARGB_SHIFTS) {
-        val channel = values.indices.sumOf { index -> ((values[index] ushr shift) and CHANNEL_MAX) * weights[index] }
+    if (fractionX == 0.0 && fractionY == 0.0) return values[0]
+    val alpha = values.indices.sumOf { index -> ((values[index] ushr ALPHA_SHIFT) and CHANNEL_MAX) * weights[index] }
+    if (alpha == 0.0) return 0
+    var result = alpha.roundToInt().coerceIn(0, CHANNEL_MAX) shl ALPHA_SHIFT
+    // Premultiplied interpolation avoids dark/colored halos around transparent drawings.
+    for (shift in RGB_SHIFTS) {
+        val channel = values.indices.sumOf { index ->
+            ((values[index] ushr shift) and CHANNEL_MAX).toDouble() * ((values[index] ushr ALPHA_SHIFT) and CHANNEL_MAX) * weights[index]
+        } / alpha
         result = result or (channel.roundToInt().coerceIn(0, CHANNEL_MAX) shl shift)
     }
     return result
 }
 
 private const val QUARTER_TURNS_PER_REVOLUTION = 4
-private val ARGB_SHIFTS = intArrayOf(24, 16, 8, 0)
+private val RGB_SHIFTS = intArrayOf(16, 8, 0)
+private const val ALPHA_SHIFT = 24
+internal const val PIXEL_CENTER_OFFSET = 0.5

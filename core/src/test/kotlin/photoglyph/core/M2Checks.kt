@@ -59,6 +59,11 @@ object M2Checks {
         check(small.width == 1 && small.height == 1 && small[0] == 0xff303030.toInt())
     }
 
+    fun transparentResizeHasNoHalo() {
+        val image = ArgbImage(2, 1, intArrayOf(0xff000000.toInt(), 0x00ffffff))
+        check(resizeToMaxEdge(image, 1)[0] == 0x80000000.toInt())
+    }
+
     fun perspectiveMapsKnownCornersAndCenter() {
         val quad = PageQuad(Vec2(1.0, 2.0), Vec2(7.0, 2.0), Vec2(7.0, 10.0), Vec2(1.0, 10.0))
         val unit = listOf(Vec2(0.0, 0.0), Vec2(1.0, 0.0), Vec2(1.0, 1.0), Vec2(0.0, 1.0))
