@@ -26,6 +26,12 @@ Free-text capture changes the original M2/M3 scope, and page composition/printin
 10. Resolve material ambiguity before coding. Synthetic M0 inputs are explicitly authorized and do not require a request for user photographs.
 11. Do not commit user photos, third-party font sets, signing keys (`.jks`/keystores), credentials or secret files. Generated datasets/build outputs stay ignored; only small, original synthetic fixtures belong in Git.
 
+## Authorized continuation and planned drawing mode
+
+The user authorized continuation after the M1 report and requested a separate **drawing → outlines → download/copy/share** feature (`docs/05-рисунок-по-контуру.md`). M2 now builds shared image input/preparation for ordinary notebook photos and pictures; the printable grid remains an additional input, not a mandatory one. This is not auto-authorization of M3 or later milestones.
+
+Plan the drawing contour/export work separately in M6. It must not replace handwriting centerlines or create fake `.gfont` alphabets. Drawing paths may naturally close, but keep the glyph no-fill/open-polyline validator unchanged; a future drawing export needs its own explicit contracts and tests. SVG/PNG download and SVG-text copy are proposed details, not already implemented capabilities.
+
 ## Architecture
 
 | Area | Responsibility |

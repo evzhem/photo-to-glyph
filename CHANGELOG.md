@@ -4,6 +4,11 @@ All notable changes are documented here. Code and commits are in English; report
 
 ## [Unreleased]
 
+### M2 — 2026-10-13 (in progress)
+
+- Record the requested standalone drawing-outline/download/copy/share feature as planned M6 scope, distinct from handwriting centerlines and gfont sets.
+- Start shared notebook/picture input and preparation, preserving the optional printable grid. No contour/OCR feature or completed M2 is claimed yet.
+
 ### M1 — 2026-10-13
 
 - Add the official checksum-pinned Gradle 8.11.1 wrapper and :core/:app/:cli/:tools build structure, ktlint/detekt and Android 8.0+ Compose foundation.

@@ -71,3 +71,5 @@ __pycache__/
 
 # Original synthetic browser evidence only; never user photographs.
 !docs/m1/sandbox-synthetic.png
+
+.m2-work/
