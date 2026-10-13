@@ -9,6 +9,9 @@ complexity:
     threshold: 8
   LongParameterList:
     ignoreDataClasses: true
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable'] # Compose functions conventionally use PascalCase.
 style:
   MaxLineLength:
     active: false # ktlint formatting is configured independently.
