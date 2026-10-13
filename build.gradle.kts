@@ -16,7 +16,7 @@ allprojects {
     version = "0.1.0-SNAPSHOT"
 }
 
-val ktlintVersion = libs.versions.ktlint.get()
+val ktlintVersion = libs.versions.ktlint.cli.get()
 
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
