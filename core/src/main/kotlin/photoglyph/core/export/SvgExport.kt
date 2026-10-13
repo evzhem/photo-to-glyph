@@ -1,13 +1,13 @@
 package photoglyph.core.export
 
-import java.io.ByteArrayInputStream
-import java.util.Locale
-import javax.xml.XMLConstants
-import javax.xml.parsers.DocumentBuilderFactory
 import org.xml.sax.SAXParseException
 import org.xml.sax.helpers.DefaultHandler
 import photoglyph.core.PipelineParams
 import photoglyph.core.geom.Polyline
+import java.io.ByteArrayInputStream
+import java.util.Locale
+import javax.xml.XMLConstants
+import javax.xml.parsers.DocumentBuilderFactory
 
 /** M0 raster-coordinate SVG (Y down). No fills, outlines, implicit closure or UI text. */
 fun strokesToSvg(
@@ -18,6 +18,7 @@ fun strokesToSvg(
 ): String {
     require(rasterWidth > 0 && rasterHeight > 0)
     require(polylines.none { it.isClosed }) { "Split cyclic chains before M0 SVG export" }
+
     fun coordinate(value: Double): String = String.format(Locale.ROOT, "%.${params.svgDecimalPlaces}f", value)
     return buildString {
         appendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
@@ -60,10 +61,13 @@ fun requireStrokeOnlySvg(svg: String): Int {
     factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "")
     factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "")
     val builder = factory.newDocumentBuilder()
-    builder.setErrorHandler(object : DefaultHandler() {
-        override fun error(exception: SAXParseException) { throw exception }
-        override fun fatalError(exception: SAXParseException) { throw exception }
-    })
+    builder.setErrorHandler(
+        object : DefaultHandler() {
+            override fun error(exception: SAXParseException): Unit = throw exception
+
+            override fun fatalError(exception: SAXParseException): Unit = throw exception
+        },
+    )
     val document = builder.parse(ByteArrayInputStream(svg.toByteArray(Charsets.UTF_8)))
     val root = document.documentElement
     require(root.localName == "svg" && root.namespaceURI == SVG_NAMESPACE)

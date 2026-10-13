@@ -72,11 +72,13 @@ jobs:
           script: |
             const fs = require('fs');
             const text = fs.existsSync('formatting.patch') ? fs.readFileSync('formatting.patch', 'utf8') : '';
-            if (text) {
+            const count = Math.ceil(text.length / 60000);
+            for (let part = 0; part < count; part++) {
               await github.rest.checks.create({
                 owner: context.repo.owner, repo: context.repo.repo, head_sha: context.sha,
-                name: 'Formatting suggestions', status: 'completed', conclusion: 'neutral',
-                output: {title: 'Review-only ktlint formatting patch', summary: 'Original build remains failed; this is not a successful verification of modified sources.', text: '```diff\n' + text.slice(0, 62000) + '\n```'}
+                name: count === 1 ? 'Formatting suggestions' : `Formatting suggestions ${part + 1}/${count}`,
+                status: 'completed', conclusion: 'neutral',
+                output: {title: 'Review-only ktlint formatting patch', summary: `Original build remains failed. Patch part ${part + 1}/${count}, without truncation.`, text: '```diff\n' + text.slice(part * 60000, (part + 1) * 60000) + '\n```'}
               });
             }
       - uses: actions/upload-artifact@v4
@@ -85,6 +87,8 @@ jobs:
           name: verification-evidence
           path: |
             verification.txt
+            formatting.txt
+            formatting.patch
             core/build/reports/tests/
             cli/build/reports/tests/
             **/build/reports/detekt/

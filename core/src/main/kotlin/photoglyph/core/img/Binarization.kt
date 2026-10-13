@@ -4,20 +4,24 @@ import photoglyph.core.PipelineParams
 
 /** BT.601 luma; alpha is composited onto white paper before thresholding. */
 fun toGrayscale(image: ArgbImage): GrayImage {
-    val gray = DoubleArray(image.width * image.height) { index ->
-        val argb = image[index]
-        val alpha = ((argb ushr ALPHA_SHIFT) and CHANNEL_MAX).toDouble() / CHANNEL_MAX
-        val red = (argb ushr RED_SHIFT) and CHANNEL_MAX
-        val green = (argb ushr GREEN_SHIFT) and CHANNEL_MAX
-        val blue = argb and CHANNEL_MAX
-        val luma = BT601_RED * red + BT601_GREEN * green + BT601_BLUE * blue
-        (alpha * luma + (1.0 - alpha) * CHANNEL_MAX).coerceIn(0.0, CHANNEL_MAX.toDouble())
-    }
+    val gray =
+        DoubleArray(image.width * image.height) { index ->
+            val argb = image[index]
+            val alpha = ((argb ushr ALPHA_SHIFT) and CHANNEL_MAX).toDouble() / CHANNEL_MAX
+            val red = (argb ushr RED_SHIFT) and CHANNEL_MAX
+            val green = (argb ushr GREEN_SHIFT) and CHANNEL_MAX
+            val blue = argb and CHANNEL_MAX
+            val luma = BT601_RED * red + BT601_GREEN * green + BT601_BLUE * blue
+            (alpha * luma + (1.0 - alpha) * CHANNEL_MAX).coerceIn(0.0, CHANNEL_MAX.toDouble())
+        }
     return GrayImage(image.width, image.height, gray)
 }
 
 /** Foreground iff value < clipped local mean - offset. O(width * height) integral image. */
-fun adaptiveThreshold(image: GrayImage, params: PipelineParams = PipelineParams()): BinaryGrid {
+fun adaptiveThreshold(
+    image: GrayImage,
+    params: PipelineParams = PipelineParams(),
+): BinaryGrid {
     val width = image.width
     val height = image.height
     val integralWidth = Math.addExact(width, 1)
@@ -38,8 +42,9 @@ fun adaptiveThreshold(image: GrayImage, params: PipelineParams = PipelineParams(
         for (x in 0 until width) {
             val left = (x.toLong() - radius).coerceAtLeast(0).toInt()
             val right = (x.toLong() + radius + 1).coerceAtMost(width.toLong()).toInt()
-            val sum = integral[bottom * integralWidth + right] - integral[top * integralWidth + right] -
-                integral[bottom * integralWidth + left] + integral[top * integralWidth + left]
+            val sum =
+                integral[bottom * integralWidth + right] - integral[top * integralWidth + right] -
+                    integral[bottom * integralWidth + left] + integral[top * integralWidth + left]
             val area = (right - left).toDouble() * (bottom - top)
             output[y * width + x] = image[x, y] < sum / area - params.adaptiveOffset
         }
@@ -48,7 +53,10 @@ fun adaptiveThreshold(image: GrayImage, params: PipelineParams = PipelineParams(
 }
 
 /** Eight-connected components with area strictly less than the parameter are removed. */
-fun removeSmallComponents(input: BinaryGrid, params: PipelineParams = PipelineParams()): BinaryGrid {
+fun removeSmallComponents(
+    input: BinaryGrid,
+    params: PipelineParams = PipelineParams(),
+): BinaryGrid {
     val output = input.copyPixels()
     val visited = BooleanArray(output.size)
     val queue = IntArray(output.size)

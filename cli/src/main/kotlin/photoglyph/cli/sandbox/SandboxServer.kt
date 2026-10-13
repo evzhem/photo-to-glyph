@@ -2,6 +2,12 @@ package photoglyph.cli.sandbox
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
+import photoglyph.core.PipelineParams
+import photoglyph.core.VectorizationResult
+import photoglyph.core.export.requireStrokeOnlySvg
+import photoglyph.core.export.strokesToSvg
+import photoglyph.core.img.ArgbImage
+import photoglyph.core.vectorize
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -21,12 +27,6 @@ import javax.imageio.stream.MemoryCacheImageInputStream
 import javax.imageio.stream.MemoryCacheImageOutputStream
 import javax.xml.XMLConstants
 import javax.xml.parsers.DocumentBuilderFactory
-import photoglyph.core.PipelineParams
-import photoglyph.core.VectorizationResult
-import photoglyph.core.export.requireStrokeOnlySvg
-import photoglyph.core.export.strokesToSvg
-import photoglyph.core.img.ArgbImage
-import photoglyph.core.vectorize
 
 /** Developer diagnostic adapter only; no OCR, font storage or .gfont export. */
 class SandboxServer(
@@ -34,10 +34,14 @@ class SandboxServer(
     port: Int,
     host: String = "0.0.0.0",
 ) : AutoCloseable {
-    private val executor = ThreadPoolExecutor(
-        MIN_HTTP_THREADS, MAX_HTTP_THREADS, THREAD_IDLE_SECONDS, TimeUnit.SECONDS,
-        ArrayBlockingQueue(HTTP_QUEUE_LIMIT),
-    )
+    private val executor =
+        ThreadPoolExecutor(
+            MIN_HTTP_THREADS,
+            MAX_HTTP_THREADS,
+            THREAD_IDLE_SECONDS,
+            TimeUnit.SECONDS,
+            ArrayBlockingQueue(HTTP_QUEUE_LIMIT),
+        )
     private val processing = Semaphore(MAX_CONCURRENT_PROCESSING)
     private val http = HttpServer.create(InetSocketAddress(host, port), HTTP_BACKLOG)
     val port: Int get() = http.address.port
@@ -113,22 +117,23 @@ class SandboxServer(
             require(query.keys.all { it in DIAGNOSTIC_KEYS })
             val params = parameters(query)
             val sample = query["sample"]
-            val bytes = if (sample != null) {
-                if (sample !in FIXTURES) throw SandboxRequestException(HTTP_NOT_FOUND, "not_found")
-                fixture(sample).readBytes()
-            } else {
-                val declared = request.requestHeaders.getFirst("Content-Length")?.toLongOrNull()
-                if (declared != null && declared > MAX_UPLOAD_BYTES) {
-                    // Drain only the bounded prefix before closing. This avoids a TCP reset
-                    // racing the 413 response for near-limit clients; no unbounded buffer.
-                    request.requestBody.readNBytes(MAX_UPLOAD_BYTES + 1)
-                    throw SandboxRequestException(HTTP_TOO_LARGE, "too_large")
+            val bytes =
+                if (sample != null) {
+                    if (sample !in FIXTURES) throw SandboxRequestException(HTTP_NOT_FOUND, "not_found")
+                    fixture(sample).readBytes()
+                } else {
+                    val declared = request.requestHeaders.getFirst("Content-Length")?.toLongOrNull()
+                    if (declared != null && declared > MAX_UPLOAD_BYTES) {
+                        // Drain only the bounded prefix before closing. This avoids a TCP reset
+                        // racing the 413 response for near-limit clients; no unbounded buffer.
+                        request.requestBody.readNBytes(MAX_UPLOAD_BYTES + 1)
+                        throw SandboxRequestException(HTTP_TOO_LARGE, "too_large")
+                    }
+                    val body = request.requestBody.readNBytes(MAX_UPLOAD_BYTES + 1)
+                    if (body.size > MAX_UPLOAD_BYTES) throw SandboxRequestException(HTTP_TOO_LARGE, "too_large")
+                    if (body.isEmpty()) throw SandboxRequestException(HTTP_BAD_REQUEST, "empty_image")
+                    body
                 }
-                val body = request.requestBody.readNBytes(MAX_UPLOAD_BYTES + 1)
-                if (body.size > MAX_UPLOAD_BYTES) throw SandboxRequestException(HTTP_TOO_LARGE, "too_large")
-                if (body.isEmpty()) throw SandboxRequestException(HTTP_BAD_REQUEST, "empty_image")
-                body
-            }
             val image = decodeBoundedImage(bytes)
             val start = System.nanoTime()
             val result = vectorize(image, params)
@@ -152,15 +157,19 @@ class SandboxServer(
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "")
         val input = checkNotNull(javaClass.getResourceAsStream("/sandbox/$language/strings.xml"))
         val entries = input.use { factory.newDocumentBuilder().parse(it).getElementsByTagName("string") }
-        val strings = (0 until entries.length).joinToString(",") { index ->
-            val element = entries.item(index) as org.w3c.dom.Element
-            "${jsonString(element.getAttribute("name"))}:${jsonString(element.textContent)}"
-        }
+        val strings =
+            (0 until entries.length).joinToString(",") { index ->
+                val element = entries.item(index) as org.w3c.dom.Element
+                "${jsonString(element.getAttribute("name"))}:${jsonString(element.textContent)}"
+            }
         return "{\"strings\":{$strings},\"maxUploadBytes\":$MAX_UPLOAD_BYTES,\"maxImagePixels\":$MAX_IMAGE_PIXELS,\"defaults\":${parametersJson(params)}}"
     }
 }
 
-fun runSandbox(projectRoot: File, port: Int) {
+fun runSandbox(
+    projectRoot: File,
+    port: Int,
+) {
     val server = SandboxServer(projectRoot, port)
     Runtime.getRuntime().addShutdownHook(Thread { server.close() })
     server.start()
@@ -169,7 +178,10 @@ fun runSandbox(projectRoot: File, port: Int) {
     CountDownLatch(1).await()
 }
 
-private class SandboxRequestException(val status: Int, val code: String) : RuntimeException(code)
+private class SandboxRequestException(
+    val status: Int,
+    val code: String,
+) : RuntimeException(code)
 
 private fun parameters(query: Map<String, String>): PipelineParams {
     val defaults = PipelineParams()
@@ -184,8 +196,11 @@ private fun parameters(query: Map<String, String>): PipelineParams {
     require(rdp.isFinite() && rdp in 0.0..MAX_RDP)
     require(pruning in 0..MAX_PRUNING_PASSES)
     return defaults.copy(
-        adaptiveWindowSizePx = window, adaptiveOffset = offset, minComponentAreaPx = minArea,
-        rdpEpsilonPx = rdp, pruningIterations = pruning,
+        adaptiveWindowSizePx = window,
+        adaptiveOffset = offset,
+        minComponentAreaPx = minArea,
+        rdpEpsilonPx = rdp,
+        pruningIterations = pruning,
     )
 }
 
@@ -216,7 +231,13 @@ private fun decodeBoundedImage(bytes: ByteArray): ArgbImage {
     }
 }
 
-private fun diagnosticJson(result: VectorizationResult, params: PipelineParams, svg: String, coreMs: Double, synthetic: Boolean): String {
+private fun diagnosticJson(
+    result: VectorizationResult,
+    params: PipelineParams,
+    svg: String,
+    coreMs: Double,
+    synthetic: Boolean,
+): String {
     val encoder = Base64.getEncoder()
     val width = result.cleaned.width
     val height = result.cleaned.height
@@ -236,7 +257,11 @@ private fun diagnosticJson(result: VectorizationResult, params: PipelineParams, 
         "\"skeletonBase64\":${jsonString(encoder.encodeToString(skeleton))}}"
 }
 
-private fun png(width: Int, height: Int, level: (Int, Int) -> Int): ByteArray {
+private fun png(
+    width: Int,
+    height: Int,
+    level: (Int, Int) -> Int,
+): ByteArray {
     val bitmap = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
     for (y in 0 until height) {
         for (x in 0 until width) {
@@ -271,35 +296,48 @@ private fun query(request: HttpExchange): Map<String, String> {
     return values
 }
 
-private fun parametersJson(params: PipelineParams): String =
-    "{\"window\":${params.adaptiveWindowSizePx},\"offset\":${params.adaptiveOffset},\"minArea\":${params.minComponentAreaPx},\"rdp\":${params.rdpEpsilonPx},\"pruning\":${params.pruningIterations}}"
+private fun parametersJson(params: PipelineParams): String = "{\"window\":${params.adaptiveWindowSizePx},\"offset\":${params.adaptiveOffset},\"minArea\":${params.minComponentAreaPx},\"rdp\":${params.rdpEpsilonPx},\"pruning\":${params.pruningIterations}}"
 
-private fun requireMethod(request: HttpExchange, method: String) {
+private fun requireMethod(
+    request: HttpExchange,
+    method: String,
+) {
     if (request.requestMethod != method) {
         request.responseHeaders.set("Allow", method)
         throw SandboxRequestException(HTTP_METHOD_NOT_ALLOWED, "method_not_allowed")
     }
 }
 
-private fun jsonString(value: String): String = buildString {
-    append('"')
-    for (character in value) {
-        when (character) {
-            '"' -> append("\\\"")
-            '\\' -> append("\\\\")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            else -> if (character.code < SPACE_CODE) append(String.format(Locale.ROOT, "\\u%04x", character.code)) else append(character)
+private fun jsonString(value: String): String =
+    buildString {
+        append('"')
+        for (character in value) {
+            when (character) {
+                '"' -> append("\\\"")
+                '\\' -> append("\\\\")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                else -> if (character.code < SPACE_CODE) append(String.format(Locale.ROOT, "\\u%04x", character.code)) else append(character)
+            }
         }
+        append('"')
     }
-    append('"')
-}
 
 private fun errorJson(code: String): String = "{\"error\":${jsonString(code)}}"
-private fun respondText(request: HttpExchange, mime: String, text: String) = respond(request, HTTP_OK, mime, text.toByteArray(StandardCharsets.UTF_8))
 
-private fun respond(request: HttpExchange, status: Int, mime: String, bytes: ByteArray) {
+private fun respondText(
+    request: HttpExchange,
+    mime: String,
+    text: String,
+) = respond(request, HTTP_OK, mime, text.toByteArray(StandardCharsets.UTF_8))
+
+private fun respond(
+    request: HttpExchange,
+    status: Int,
+    mime: String,
+    bytes: ByteArray,
+) {
     request.responseHeaders.set("Content-Type", if (mime.startsWith("image/")) mime else "$mime; charset=utf-8")
     request.responseHeaders.set("Cache-Control", "no-store")
     request.responseHeaders.set("X-Content-Type-Options", "nosniff")
@@ -313,12 +351,13 @@ private val FIXTURES = setOf("1046", "1041", "1074", "1064", "1092")
 private val LANGUAGES = setOf("ru", "en")
 private val IMAGE_FORMATS = setOf("png", "jpeg", "jpg")
 private val DIAGNOSTIC_KEYS = setOf("sample", "window", "offset", "minArea", "rdp", "pruning")
-private val STATIC_FILES = mapOf(
-    "/" to ("index.html" to "text/html"),
-    "/index.html" to ("index.html" to "text/html"),
-    "/app.css" to ("app.css" to "text/css"),
-    "/app.js" to ("app.js" to "application/javascript"),
-)
+private val STATIC_FILES =
+    mapOf(
+        "/" to ("index.html" to "text/html"),
+        "/index.html" to ("index.html" to "text/html"),
+        "/app.css" to ("app.css" to "text/css"),
+        "/app.js" to ("app.js" to "application/javascript"),
+    )
 
 // Adapter safety limits, not algorithm defaults. All algorithm tuning is PipelineParams.
 private const val MAX_UPLOAD_BYTES = 5 * 1024 * 1024

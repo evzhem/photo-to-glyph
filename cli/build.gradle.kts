@@ -28,7 +28,10 @@ tasks.register<JavaExec>("smoke") {
     args(
         "smoke",
         rootProject.file("tools/fixtures/synthetic/m0").absolutePath,
-        layout.buildDirectory.dir("smoke").get().asFile.absolutePath,
+        layout.buildDirectory
+            .dir("smoke")
+            .get()
+            .asFile.absolutePath,
     )
     jvmArgs("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-Dstderr.encoding=UTF-8")
 }

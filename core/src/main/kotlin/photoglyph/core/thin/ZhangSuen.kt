@@ -3,7 +3,10 @@ package photoglyph.core.thin
 import photoglyph.core.img.BinaryGrid
 
 /** Immutable skeleton plus the number of complete two-pass rounds performed. */
-data class SkeletonPixels(val grid: BinaryGrid, val iterations: Int)
+data class SkeletonPixels(
+    val grid: BinaryGrid,
+    val iterations: Int,
+)
 
 /** Zhang-Suen's two subiterations. Deletions are simultaneous within each subiteration. */
 fun zhangSuen(input: BinaryGrid): SkeletonPixels {
@@ -13,8 +16,11 @@ fun zhangSuen(input: BinaryGrid): SkeletonPixels {
     if (pixels.none { it }) return SkeletonPixels(input, 0)
     val deletions = IntArray(pixels.size)
     var rounds = 0
-    fun at(x: Int, y: Int): Boolean =
-        x >= 0 && y >= 0 && x < width && y < height && pixels[y * width + x]
+
+    fun at(
+        x: Int,
+        y: Int,
+    ): Boolean = x >= 0 && y >= 0 && x < width && y < height && pixels[y * width + x]
 
     fun subiteration(firstPass: Boolean): Int {
         var count = 0
@@ -23,10 +29,17 @@ fun zhangSuen(input: BinaryGrid): SkeletonPixels {
                 val index = y * width + x
                 if (!pixels[index]) continue
                 // P2..P9 clockwise: N, NE, E, SE, S, SW, W, NW.
-                val neighbours = booleanArrayOf(
-                    at(x, y - 1), at(x + 1, y - 1), at(x + 1, y), at(x + 1, y + 1),
-                    at(x, y + 1), at(x - 1, y + 1), at(x - 1, y), at(x - 1, y - 1),
-                )
+                val neighbours =
+                    booleanArrayOf(
+                        at(x, y - 1),
+                        at(x + 1, y - 1),
+                        at(x + 1, y),
+                        at(x + 1, y + 1),
+                        at(x, y + 1),
+                        at(x - 1, y + 1),
+                        at(x - 1, y),
+                        at(x - 1, y - 1),
+                    )
                 val occupied = neighbours.count { it }
                 if (occupied !in MIN_NEIGHBOURS..MAX_NEIGHBOURS) continue
                 var transitions = 0
@@ -38,11 +51,12 @@ fun zhangSuen(input: BinaryGrid): SkeletonPixels {
                 val east = neighbours[2]
                 val south = neighbours[4]
                 val west = neighbours[6]
-                val protected = if (firstPass) {
-                    (north && east && south) || (east && south && west)
-                } else {
-                    (north && east && west) || (north && south && west)
-                }
+                val protected =
+                    if (firstPass) {
+                        (north && east && south) || (east && south && west)
+                    } else {
+                        (north && east && west) || (north && south && west)
+                    }
                 if (!protected) deletions[count++] = index
             }
         }

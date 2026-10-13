@@ -5,14 +5,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -73,18 +73,19 @@ private fun FoundationScreen() {
                     busy = true
                     failed = false
                     try {
-                        result = withContext(Dispatchers.Default) {
-                            context.assets.open(DEMO_ASSET).use { stream ->
-                                val bitmap = checkNotNull(BitmapFactory.decodeStream(stream))
-                                try {
-                                    val pixels = IntArray(bitmap.width * bitmap.height)
-                                    bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-                                    vectorize(ArgbImage(bitmap.width, bitmap.height, pixels))
-                                } finally {
-                                    bitmap.recycle()
+                        result =
+                            withContext(Dispatchers.Default) {
+                                context.assets.open(DEMO_ASSET).use { stream ->
+                                    val bitmap = checkNotNull(BitmapFactory.decodeStream(stream))
+                                    try {
+                                        val pixels = IntArray(bitmap.width * bitmap.height)
+                                        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+                                        vectorize(ArgbImage(bitmap.width, bitmap.height, pixels))
+                                    } finally {
+                                        bitmap.recycle()
+                                    }
                                 }
                             }
-                        }
                     } catch (_: IllegalStateException) {
                         failed = true
                     } catch (_: java.io.IOException) {

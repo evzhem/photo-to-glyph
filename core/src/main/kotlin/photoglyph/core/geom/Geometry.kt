@@ -3,7 +3,10 @@ package photoglyph.core.geom
 import kotlin.math.hypot
 
 /** Coordinates are doubles. Image stages use Y down; normalized glyphs will use Y up. */
-data class Vec2(val x: Double, val y: Double) {
+data class Vec2(
+    val x: Double,
+    val y: Double,
+) {
     init {
         require(x.isFinite() && y.isFinite()) { "Coordinates must be finite" }
     }
@@ -12,7 +15,9 @@ data class Vec2(val x: Double, val y: Double) {
 }
 
 /** A one-point path represents an isolated pen dot, not a closed contour. */
-data class Polyline(val points: List<Vec2>) {
+data class Polyline(
+    val points: List<Vec2>,
+) {
     init {
         require(points.isNotEmpty()) { "A path needs at least one point" }
     }
@@ -21,7 +26,10 @@ data class Polyline(val points: List<Vec2>) {
 }
 
 /** Iterative Ramer-Douglas-Peucker: no recursion depth depends on input length. */
-fun simplifyRdp(path: Polyline, epsilonPx: Double): Polyline {
+fun simplifyRdp(
+    path: Polyline,
+    epsilonPx: Double,
+): Polyline {
     require(epsilonPx.isFinite() && epsilonPx >= 0.0)
     val points = path.points
     if (points.size <= 2) return path
@@ -51,15 +59,20 @@ fun simplifyRdp(path: Polyline, epsilonPx: Double): Polyline {
     return Polyline(points.filterIndexed { index, _ -> keep[index] })
 }
 
-private fun distanceSquaredToSegment(point: Vec2, start: Vec2, end: Vec2): Double {
+private fun distanceSquaredToSegment(
+    point: Vec2,
+    start: Vec2,
+    end: Vec2,
+): Double {
     val dx = end.x - start.x
     val dy = end.y - start.y
     val lengthSquared = dx * dx + dy * dy
-    val fraction = if (lengthSquared == 0.0) {
-        0.0
-    } else {
-        (((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared).coerceIn(0.0, 1.0)
-    }
+    val fraction =
+        if (lengthSquared == 0.0) {
+            0.0
+        } else {
+            (((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared).coerceIn(0.0, 1.0)
+        }
     val errorX = point.x - start.x - fraction * dx
     val errorY = point.y - start.y - fraction * dy
     return errorX * errorX + errorY * errorY

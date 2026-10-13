@@ -1,10 +1,5 @@
 package photoglyph.cli
 
-import java.awt.image.BufferedImage
-import java.io.File
-import java.util.Locale
-import javax.imageio.ImageIO
-import kotlin.math.roundToInt
 import photoglyph.cli.sandbox.runSandbox
 import photoglyph.core.PipelineParams
 import photoglyph.core.VectorizationResult
@@ -14,6 +9,11 @@ import photoglyph.core.img.ArgbImage
 import photoglyph.core.img.BinaryGrid
 import photoglyph.core.img.GrayImage
 import photoglyph.core.vectorize
+import java.awt.image.BufferedImage
+import java.io.File
+import java.util.Locale
+import javax.imageio.ImageIO
+import kotlin.math.roundToInt
 
 fun main(args: Array<String>) {
     when (args.firstOrNull()) {
@@ -42,10 +42,17 @@ fun main(args: Array<String>) {
     }
 }
 
-private data class Processed(val result: VectorizationResult, val svg: String, val elapsedMs: Double)
+private data class Processed(
+    val result: VectorizationResult,
+    val svg: String,
+    val elapsedMs: Double,
+)
 
 /** I/O/timing adapter. The timed path includes PNG decode, core, SVG serialization/validation, not disk writes. */
-private fun process(file: File, params: PipelineParams): Processed {
+private fun process(
+    file: File,
+    params: PipelineParams,
+): Processed {
     val start = System.nanoTime()
     val image = readImage(file)
     val result = vectorize(image, params)
@@ -55,14 +62,18 @@ private fun process(file: File, params: PipelineParams): Processed {
     return Processed(result, svg, elapsedMs)
 }
 
-private fun smoke(fixtures: File, output: File) {
+private fun smoke(
+    fixtures: File,
+    output: File,
+) {
     val params = PipelineParams()
     check(output.isDirectory || output.mkdirs()) { "Cannot create output directory" }
-    val csv = StringBuilder(
-        "char,codepoint,strokes,closed_polylines,graph_cycle_rank,split_closed_chains,graph_components," +
-            "source_pixels,cleaned_pixels,skeleton_pixels,graph_nodes,graph_edges,pruned_edges," +
-            "corner_diagonals,rdp_points,raw_points,cold_ms,median_ms,max_ms\n",
-    )
+    val csv =
+        StringBuilder(
+            "char,codepoint,strokes,closed_polylines,graph_cycle_rank,split_closed_chains,graph_components," +
+                "source_pixels,cleaned_pixels,skeleton_pixels,graph_nodes,graph_edges,pruned_edges," +
+                "corner_diagonals,rdp_points,raw_points,cold_ms,median_ms,max_ms\n",
+        )
     println("INPUT: original synthetic 300x300 PNGs, 6 px strokes; not real handwriting")
     println(
         "TIMING: PNG decode + core + SVG serialization/validation; excludes JVM startup/output writes; " +
@@ -90,14 +101,28 @@ private fun smoke(fixtures: File, output: File) {
         writeBinary(File(output, "$codePoint-threshold.png"), result.thresholded)
         writeBinary(File(output, "$codePoint-binary.png"), result.cleaned)
         writeBinary(File(output, "$codePoint-skeleton.png"), result.skeleton.grid)
-        val row = listOf(
-            char, codePoint, strokes.polylines.size, closed, strokes.graphCycleRank,
-            strokes.splitClosedChains, strokes.graphComponents, result.thresholded.foregroundCount,
-            result.cleaned.foregroundCount, result.skeleton.grid.foregroundCount, strokes.graphNodes,
-            strokes.graphEdges, strokes.prunedEdges, strokes.suppressedCornerDiagonals,
-            strokes.polylines.sumOf { it.points.size }, strokes.rawPolylines.sumOf { it.points.size },
-            decimal(cold.elapsedMs), decimal(median), decimal(max),
-        )
+        val row =
+            listOf(
+                char,
+                codePoint,
+                strokes.polylines.size,
+                closed,
+                strokes.graphCycleRank,
+                strokes.splitClosedChains,
+                strokes.graphComponents,
+                result.thresholded.foregroundCount,
+                result.cleaned.foregroundCount,
+                result.skeleton.grid.foregroundCount,
+                strokes.graphNodes,
+                strokes.graphEdges,
+                strokes.prunedEdges,
+                strokes.suppressedCornerDiagonals,
+                strokes.polylines.sumOf { it.points.size },
+                strokes.rawPolylines.sumOf { it.points.size },
+                decimal(cold.elapsedMs),
+                decimal(median),
+                decimal(max),
+            )
         csv.appendLine(row.joinToString(","))
         println(
             "$char | ${strokes.polylines.size} | $closed | ${strokes.graphCycleRank} | " +
@@ -116,7 +141,10 @@ private fun readImage(file: File): ArgbImage {
     return ArgbImage(bitmap.width, bitmap.height, pixels)
 }
 
-private fun writeGray(file: File, image: GrayImage) {
+private fun writeGray(
+    file: File,
+    image: GrayImage,
+) {
     val bitmap = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_RGB)
     for (y in 0 until image.height) {
         for (x in 0 until image.width) {
@@ -127,7 +155,10 @@ private fun writeGray(file: File, image: GrayImage) {
     check(ImageIO.write(bitmap, "png", file))
 }
 
-private fun writeBinary(file: File, image: BinaryGrid) {
+private fun writeBinary(
+    file: File,
+    image: BinaryGrid,
+) {
     val bitmap = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_RGB)
     for (y in 0 until image.height) {
         for (x in 0 until image.width) bitmap.setRGB(x, y, if (image[x, y]) BLACK_RGB else WHITE_RGB)
@@ -136,6 +167,7 @@ private fun writeBinary(file: File, image: BinaryGrid) {
 }
 
 private fun decimal(value: Double): String = String.format(Locale.ROOT, "%.3f", value)
+
 private const val NANOS_PER_MILLISECOND = 1_000_000.0
 private const val CHANNEL_MAX = 255
 private const val RED_SHIFT = 16

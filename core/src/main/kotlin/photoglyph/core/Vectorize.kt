@@ -21,7 +21,10 @@ data class VectorizationResult(
 )
 
 /** Pure M0 spike: no perspective/deskew, smoothing, normalization or stroke-order recovery. */
-fun vectorize(image: ArgbImage, params: PipelineParams = PipelineParams()): VectorizationResult {
+fun vectorize(
+    image: ArgbImage,
+    params: PipelineParams = PipelineParams(),
+): VectorizationResult {
     val grayscale = toGrayscale(image)
     val thresholded = adaptiveThreshold(grayscale, params)
     val cleaned = removeSmallComponents(thresholded, params)

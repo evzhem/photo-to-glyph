@@ -55,10 +55,12 @@ fun skeletonToPolylines(
             adjacency.getValue(neighbour).add(index)
         }
     }
-    fun point(index: Int): Vec2 = Vec2(
-        index % grid.width + PIXEL_CENTER_OFFSET,
-        index / grid.width + PIXEL_CENTER_OFFSET,
-    )
+
+    fun point(index: Int): Vec2 =
+        Vec2(
+            index % grid.width + PIXEL_CENTER_OFFSET,
+            index / grid.width + PIXEL_CENTER_OFFSET,
+        )
     val initialEdgeCount = edgeCount(adjacency)
     repeat(params.pruningIterations) {
         val remove = linkedSetOf<Pair<Int, Int>>()
@@ -94,7 +96,10 @@ fun skeletonToPolylines(
     val visited = hashSetOf<Long>()
     val chains = mutableListOf<List<Int>>()
 
-    fun walk(start: Int, neighbour: Int): List<Int> {
+    fun walk(
+        start: Int,
+        neighbour: Int,
+    ): List<Int> {
         val chain = mutableListOf(start, neighbour)
         visited.add(edgeKey(start, neighbour))
         var previous = start
@@ -169,8 +174,10 @@ private fun componentCount(adjacency: Map<Int, Set<Int>>): Int {
     return count
 }
 
-private fun edgeKey(first: Int, second: Int): Long =
-    (minOf(first, second).toLong() shl INT_BITS) or maxOf(first, second).toLong()
+private fun edgeKey(
+    first: Int,
+    second: Int,
+): Long = (minOf(first, second).toLong() shl INT_BITS) or maxOf(first, second).toLong()
 
 private const val INT_BITS = 32
 private const val PIXEL_CENTER_OFFSET = 0.5
