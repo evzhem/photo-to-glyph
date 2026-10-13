@@ -27,7 +27,9 @@ import javax.imageio.stream.MemoryCacheImageInputStream
 import javax.imageio.stream.MemoryCacheImageOutputStream
 
 /** Independent M2 routes. Does not change accepted M1 diagnostic/glyph behavior. */
-internal class PreparationAdapter(private val root: File) {
+internal class PreparationAdapter(
+    private val root: File,
+) {
     private val gate = Semaphore(1)
 
     fun handle(request: HttpExchange): Boolean {
@@ -35,10 +37,16 @@ internal class PreparationAdapter(private val root: File) {
         if (path !in ROUTES) return false
         try {
             if (path == "/api/prepare") {
-                if (request.requestMethod != "POST") { send(request, METHOD_NOT_ALLOWED, "application/json", "{\"error\":\"method_not_allowed\"}".toByteArray()); return true }
+                if (request.requestMethod != "POST") {
+                    send(request, METHOD_NOT_ALLOWED, "application/json", "{\"error\":\"method_not_allowed\"}".toByteArray())
+                    return true
+                }
                 process(request)
             } else {
-                if (request.requestMethod != "GET") { send(request, METHOD_NOT_ALLOWED, "application/json", "{\"error\":\"method_not_allowed\"}".toByteArray()); return true }
+                if (request.requestMethod != "GET") {
+                    send(request, METHOD_NOT_ALLOWED, "application/json", "{\"error\":\"method_not_allowed\"}".toByteArray())
+                    return true
+                }
                 when (path) {
                     "/prepare" -> resource(request, "prepare.html", "text/html")
                     "/prepare.js" -> resource(request, "prepare.js", "application/javascript")
@@ -57,7 +65,11 @@ internal class PreparationAdapter(private val root: File) {
         return true
     }
 
-    private fun resource(request: HttpExchange, name: String, mime: String) {
+    private fun resource(
+        request: HttpExchange,
+        name: String,
+        mime: String,
+    ) {
         val bytes = checkNotNull(javaClass.getResourceAsStream("/sandbox/$name")).use { it.readBytes() }
         send(request, OK, mime, bytes)
     }
@@ -75,15 +87,19 @@ internal class PreparationAdapter(private val root: File) {
             require(operation in OPERATIONS)
             if (operation == "rotate") image = rotateQuarterTurns(image, 1)
             if (operation == "crop") {
-                val left = checkNotNull(query["left"]).toInt(); val top = checkNotNull(query["top"]).toInt()
+                val left = checkNotNull(query["left"]).toInt()
+                val top = checkNotNull(query["top"]).toInt()
                 image = cropImage(image, left, top, checkNotNull(query["width"]).toInt(), checkNotNull(query["height"]).toInt())
             }
             val detected = detectPageQuad(image)
             val supplied = query["quad"]?.split(',')?.map { it.toDouble() }
-            val quad = if (supplied != null) {
-                require(supplied.size == QUAD_NUMBERS && supplied.all { it.isFinite() })
-                PageQuad(Vec2(supplied[0], supplied[1]), Vec2(supplied[2], supplied[3]), Vec2(supplied[4], supplied[5]), Vec2(supplied[6], supplied[7])).also { it.requireInside(image) }
-            } else detected ?: PageQuad.fullImage(image)
+            val quad =
+                if (supplied != null) {
+                    require(supplied.size == QUAD_NUMBERS && supplied.all { it.isFinite() })
+                    supplied.chunked(2).map { Vec2(it[0], it[1]) }.let { points -> PageQuad(points[0], points[1], points[2], points[BOTTOM_LEFT_INDEX]) }.also { it.requireInside(image) }
+                } else {
+                    detected ?: PageQuad.fullImage(image)
+                }
             val params = PipelineParams(adaptiveWindowSizePx = query["window"]?.toInt() ?: PipelineParams().adaptiveWindowSizePx, adaptiveOffset = query["offset"]?.toDouble() ?: PipelineParams().adaptiveOffset)
             require(params.adaptiveWindowSizePx <= MAX_WINDOW && params.adaptiveOffset in 0.0..MAX_OFFSET)
             val dimensions = if (query["a4"] == "true") GRID_WIDTH to GRID_HEIGHT else suggestedRectifiedSize(quad, OUTPUT_MAX_EDGE)
@@ -97,11 +113,16 @@ internal class PreparationAdapter(private val root: File) {
             val rectified = prepared?.let { encoder.encodeToString(encodeArgb(it.rectified)) }
             val body = "{\"width\":${image.width},\"height\":${image.height},\"detected\":${detected != null},\"quad\":$corners,\"sourceBase64\":\"$source\",\"preparedWidth\":${prepared?.binary?.width ?: 0},\"preparedHeight\":${prepared?.binary?.height ?: 0},\"prepareMs\":${String.format(Locale.ROOT, "%.3f", elapsed)},\"binaryBase64\":${binary?.let { "\"$it\"" } ?: "null"},\"rectifiedBase64\":${rectified?.let { "\"$it\"" } ?: "null"},\"ocr\":false,\"outlines\":false}"
             send(request, OK, "application/json", body.toByteArray(StandardCharsets.UTF_8))
-        } finally { gate.release() }
+        } finally {
+            gate.release()
+        }
     }
 }
 
-private class PreparationException(val status: Int, val code: String) : RuntimeException(code)
+private class PreparationException(
+    val status: Int,
+    val code: String,
+) : RuntimeException(code)
 
 private fun preparationQuery(request: HttpExchange): Map<String, String> {
     val raw = request.requestURI.rawQuery ?: return emptyMap()
@@ -123,30 +144,50 @@ private fun decode(bytes: ByteArray): ArgbImage {
         try {
             if (reader.formatName.lowercase(Locale.ROOT) !in setOf("png", "jpeg", "jpg")) throw PreparationException(UNSUPPORTED, "unsupported_image")
             reader.input = input
-            val width = reader.getWidth(0); val height = reader.getHeight(0)
+            val width = reader.getWidth(0)
+            val height = reader.getHeight(0)
             if (width <= 0 || height <= 0 || width.toLong() * height > MAX_PIXELS) throw PreparationException(TOO_LARGE, "too_large")
             val bitmap = reader.read(0)
-            try { return ArgbImage(width, height, bitmap.getRGB(0, 0, width, height, null, 0, width)) }
-            finally { bitmap.flush() }
-        } finally { reader.dispose() }
+            try {
+                return ArgbImage(width, height, bitmap.getRGB(0, 0, width, height, null, 0, width))
+            } finally {
+                bitmap.flush()
+            }
+        } finally {
+            reader.dispose()
+        }
     }
 }
 
 private fun encodeArgb(image: ArgbImage): ByteArray = encodePng(image.width, image.height) { x, y -> image[y * image.width + x] }
 
-private fun encodePng(width: Int, height: Int, pixel: (Int, Int) -> Int): ByteArray {
+private fun encodePng(
+    width: Int,
+    height: Int,
+    pixel: (Int, Int) -> Int,
+): ByteArray {
     val bitmap = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
     for (y in 0 until height) for (x in 0 until width) bitmap.setRGB(x, y, pixel(x, y))
     val bytes = ByteArrayOutputStream()
     MemoryCacheImageOutputStream(bytes).use { output ->
         val writer = ImageIO.getImageWritersByFormatName("png").next()
-        try { writer.output = output; writer.write(bitmap) }
-        finally { writer.dispose(); bitmap.flush() }
+        try {
+            writer.output = output
+            writer.write(bitmap)
+        } finally {
+            writer.dispose()
+            bitmap.flush()
+        }
     }
     return bytes.toByteArray()
 }
 
-private fun send(request: HttpExchange, status: Int, mime: String, bytes: ByteArray) {
+private fun send(
+    request: HttpExchange,
+    status: Int,
+    mime: String,
+    bytes: ByteArray,
+) {
     request.responseHeaders.set("Content-Type", if (mime == "image/png") mime else "$mime; charset=utf-8")
     request.responseHeaders.set("Cache-Control", "no-store")
     request.responseHeaders.set("X-Content-Type-Options", "nosniff")
@@ -176,3 +217,5 @@ private const val METHOD_NOT_ALLOWED = 405
 private const val TOO_LARGE = 413
 private const val UNSUPPORTED = 415
 private const val BUSY = 429
+
+private const val BOTTOM_LEFT_INDEX = 3

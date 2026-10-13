@@ -9,6 +9,8 @@ import photoglyph.core.img.GrayImage
 import photoglyph.core.img.PageQuad
 import photoglyph.core.img.cropImage
 import photoglyph.core.img.detectPageQuad
+import photoglyph.core.img.mirrorHorizontal
+import photoglyph.core.img.suggestedRectifiedSize
 import photoglyph.core.img.mapPagePoint
 import photoglyph.core.img.otsuThreshold
 import photoglyph.core.img.prepareImage
@@ -30,6 +32,17 @@ object M2Checks {
         check(rotated.copyPixels().contentEquals(intArrayOf(5, 3, 1, 6, 4, 2)))
         check(rotateQuarterTurns(rotated, -1).copyPixels().contentEquals(image.copyPixels()))
         check(image.copyPixels().contentEquals(intArrayOf(1, 2, 3, 4, 5, 6)))
+    }
+
+    fun mirrorIsPixelExactAndNonmutating() {
+        val image = ArgbImage(3, 2, intArrayOf(1, 2, 3, 4, 5, 6))
+        check(mirrorHorizontal(image).copyPixels().contentEquals(intArrayOf(3, 2, 1, 6, 5, 4)))
+        check(image.copyPixels().contentEquals(intArrayOf(1, 2, 3, 4, 5, 6)))
+    }
+
+    fun suggestedSizeDoesNotGuessA4() {
+        val quad = PageQuad(Vec2(0.0, 0.0), Vec2(300.0, 0.0), Vec2(300.0, 100.0), Vec2(0.0, 100.0))
+        check(suggestedRectifiedSize(quad, 150) == (150 to 50))
     }
 
     fun cropIsPixelExactAndRejectsOutside() {

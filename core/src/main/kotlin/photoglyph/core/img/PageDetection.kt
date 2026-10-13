@@ -53,7 +53,7 @@ fun detectPageQuad(
     val scaleY = image.height.toDouble() / preview.height
     val scaled = selected.map { Vec2(it.x * scaleX, it.y * scaleY) }
     return try {
-        PageQuad(scaled[0], scaled[1], scaled[2], scaled[3])
+        PageQuad(scaled[0], scaled[1], scaled[2], scaled[BOTTOM_LEFT_INDEX])
     } catch (_: IllegalArgumentException) {
         null
     }
@@ -85,3 +85,5 @@ fun otsuThreshold(image: GrayImage): Double {
 }
 
 private const val QUAD_CORNERS = 4
+
+private const val BOTTOM_LEFT_INDEX = 3

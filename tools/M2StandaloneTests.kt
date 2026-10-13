@@ -1,9 +1,12 @@
 package photoglyph.tools
 
 import photoglyph.core.M2Checks
+import photoglyph.cli.sandbox.PreparationApiChecks
 
 fun main() {
     val cases = listOf(
+        "mirrorIsPixelExactAndNonmutating -> mirrorHorizontal" to M2Checks::mirrorIsPixelExactAndNonmutating,
+        "suggestedSizeDoesNotGuessA4 -> suggestedRectifiedSize" to M2Checks::suggestedSizeDoesNotGuessA4,
         "quarterTurnsArePixelExact -> rotateQuarterTurns" to M2Checks::quarterTurnsArePixelExact,
         "cropIsPixelExactAndRejectsOutside -> cropImage" to M2Checks::cropIsPixelExactAndRejectsOutside,
         "resizeIdentityAndAverageAreIndependentExpectations -> resizeToMaxEdge" to M2Checks::resizeIdentityAndAverageAreIndependentExpectations,
@@ -25,4 +28,16 @@ fun main() {
     }
     println("M2 real core checks: ${cases.size}, failures: $failures")
     check(failures == 0)
+    val apiCases = listOf(
+        "realPageDetectionAndPreparation" to PreparationApiChecks::realPageDetectionAndPreparation,
+        "manualCornersAndUploadedRasterReachCore" to PreparationApiChecks::manualCornersAndUploadedRasterReachCore,
+        "pixelExactRotationAndCrop" to PreparationApiChecks::pixelExactRotationAndCrop,
+        "badQuadAndParametersRecoverActualPreparation" to PreparationApiChecks::badQuadAndParametersRecoverActualPreparation,
+        "printableSheetAndStaticRoutesDoNotFakeAnOutline" to PreparationApiChecks::printableSheetAndStaticRoutesDoNotFakeAnOutline,
+    )
+    for ((name, run) in apiCases) {
+        run()
+        println("PASS PreparationApiTest.$name -> HTTP + detectPageQuad, prepareImage; cropImage/rotateQuarterTurns/gridSheetSvg as applicable")
+    }
+    println("M2 API checks: ${apiCases.size}, failures: 0")
 }

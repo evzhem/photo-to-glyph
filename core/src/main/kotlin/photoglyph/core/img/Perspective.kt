@@ -41,13 +41,13 @@ private fun unitSquareHomography(quad: PageQuad): DoubleArray {
         first[1] = y
         first[2] = 1.0
         first[6] = -u * x
-        first[7] = -u * y
+        first[Y_PERSPECTIVE_INDEX] = -u * y
         first[8] = u
-        second[3] = x
+        second[Y_SCALE_INDEX] = x
         second[4] = y
-        second[5] = 1.0
+        second[Y_OFFSET_INDEX] = 1.0
         second[6] = -v * x
-        second[7] = -v * y
+        second[Y_PERSPECTIVE_INDEX] = -v * y
         second[8] = v
     }
     // Independently implemented Gauss-Jordan elimination with partial pivoting.
@@ -72,9 +72,13 @@ private fun project(
     matrix: DoubleArray,
     point: Vec2,
 ): Vec2 {
-    val denominator = matrix[6] * point.x + matrix[7] * point.y + matrix[8]
+    val denominator = matrix[6] * point.x + matrix[Y_PERSPECTIVE_INDEX] * point.y + matrix[8]
     require(abs(denominator) > GEOMETRY_EPSILON)
-    return Vec2((matrix[0] * point.x + matrix[1] * point.y + matrix[2]) / denominator, (matrix[3] * point.x + matrix[4] * point.y + matrix[5]) / denominator)
+    return Vec2((matrix[0] * point.x + matrix[1] * point.y + matrix[2]) / denominator, (matrix[Y_SCALE_INDEX] * point.x + matrix[4] * point.y + matrix[Y_OFFSET_INDEX]) / denominator)
 }
 
 private const val HOMOGRAPHY_UNKNOWNS = 8
+
+private const val Y_SCALE_INDEX = 3
+private const val Y_OFFSET_INDEX = 5
+private const val Y_PERSPECTIVE_INDEX = 7

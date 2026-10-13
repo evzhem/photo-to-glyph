@@ -115,4 +115,4 @@ element('file').addEventListener('change',()=>{
 });
 element('clear-file').addEventListener('click',()=>element('sample').click());
 element('language').addEventListener('change',async event=>{prep.language=event.target.value;try{await configuration();busy(false);}catch(failure){error('generic');}});
-(async()=>{try{await configuration();await request();}catch(failure){error('generic');}})();
+(async()=>{try{await configuration();await request();window.preparationReady=Boolean(prep.source);}catch(failure){error('generic');}})();
