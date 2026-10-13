@@ -18,15 +18,15 @@ import kotlin.math.roundToInt
 fun main(args: Array<String>) {
     when (args.firstOrNull()) {
         "sandbox" -> {
-            require(args.size == 3) { "Usage: sandbox <project-root> <port>" }
+            require(args.size == COMMAND_ARGUMENT_COUNT) { "Usage: sandbox <project-root> <port>" }
             runSandbox(File(args[1]), args[2].toInt())
         }
         "smoke" -> {
-            require(args.size == 3) { "Usage: smoke <fixture-directory> <output-directory>" }
+            require(args.size == COMMAND_ARGUMENT_COUNT) { "Usage: smoke <fixture-directory> <output-directory>" }
             smoke(File(args[1]), File(args[2]))
         }
         "vectorize" -> {
-            require(args.size == 3) { "Usage: vectorize <cropped-input.png> <output.svg>" }
+            require(args.size == COMMAND_ARGUMENT_COUNT) { "Usage: vectorize <cropped-input.png> <output.svg>" }
             val processed = process(File(args[1]), PipelineParams())
             val output = File(args[2])
             output.absoluteFile.parentFile.mkdirs()
@@ -175,3 +175,5 @@ private const val GREEN_SHIFT = 8
 private const val BLACK_RGB = 0x000000
 private const val WHITE_RGB = 0xffffff
 private val M0_CHARACTERS = listOf('Ж', 'Б', 'в', 'Ш', 'ф')
+
+private const val COMMAND_ARGUMENT_COUNT = 3

@@ -1,9 +1,5 @@
 package photoglyph.core
 
-import java.io.File
-import java.util.Locale
-import javax.imageio.ImageIO
-import kotlin.math.abs
 import photoglyph.core.export.requireStrokeOnlySvg
 import photoglyph.core.export.strokesToSvg
 import photoglyph.core.geom.Polyline
@@ -18,6 +14,10 @@ import photoglyph.core.img.removeSmallComponents
 import photoglyph.core.img.toGrayscale
 import photoglyph.core.thin.SkeletonPixels
 import photoglyph.core.thin.zhangSuen
+import java.io.File
+import java.util.Locale
+import javax.imageio.ImageIO
+import kotlin.math.abs
 
 /** Standalone pre-M1 test runner. Tests compile AGAINST the production JAR, not copied logic. */
 fun main() {
@@ -33,10 +33,19 @@ fun main() {
 }
 
 private object Tests {
-    private data class Case(val name: String, val functions: String, val body: () -> Unit)
+    private data class Case(
+        val name: String,
+        val functions: String,
+        val body: () -> Unit,
+    )
+
     private val cases = mutableListOf<Case>()
 
-    fun add(name: String, functions: String, body: () -> Unit) {
+    fun add(
+        name: String,
+        functions: String,
+        body: () -> Unit,
+    ) {
         cases.add(Case(name, functions, body))
     }
 
@@ -129,9 +138,12 @@ private object ZhangSuenTest {
             pixelsEqual(zhangSuen(once).grid, once)
         }
         Tests.add("ZhangSuenTest.preserveLoop", "zhangSuen, skeletonToPolylines") {
-            val ring = (3..16).flatMap { y -> (3..16).mapNotNull { x ->
-                if (x in 7..12 && y in 7..12) null else x to y
-            } }
+            val ring =
+                (3..16).flatMap { y ->
+                    (3..16).mapNotNull { x ->
+                        if (x in 7..12 && y in 7..12) null else x to y
+                    }
+                }
             val skeleton = zhangSuen(grid(20, 20, ring))
             assertThat(skeleton.grid.foregroundCount > 0 && !skeleton.grid[10, 10])
             assertThat(skeletonToPolylines(skeleton).graphCycleRank >= 1)
@@ -173,7 +185,13 @@ private object SkeletonToPolylinesTest {
         }
         Tests.add("SkeletonToPolylinesTest.dotAndEmpty", "skeletonToPolylines, strokesToSvg, requireStrokeOnlySvg") {
             val dot = extraction(grid(3, 3, listOf(1 to 1)))
-            assertThat(dot.polylines.single().points.size == 1 && dot.graphEdges == 0 && dot.graphComponents == 1)
+            assertThat(
+                dot.polylines
+                    .single()
+                    .points.size == 1 &&
+                    dot.graphEdges == 0 &&
+                    dot.graphComponents == 1,
+            )
             assertThat(requireStrokeOnlySvg(strokesToSvg(dot.polylines, 3, 3)) == 1)
             val empty = extraction(grid(3, 3, emptyList()))
             assertThat(empty.polylines.isEmpty() && empty.graphCycleRank == 0 && empty.graphComponents == 0)
@@ -213,15 +231,16 @@ private object SvgNoFillTest {
         }
         Tests.add("SvgNoFillTest.rejectCorruptedExport", "strokesToSvg, requireStrokeOnlySvg") {
             val svg = strokesToSvg(listOf(Polyline(listOf(Vec2(1.0, 1.0), Vec2(2.0, 2.0)))), 20, 20)
-            val corrupt = listOf(
-                svg.replaceFirst("fill=\"none\"", "fill=\"black\""),
-                svg.replace("fill=\"none\" stroke", "fill=\"black\" stroke"),
-                svg.replace("stroke=\"black\"", "stroke=\"none\""),
-                svg.replace("<path d=", "<path style=\"fill:black\" d="),
-                svg.replace("</svg>", "<circle cx=\"5\" cy=\"5\" r=\"2\" fill=\"black\"/></svg>"),
-                svg.replace(" L 2.0000 2.0000", " L 2.0000 2.0000 Z"),
-                svg.replace("<svg ", "<!DOCTYPE svg [<!ENTITY x SYSTEM \"file:///not-a-real-file\">]><svg "),
-            )
+            val corrupt =
+                listOf(
+                    svg.replaceFirst("fill=\"none\"", "fill=\"black\""),
+                    svg.replace("fill=\"none\" stroke", "fill=\"black\" stroke"),
+                    svg.replace("stroke=\"black\"", "stroke=\"none\""),
+                    svg.replace("<path d=", "<path style=\"fill:black\" d="),
+                    svg.replace("</svg>", "<circle cx=\"5\" cy=\"5\" r=\"2\" fill=\"black\"/></svg>"),
+                    svg.replace(" L 2.0000 2.0000", " L 2.0000 2.0000 Z"),
+                    svg.replace("<svg ", "<!DOCTYPE svg [<!ENTITY x SYSTEM \"file:///not-a-real-file\">]><svg "),
+                )
             for (broken in corrupt) expectRejected { requireStrokeOnlySvg(broken) }
         }
         Tests.add("SvgNoFillTest.rejectClosureAndUseDecimalPoint", "strokesToSvg, requireStrokeOnlySvg") {
@@ -280,12 +299,20 @@ private fun readArgb(path: String): ArgbImage {
 
 private fun readBinary(path: String): BinaryGrid {
     val image = readArgb(path)
-    return BinaryGrid(image.width, image.height, BooleanArray(image.width * image.height) { index ->
-        (image[index] and 0xffffff) == 0
-    })
+    return BinaryGrid(
+        image.width,
+        image.height,
+        BooleanArray(image.width * image.height) { index ->
+            (image[index] and 0xffffff) == 0
+        },
+    )
 }
 
-private fun grid(width: Int, height: Int, foreground: List<Pair<Int, Int>>): BinaryGrid {
+private fun grid(
+    width: Int,
+    height: Int,
+    foreground: List<Pair<Int, Int>>,
+): BinaryGrid {
     val pixels = BooleanArray(width * height)
     for ((x, y) in foreground) pixels[y * width + x] = true
     return BinaryGrid(width, height, pixels)
@@ -293,10 +320,15 @@ private fun grid(width: Int, height: Int, foreground: List<Pair<Int, Int>>): Bin
 
 private fun extraction(grid: BinaryGrid) = skeletonToPolylines(SkeletonPixels(grid, 0))
 
-private fun edge(first: Vec2, second: Vec2): Pair<Vec2, Vec2> =
-    if (first.x < second.x || (first.x == second.x && first.y < second.y)) first to second else second to first
+private fun edge(
+    first: Vec2,
+    second: Vec2,
+): Pair<Vec2, Vec2> = if (first.x < second.x || (first.x == second.x && first.y < second.y)) first to second else second to first
 
-private fun pixelsEqual(actual: BinaryGrid, expected: BinaryGrid) {
+private fun pixelsEqual(
+    actual: BinaryGrid,
+    expected: BinaryGrid,
+) {
     assertThat(actual.width == expected.width && actual.height == expected.height)
     for (y in 0 until actual.height) {
         for (x in 0 until actual.width) {
@@ -305,8 +337,15 @@ private fun pixelsEqual(actual: BinaryGrid, expected: BinaryGrid) {
     }
 }
 
-private fun near(actual: Double, expected: Double) = assertThat(abs(actual - expected) < 1e-9, "$actual != $expected")
-private fun assertThat(condition: Boolean, message: String = "Assertion failed") {
+private fun near(
+    actual: Double,
+    expected: Double,
+) = assertThat(abs(actual - expected) < 1e-9, "$actual != $expected")
+
+private fun assertThat(
+    condition: Boolean,
+    message: String = "Assertion failed",
+) {
     if (!condition) throw AssertionError(message)
 }
 

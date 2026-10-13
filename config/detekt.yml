@@ -1,6 +1,8 @@
 # Keep bug/exception/naming checks active. Pixel algorithms are deliberately
 # iterative and longer than CRUD methods; these limits do not disable detekt.
 complexity:
+  TooManyFunctions:
+    thresholdInFiles: 16 # Small HTTP/codec adapter helpers share one cohesive file.
   LongMethod:
     threshold: 200
   CyclomaticComplexMethod:

@@ -16,9 +16,9 @@
       </a>
       <div class="sidebar-label" data-i18n="stage_badge"></div>
       <nav class="navigation">
-        <a class="nav-item selected" href="#workbench"><span class="nav-icon">⌁</span><span data-i18n="nav_lab"></span></a>
-        <div class="nav-item unavailable" aria-disabled="true"><span class="nav-icon">▦</span><span><span data-i18n="nav_fonts"></span><small data-i18n="nav_fonts_hint"></small></span></div>
-        <a class="nav-item" href="#about"><span class="nav-icon">ⓘ</span><span data-i18n="nav_about"></span></a>
+        <a class="nav-item selected" href="#workbench"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 16 5-7 4 6 5-11 4 6"/></svg></span><span data-i18n="nav_lab"></span></a>
+        <div class="nav-item unavailable" aria-disabled="true"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/></svg></span><span><span data-i18n="nav_fonts"></span><small data-i18n="nav_fonts_hint"></small></span></div>
+        <a class="nav-item" href="#about"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 11v6M12 7v1"/></svg></span><span data-i18n="nav_about"></span></a>
       </nav>
       <div class="sidebar-bottom"><div class="mini-line"></div><p data-i18n="sidebar_note"></p><span class="runtime" data-i18n="runtime"></span></div>
     </aside>
@@ -64,7 +64,7 @@
                 <div class="preview-caption" data-i18n="source_caption"></div>
               </article>
               <article class="preview-card output-card">
-                <div class="preview-heading"><h3 data-i18n="result_title"></h3><span class="stroke-symbol" aria-hidden="true">↗</span></div>
+                <div class="preview-heading"><h3 data-i18n="result_title"></h3><span class="stroke-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 18 6-9 2 5 6-10"/></svg></span></div>
                 <div class="output-label"><span class="color-dots" aria-hidden="true"><i></i><i></i><i></i></span><span data-i18n="result_caption"></span></div>
                 <div class="paper vector-paper" id="vector"><span class="empty-preview" data-i18n="preview_empty"></span></div>
                 <div class="preview-caption"><span class="result-dot"></span><span id="result-status" data-i18n="engine_loading"></span></div>
@@ -80,7 +80,7 @@
             <div id="notice" class="notice" hidden></div>
 
             <section class="upload-card">
-              <div class="upload-heading"><span class="upload-icon" aria-hidden="true">↑</span><div><h2 data-i18n="upload_title"></h2><p data-i18n="upload_note"></p></div></div>
+              <div class="upload-heading"><span class="upload-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 17V5m-4 4 4-4 4 4M5 16v4h14v-4"/></svg></span><div><h2 data-i18n="upload_title"></h2><p data-i18n="upload_note"></p></div></div>
               <p class="privacy-note" data-i18n="privacy_notice"></p>
               <label class="consent"><input type="checkbox" id="consent"><span data-i18n="consent"></span></label>
               <div class="upload-actions"><button id="choose-file" class="secondary-button" type="button" data-i18n="choose_file" disabled></button><button id="clear-file" class="text-button" type="button" data-i18n="clear_upload" hidden></button><span id="file-name"></span></div>
@@ -96,7 +96,7 @@
               <label class="control"><span class="control-line"><span data-i18n="offset_label"></span><output id="offset-value">10</output></span><input id="offset" name="offset" type="range" min="0" max="50" value="10" step="1"><span class="range-labels"><span>0</span><span>50</span></span></label>
               <label class="control"><span data-i18n="min_area_label"></span><div class="number-control"><input name="minArea" id="minArea" type="number" min="0" max="200" step="1" value="12"><span data-i18n="pixel_unit"></span></div></label>
               <label class="control"><span class="control-line"><span data-i18n="rdp_label"></span><output id="rdp-value">0.6</output></span><input id="rdp" name="rdp" type="range" min="0" max="5" step="0.1" value="0.6"><span class="range-labels"><span>0</span><span>5 <span data-i18n="pixel_unit"></span></span></span></label>
-              <button id="recalculate" class="primary-button" type="submit"><span data-i18n="recalculate"></span><span aria-hidden="true">↻</span></button>
+              <button id="recalculate" class="primary-button" type="submit"><span data-i18n="recalculate"></span><span aria-hidden="true"><svg class="button-icon" viewBox="0 0 24 24"><path d="M19 9a8 8 0 1 0 1 7M19 4v5h-5"/></svg></span></button>
               <button id="reset" class="text-button reset-button" type="button" data-i18n="reset_params"></button>
             </form>
             <div class="export-area"><button id="download" class="secondary-button download-button" type="button" data-i18n="download_svg" disabled></button><p data-i18n="export_note"></p></div>
