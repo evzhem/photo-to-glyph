@@ -1,0 +1,46 @@
+{
+  "provenance": "Original geometric synthetic fixtures, not real handwriting or font rendering",
+  "license": "MIT",
+  "widthPx": 300,
+  "heightPx": 300,
+  "strokeWidthPx": 6,
+  "supersampling": 4,
+  "background": "white",
+  "glyphs": [
+    {
+      "char": "Ж",
+      "codePoint": 1046,
+      "file": "1046.png",
+      "authoredPathCount": 3,
+      "sha256": "7797e0eb03e8b7b3cf23a4f19d943adee71c0c4723045bcdecf958ce25a41aca"
+    },
+    {
+      "char": "Б",
+      "codePoint": 1041,
+      "file": "1041.png",
+      "authoredPathCount": 2,
+      "sha256": "d749f27df4c1954fc60846cc87d6bc0dcb162169cfc70f1a8fb2210b3f218cdc"
+    },
+    {
+      "char": "в",
+      "codePoint": 1074,
+      "file": "1074.png",
+      "authoredPathCount": 1,
+      "sha256": "0866d18d69b8ae01f114cfeeea67274c5ca9ed6ded77d52069265f012ed5afe8"
+    },
+    {
+      "char": "Ш",
+      "codePoint": 1064,
+      "file": "1064.png",
+      "authoredPathCount": 2,
+      "sha256": "c6706802cc7121d3bffd97be2563dcf3028f9147ba64b30c09519c4a1c899470"
+    },
+    {
+      "char": "ф",
+      "codePoint": 1092,
+      "file": "1092.png",
+      "authoredPathCount": 2,
+      "sha256": "358a5d65684862b3976204607bd9412bee65583b19820e5000576fa572ebc945"
+    }
+  ]
+}

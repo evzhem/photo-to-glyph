@@ -62,6 +62,8 @@ All tunable constants live in `PipelineParams`. Initial defaults:
 | Processing budget | ≤ 2 s per glyph |
 | Synthetic M0 raster | 300 × 300, white background, stroke width 6 px |
 
+M0 also defines SVG stroke width 1.0 px and coordinate precision 4 decimals; the CLI benchmark uses 2 warmups, 5 measured runs and a 2000 ms budget. These are fields in `PipelineParams`, not scattered literals. Raster graph vertices are pixel centers `(x + 0.5, y + 0.5)`. M0 keeps unbridged diagonal links but omits a diagonal if an orthogonal two-edge route exists; this avoids artificial corner triangles while preserving 8-connectivity. Pure cycles / chains returning to their junction are split into two open chains, with edge-coverage tests and explicit cycle metrics. These are documented spike conventions, not recovery of the original writing order.
+
 Additional tunable parameters need named defaults and documented meanings; no magic tuning numbers scattered through algorithms. Mathematical constants (BT.601 coefficients, 8-neighbour offsets, Zhang–Suen predicates) are not experimental tuning parameters and must be named or explained. Smoothing, normalization and travel optimization are M4/M5 work, not implied to exist in M0.
 
 ## Algorithms — implement independently
