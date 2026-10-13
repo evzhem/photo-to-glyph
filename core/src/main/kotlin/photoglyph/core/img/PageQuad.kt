@@ -29,10 +29,13 @@ data class PageQuad(
     }
 
     companion object {
-        fun fullImage(image: ArgbImage): PageQuad = PageQuad(
-            Vec2(0.0, 0.0), Vec2(image.width.toDouble(), 0.0),
-            Vec2(image.width.toDouble(), image.height.toDouble()), Vec2(0.0, image.height.toDouble()),
-        )
+        fun fullImage(image: ArgbImage): PageQuad =
+            PageQuad(
+                Vec2(0.0, 0.0),
+                Vec2(image.width.toDouble(), 0.0),
+                Vec2(image.width.toDouble(), image.height.toDouble()),
+                Vec2(0.0, image.height.toDouble()),
+            )
     }
 }
 

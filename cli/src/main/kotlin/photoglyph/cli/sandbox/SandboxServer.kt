@@ -43,6 +43,7 @@ class SandboxServer(
             ArrayBlockingQueue(HTTP_QUEUE_LIMIT),
         )
     private val processing = Semaphore(MAX_CONCURRENT_PROCESSING)
+    private val preparation = PreparationAdapter(projectRoot)
     private val http = HttpServer.create(InetSocketAddress(host, port), HTTP_BACKLOG)
     val port: Int get() = http.address.port
 
@@ -82,6 +83,7 @@ class SandboxServer(
     }
 
     private fun route(request: HttpExchange) {
+        if (preparation.handle(request)) return
         val path = request.requestURI.path
         if (path == "/api/diagnose") {
             requireMethod(request, "POST")

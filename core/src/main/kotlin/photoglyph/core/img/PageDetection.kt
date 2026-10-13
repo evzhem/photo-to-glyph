@@ -6,7 +6,10 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /** Heuristic bright-paper detection, not document recognition. Ambiguous inputs return null. */
-fun detectPageQuad(image: ArgbImage, params: PipelineParams = PipelineParams()): PageQuad? {
+fun detectPageQuad(
+    image: ArgbImage,
+    params: PipelineParams = PipelineParams(),
+): PageQuad? {
     val preview = resizeToMaxEdge(image, params.pageDetectionMaxEdgePx)
     val gray = toGrayscale(preview)
     val threshold = otsuThreshold(gray)
@@ -17,7 +20,9 @@ fun detectPageQuad(image: ArgbImage, params: PipelineParams = PipelineParams()):
         var right = -1
         for (x in 0 until preview.width) {
             if (gray[x, y] > threshold) {
-                left = minOf(left, x); right = maxOf(right, x); brightCount++
+                left = minOf(left, x)
+                right = maxOf(right, x)
+                brightCount++
             }
         }
         if (right >= left) {
@@ -27,15 +32,22 @@ fun detectPageQuad(image: ArgbImage, params: PipelineParams = PipelineParams()):
     }
     val fraction = brightCount.toDouble() / (preview.width.toLong() * preview.height)
     if (points.size < QUAD_CORNERS || fraction !in params.pageMinBrightFraction..params.pageMaxBrightFraction) return null
-    val selected = listOf(
-        points.minBy { it.x + it.y }, points.maxBy { it.x - it.y },
-        points.maxBy { it.x + it.y }, points.minBy { it.x - it.y },
-    )
+    val selected =
+        listOf(
+            points.minBy { it.x + it.y },
+            points.maxBy { it.x - it.y },
+            points.maxBy { it.x + it.y },
+            points.minBy { it.x - it.y },
+        )
     if (selected.toSet().size != QUAD_CORNERS) return null
-    val area = abs(selected.indices.sumOf { index ->
-        val first = selected[index]; val next = selected[(index + 1) % selected.size]
-        first.x * next.y - next.x * first.y
-    }) / 2
+    val area =
+        abs(
+            selected.indices.sumOf { index ->
+                val first = selected[index]
+                val next = selected[(index + 1) % selected.size]
+                first.x * next.y - next.x * first.y
+            },
+        ) / 2
     if (area / (preview.width.toLong() * preview.height) < params.pageMinQuadFraction) return null
     val scaleX = image.width.toDouble() / preview.width
     val scaleY = image.height.toDouble() / preview.height

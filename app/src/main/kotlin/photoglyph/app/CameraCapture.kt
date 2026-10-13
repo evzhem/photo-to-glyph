@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -27,13 +28,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
-import androidx.compose.material3.Surface
 import androidx.core.content.ContextCompat
 import java.io.File
 
 /** CameraX only captures a raster. All preparation remains Kotlin core. No plotter connection. */
 @Composable
-internal fun CameraCaptureDialog(onImage: (Uri, File) -> Unit, onDismiss: () -> Unit) {
+internal fun CameraCaptureDialog(
+    onImage: (Uri, File) -> Unit,
+    onDismiss: () -> Unit,
+) {
     val context = LocalContext.current
     val owner = LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
@@ -53,12 +56,19 @@ internal fun CameraCaptureDialog(onImage: (Uri, File) -> Unit, onDismiss: () -> 
                     cameras.bindToLifecycle(owner, CameraSelector.DEFAULT_BACK_CAMERA, preview, capture)
                     provider = cameras
                     ready = true
-                } catch (_: java.util.concurrent.ExecutionException) { failed = true }
-                catch (_: IllegalArgumentException) { failed = true }
-                catch (_: IllegalStateException) { failed = true }
+                } catch (_: java.util.concurrent.ExecutionException) {
+                    failed = true
+                } catch (_: IllegalArgumentException) {
+                    failed = true
+                } catch (_: IllegalStateException) {
+                    failed = true
+                }
             }
         }, ContextCompat.getMainExecutor(context))
-        onDispose { disposed = true; provider?.unbindAll() }
+        onDispose {
+            disposed = true
+            provider?.unbindAll()
+        }
     }
     Dialog(onDismissRequest = { if (!busy) onDismiss() }) {
         Surface {
@@ -68,7 +78,13 @@ internal fun CameraCaptureDialog(onImage: (Uri, File) -> Unit, onDismiss: () -> 
                 if (failed) Text(stringResource(R.string.camera_failed))
                 Button(enabled = ready && !busy, onClick = {
                     busy = true
-                    takePhoto(context, capture, onSuccess = { uri, file -> busy = false; onImage(uri, file) }, onFailure = { busy = false; failed = true })
+                    takePhoto(context, capture, onSuccess = { uri, file ->
+                        busy = false
+                        onImage(uri, file)
+                    }, onFailure = {
+                        busy = false
+                        failed = true
+                    })
                 }) { Text(stringResource(if (busy) R.string.camera_capturing else R.string.camera_capture)) }
                 Button(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
             }
@@ -76,13 +92,28 @@ internal fun CameraCaptureDialog(onImage: (Uri, File) -> Unit, onDismiss: () -> 
     }
 }
 
-private fun takePhoto(context: Context, capture: ImageCapture, onSuccess: (Uri, File) -> Unit, onFailure: () -> Unit) {
+private fun takePhoto(
+    context: Context,
+    capture: ImageCapture,
+    onSuccess: (Uri, File) -> Unit,
+    onFailure: () -> Unit,
+) {
     val file = File.createTempFile("capture-", ".jpg", context.cacheDir)
     val output = ImageCapture.OutputFileOptions.Builder(file).build()
-    capture.takePicture(output, ContextCompat.getMainExecutor(context), object : ImageCapture.OnImageSavedCallback {
-        override fun onImageSaved(result: ImageCapture.OutputFileResults) { onSuccess(Uri.fromFile(file), file) }
-        override fun onError(exception: ImageCaptureException) { file.delete(); onFailure() }
-    })
+    capture.takePicture(
+        output,
+        ContextCompat.getMainExecutor(context),
+        object : ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(result: ImageCapture.OutputFileResults) {
+                onSuccess(Uri.fromFile(file), file)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                file.delete()
+                onFailure()
+            }
+        },
+    )
 }
 
 private const val CAMERA_PREVIEW_DP = 320

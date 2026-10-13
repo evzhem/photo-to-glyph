@@ -3,9 +3,19 @@ package photoglyph.core.img
 import photoglyph.core.PipelineParams
 
 /** M2 output is a prepared raster, NOT recognized characters or vector outlines. */
-data class PreparedImage(val rectified: ArgbImage, val grayscale: GrayImage, val binary: BinaryGrid)
+data class PreparedImage(
+    val rectified: ArgbImage,
+    val grayscale: GrayImage,
+    val binary: BinaryGrid,
+)
 
-fun prepareImage(image: ArgbImage, quad: PageQuad, width: Int, height: Int, params: PipelineParams = PipelineParams()): PreparedImage {
+fun prepareImage(
+    image: ArgbImage,
+    quad: PageQuad,
+    width: Int,
+    height: Int,
+    params: PipelineParams = PipelineParams(),
+): PreparedImage {
     val rectified = rectifyPerspective(image, quad, width, height, params)
     val grayscale = toGrayscale(rectified)
     val binary = removeSmallComponents(adaptiveThreshold(grayscale, params), params)

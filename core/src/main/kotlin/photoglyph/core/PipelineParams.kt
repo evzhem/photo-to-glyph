@@ -38,7 +38,6 @@ data class PipelineParams(
         require(pageMinBrightFraction.isFinite() && pageMaxBrightFraction.isFinite())
         require(pageMinBrightFraction > 0.0 && pageMaxBrightFraction < 1.0 && pageMinBrightFraction < pageMaxBrightFraction)
         require(pageMinQuadFraction.isFinite() && pageMinQuadFraction in 0.0..1.0)
-
     }
 }
 

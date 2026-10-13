@@ -20,7 +20,6 @@ import photoglyph.core.img.whiteProjectionRows
 import java.io.File
 import javax.imageio.ImageIO
 import javax.xml.parsers.DocumentBuilderFactory
-import kotlin.math.abs
 
 /** Real production-function cases shared between JUnit and the restricted standalone runner. */
 object M2Checks {
@@ -145,12 +144,22 @@ object M2Checks {
     }
 
     private fun root(): File = File(checkNotNull(System.getProperty("photoglyph.projectRoot")))
-    private fun near(actual: Vec2, expected: Vec2) = check(actual.distanceTo(expected) < 1e-7)
+
+    private fun near(
+        actual: Vec2,
+        expected: Vec2,
+    ) = check(actual.distanceTo(expected) < 1e-7)
+
     private fun rejects(run: () -> Unit) {
         var rejected = false
-        try { run() } catch (_: IllegalArgumentException) { rejected = true }
+        try {
+            run()
+        } catch (_: IllegalArgumentException) {
+            rejected = true
+        }
         check(rejected) { "Invalid input was not rejected" }
     }
+
     private const val CORNER_TOLERANCE_PX = 6.0
     private const val PROFILE_TOLERANCE_PX = 3
 }
