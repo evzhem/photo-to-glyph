@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhotoGlyph</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="PhotoGlyph">
+        <svg viewBox="0 0 36 36" class="brand-mark" aria-hidden="true"><path d="M10 28V9h8c7 0 10 4 8 9-1 3-5 5-10 4"/><path d="m15 27 11-16"/></svg>
+        <span data-i18n="app_name"></span>
+      </a>
+      <div class="sidebar-label" data-i18n="stage_badge"></div>
+      <nav class="navigation">
+        <a class="nav-item selected" href="#workbench"><span class="nav-icon">⌁</span><span data-i18n="nav_lab"></span></a>
+        <div class="nav-item unavailable" aria-disabled="true"><span class="nav-icon">▦</span><span><span data-i18n="nav_fonts"></span><small data-i18n="nav_fonts_hint"></small></span></div>
+        <a class="nav-item" href="#about"><span class="nav-icon">ⓘ</span><span data-i18n="nav_about"></span></a>
+      </nav>
+      <div class="sidebar-bottom"><div class="mini-line"></div><p data-i18n="sidebar_note"></p><span class="runtime" data-i18n="runtime"></span></div>
+    </aside>
+
+    <div class="content">
+      <header class="topbar">
+        <div class="topbar-title" data-i18n="lab_name"></div>
+        <div class="topbar-actions">
+          <span class="connection" id="connection"><i></i><span data-i18n="engine_loading"></span></span>
+          <select id="language" data-i18n-aria="language_label"><option value="ru">RU</option><option value="en">EN</option></select>
+        </div>
+      </header>
+      <main id="workbench">
+        <section class="intro">
+          <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="eyebrow"></span></div>
+          <h1 data-i18n="headline"></h1>
+          <p data-i18n="intro"></p>
+        </section>
+
+        <section class="sample-section">
+          <div class="section-heading"><h2 data-i18n="choose_sample"></h2><span class="small-badge" data-i18n="synthetic_notice"></span></div>
+          <div class="sample-picker" id="samples">
+            <button class="sample active" data-sample="1046" type="button"><img src="/api/fixtures/1046.png" alt="Ж"><span>Ж</span></button>
+            <button class="sample" data-sample="1041" type="button"><img src="/api/fixtures/1041.png" alt="Б"><span>Б</span></button>
+            <button class="sample" data-sample="1074" type="button"><img src="/api/fixtures/1074.png" alt="в"><span>в</span></button>
+            <button class="sample" data-sample="1064" type="button"><img src="/api/fixtures/1064.png" alt="Ш"><span>Ш</span></button>
+            <button class="sample" data-sample="1092" type="button"><img src="/api/fixtures/1092.png" alt="ф"><span>ф</span></button>
+          </div>
+          <p class="section-note" data-i18n="sample_note"></p>
+        </section>
+
+        <div class="workbench-grid">
+          <div class="visual-column">
+            <section class="comparison">
+              <article class="preview-card">
+                <div class="preview-heading"><h3 data-i18n="source_title"></h3><span class="dimension" id="dimensions"></span></div>
+                <div class="view-switch" id="views">
+                  <button class="active" data-view="original" data-i18n="view_original" type="button"></button>
+                  <button data-view="binary" data-i18n="view_binary" type="button" disabled></button>
+                  <button data-view="skeleton" data-i18n="view_skeleton" type="button" disabled></button>
+                </div>
+                <div class="paper"><img id="source" data-i18n-alt="source_caption" src="/api/fixtures/1046.png"></div>
+                <div class="preview-caption" data-i18n="source_caption"></div>
+              </article>
+              <article class="preview-card output-card">
+                <div class="preview-heading"><h3 data-i18n="result_title"></h3><span class="stroke-symbol" aria-hidden="true">↗</span></div>
+                <div class="output-label"><span class="color-dots" aria-hidden="true"><i></i><i></i><i></i></span><span data-i18n="result_caption"></span></div>
+                <div class="paper vector-paper" id="vector"><span class="empty-preview" data-i18n="preview_empty"></span></div>
+                <div class="preview-caption"><span class="result-dot"></span><span id="result-status" data-i18n="engine_loading"></span></div>
+              </article>
+            </section>
+            <div class="stats">
+              <div class="stat"><span data-i18n="stat_strokes"></span><strong id="strokes">—</strong></div>
+              <div class="stat"><span data-i18n="stat_closed"></span><strong id="closed">—</strong></div>
+              <div class="stat" data-i18n-title="time_hint"><span data-i18n="stat_time"></span><strong><span id="time">—</span> <small data-i18n="time_unit"></small></strong></div>
+              <div class="stat"><span data-i18n="stat_cycles"></span><strong id="cycles">—</strong></div>
+            </div>
+            <p class="cycle-note"><span aria-hidden="true">↳</span><span data-i18n="cycle_hint"></span></p>
+            <div id="notice" class="notice" hidden></div>
+
+            <section class="upload-card">
+              <div class="upload-heading"><span class="upload-icon" aria-hidden="true">↑</span><div><h2 data-i18n="upload_title"></h2><p data-i18n="upload_note"></p></div></div>
+              <p class="privacy-note" data-i18n="privacy_notice"></p>
+              <label class="consent"><input type="checkbox" id="consent"><span data-i18n="consent"></span></label>
+              <div class="upload-actions"><button id="choose-file" class="secondary-button" type="button" data-i18n="choose_file" disabled></button><button id="clear-file" class="text-button" type="button" data-i18n="clear_upload" hidden></button><span id="file-name"></span></div>
+              <input id="file" type="file" accept="image/png,image/jpeg" hidden>
+            </section>
+          </div>
+
+          <aside class="parameter-card">
+            <div class="parameter-header"><span class="step-number">02</span><h2 data-i18n="params_title"></h2></div>
+            <p class="parameter-intro" data-i18n="params_note"></p>
+            <form id="parameter-form">
+              <label class="control"><span data-i18n="window_label"></span><select name="window" id="window"><option value="5">5 × 5</option><option value="15">15 × 15</option><option value="25" selected>25 × 25</option><option value="35">35 × 35</option><option value="51">51 × 51</option></select></label>
+              <label class="control"><span class="control-line"><span data-i18n="offset_label"></span><output id="offset-value">10</output></span><input id="offset" name="offset" type="range" min="0" max="50" value="10" step="1"><span class="range-labels"><span>0</span><span>50</span></span></label>
+              <label class="control"><span data-i18n="min_area_label"></span><div class="number-control"><input name="minArea" id="minArea" type="number" min="0" max="200" step="1" value="12"><span data-i18n="pixel_unit"></span></div></label>
+              <label class="control"><span class="control-line"><span data-i18n="rdp_label"></span><output id="rdp-value">0.6</output></span><input id="rdp" name="rdp" type="range" min="0" max="5" step="0.1" value="0.6"><span class="range-labels"><span>0</span><span>5 <span data-i18n="pixel_unit"></span></span></span></label>
+              <button id="recalculate" class="primary-button" type="submit"><span data-i18n="recalculate"></span><span aria-hidden="true">↻</span></button>
+              <button id="reset" class="text-button reset-button" type="button" data-i18n="reset_params"></button>
+            </form>
+            <div class="export-area"><button id="download" class="secondary-button download-button" type="button" data-i18n="download_svg" disabled></button><p data-i18n="export_note"></p></div>
+          </aside>
+        </div>
+
+        <section class="development-notes" id="about">
+          <article><div class="note-tag" data-i18n="stage_badge"></div><h2 data-i18n="limits_title"></h2><p data-i18n="limits_body"></p></article>
+          <article class="known-issue"><div class="note-icon" aria-hidden="true">!</div><h2 data-i18n="known_issue_title"></h2><p data-i18n="known_issue_body"></p></article>
+        </section>
+        <footer><span data-i18n="app_name"></span><p data-i18n="about_note"></p></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

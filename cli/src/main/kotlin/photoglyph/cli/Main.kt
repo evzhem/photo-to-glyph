@@ -5,6 +5,7 @@ import java.io.File
 import java.util.Locale
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
+import photoglyph.cli.sandbox.runSandbox
 import photoglyph.core.PipelineParams
 import photoglyph.core.VectorizationResult
 import photoglyph.core.export.requireStrokeOnlySvg
@@ -16,6 +17,10 @@ import photoglyph.core.vectorize
 
 fun main(args: Array<String>) {
     when (args.firstOrNull()) {
+        "sandbox" -> {
+            require(args.size == 3) { "Usage: sandbox <project-root> <port>" }
+            runSandbox(File(args[1]), args[2].toInt())
+        }
         "smoke" -> {
             require(args.size == 3) { "Usage: smoke <fixture-directory> <output-directory>" }
             smoke(File(args[1]), File(args[2]))
@@ -33,7 +38,7 @@ fun main(args: Array<String>) {
                     "elapsedMs=${decimal(processed.elapsedMs)} output=$output",
             )
         }
-        else -> error("Usage: smoke <fixtures> <output> | vectorize <cropped-input.png> <output.svg>")
+        else -> error("Usage: smoke <fixtures> <output> | vectorize <cropped-input.png> <output.svg> | sandbox <root> <port>")
     }
 }
 

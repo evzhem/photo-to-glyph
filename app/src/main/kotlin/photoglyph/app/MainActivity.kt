@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,7 +59,7 @@ private fun FoundationScreen() {
     var busy by remember { mutableStateOf(false) }
     var failed by remember { mutableStateOf(false) }
     Column(
-        modifier = Modifier.fillMaxSize().padding(PAGE_PADDING.dp),
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(PAGE_PADDING.dp),
         verticalArrangement = Arrangement.spacedBy(SECTION_GAP.dp),
     ) {
         Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleLarge)

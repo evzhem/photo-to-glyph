@@ -42,20 +42,43 @@ jobs:
           script: |
             const fs = require('fs');
             const text = fs.existsSync('verification.txt') ? fs.readFileSync('verification.txt', 'utf8') : 'Build step did not run.';
-            await github.rest.checks.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head_sha: context.sha,
-              name: 'Verification output',
-              status: 'completed',
-              conclusion: '${{ steps.verification.outcome }}' === 'success' ? 'success' : 'failure',
-              output: {
-                title: 'Actual Gradle build / core tests / CLI smoke',
-                summary: 'Full command output is recorded below; this check does not replace the build job.',
-                text: '```text\n' + text.slice(0, 62000) + '\n```'
-              }
-            });
+            const count = Math.max(1, Math.ceil(text.length / 60000));
+            for (let part = 0; part < count; part++) {
+              await github.rest.checks.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head_sha: context.sha,
+                name: count === 1 ? 'Verification output' : `Verification output ${part + 1}/${count}`,
+                status: 'completed',
+                conclusion: '${{ steps.verification.outcome }}' === 'success' ? 'success' : 'failure',
+                output: {
+                  title: 'Actual Gradle build / core tests / CLI smoke',
+                  summary: `Complete output, part ${part + 1}/${count}; no truncation. This check does not replace the build job.`,
+                  text: '```text\n' + text.slice(part * 60000, (part + 1) * 60000) + '\n```'
+                }
+              });
+            }
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '## Verification\n\n```text\n' + text + '\n```\n');
+      - name: Report formatting suggestions without changing the verification result
+        if: failure()
+        shell: bash
+        run: |
+          ./gradlew --console=plain --no-daemon ktlintFormat > formatting.txt 2>&1 || true
+          git diff -- '*.kt' '*.kts' > formatting.patch
+      - name: Publish formatting patch for review
+        if: failure() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const text = fs.existsSync('formatting.patch') ? fs.readFileSync('formatting.patch', 'utf8') : '';
+            if (text) {
+              await github.rest.checks.create({
+                owner: context.repo.owner, repo: context.repo.repo, head_sha: context.sha,
+                name: 'Formatting suggestions', status: 'completed', conclusion: 'neutral',
+                output: {title: 'Review-only ktlint formatting patch', summary: 'Original build remains failed; this is not a successful verification of modified sources.', text: '```diff\n' + text.slice(0, 62000) + '\n```'}
+              });
+            }
       - uses: actions/upload-artifact@v4
         if: always()
         with:

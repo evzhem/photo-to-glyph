@@ -35,7 +35,8 @@ mapfile -d '' SOURCES < <(find core/src/main/kotlin cli/src/main/kotlin -name '*
 "$KOTLINC" "${SOURCES[@]}" -jvm-target 17 -Werror -include-runtime -d "$BUILD/photoglyph-m0.jar"
 echo 'PASS production compilation'
 printf '\n%s\n' '=== Compile tests against production JAR ==='
-mapfile -d '' TESTS < <(find core/src/test/kotlin -name '*.kt' -print0 | sort -z)
+# M1 adds JUnit adapters; this archival M0 command retains its original 21-case suite.
+TESTS=(core/src/test/kotlin/photoglyph/core/M0Tests.kt)
 "$KOTLINC" "${TESTS[@]}" -jvm-target 17 -Werror -classpath "$BUILD/photoglyph-m0.jar" -d "$BUILD/photoglyph-m0-tests.jar"
 echo 'PASS test compilation'
 printf '\n%s\n' '=== Real core tests ==='
