@@ -5,8 +5,6 @@ complexity:
   # rewrite their predicates/early-continue structure just to satisfy heuristics.
   ComplexCondition:
     excludes: ['**/SkeletonToPolylines.kt']
-  LoopWithTooManyJumpStatements:
-    excludes: ['**/SkeletonToPolylines.kt', '**/ZhangSuen.kt']
   TooManyFunctions:
     thresholdInFiles: 16 # Small HTTP/codec adapter helpers share one cohesive file.
   LongMethod:
@@ -23,6 +21,8 @@ naming:
   FunctionNaming:
     ignoreAnnotated: ['Composable'] # Compose functions conventionally use PascalCase.
 style:
+  LoopWithTooManyJumpStatements:
+    excludes: ['**/SkeletonToPolylines.kt', '**/ZhangSuen.kt']
   MaxLineLength:
     active: false # ktlint formatting is configured independently.
   MagicNumber:
