@@ -21,6 +21,8 @@ Free-text capture changes the original M2/M3 scope, and page composition/printin
 5. Project license: MIT. Do not add GPL project dependencies (including the prohibited potrace/OpenCV integrations), copy code from other projects, or commit third-party `.gfont` sets. OpenHand (`github.com/ReNothingg/OpenHand`) has an **OpenHand Proprietary License. All Rights Reserved** license: it may be studied, but its code must not be copied. Implement `.gfont` independently from `docs/04-формат-gfont.md` and prove round-trip behavior with our own fixtures.
 6. Never connect directly to the plotter via Bluetooth/COM or reverse-engineer its device protocol. Export a file for the user to put in KDraw's `gcodefonts` folder. KDraw controls the hardware.
 7. Do not invent missing information. Mark assumptions in code and reports and ask the user when it becomes relevant. In particular, `.gfont` units, size and service entries are not confirmed.
+
+8. **Set ownership and storage**: Missing letters need not be on the same photo or block. Save/export each set independently despite missing symbols. Storage is local phone storage without account or cloud sync. KDraw owns substitution of missing characters from other sets — PhotoGlyph must NOT merge sets or provide fallback metadata within a set.
 8. Do not rewrite accepted milestones without a separate refactoring task.
 9. Android UI uses Jetpack Compose, not XML layouts. All UI text comes from `strings.xml`, with both `ru` and `en` resources.
 10. Resolve material ambiguity before coding. Synthetic M0 inputs are explicitly authorized and do not require a request for user photographs.
