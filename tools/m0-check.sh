@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Standalone M0 only. This is not a Gradle wrapper or a substitute for M1 CI.
+# Archived standalone M0 suite. This is not a Gradle wrapper or a substitute for current CI.
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
@@ -25,13 +25,14 @@ fi
 WORK="$ROOT/.m0-work"
 BUILD="$ROOT/build/m0"
 mkdir -p "$BUILD" "$WORK"
-printf '%s\n' '=== M0 standalone verification (no Gradle; M1 not started) ==='
+printf '%s\n' '=== Archived M0 standalone verification (not Gradle/Android) ==='
 java -version
 "$KOTLINC" -version
 printf '\n%s\n' '=== Verify original synthetic fixtures ==='
 python3 tools/generate_m0_fixtures.py --check
 printf '\n%s\n' '=== Compile production core + CLI (JVM target 17) ==='
-mapfile -d '' SOURCES < <(find core/src/main/kotlin cli/src/main/kotlin -name '*.kt' -print0 | sort -z)
+# The historical smoke uses only the non-serialization core/CLI subset.
+mapfile -d '' SOURCES < <(find core/src/main/kotlin cli/src/main/kotlin -name '*.kt' ! -path 'core/src/main/kotlin/photoglyph/core/model/*' -print0 | sort -z)
 "$KOTLINC" "${SOURCES[@]}" -jvm-target 17 -Werror -include-runtime -d "$BUILD/photoglyph-m0.jar"
 echo 'PASS production compilation'
 printf '\n%s\n' '=== Compile tests against production JAR ==='

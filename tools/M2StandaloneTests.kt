@@ -1,5 +1,6 @@
 package photoglyph.tools
 
+import photoglyph.core.InkComponentsChecks
 import photoglyph.core.M2Checks
 import photoglyph.core.PictureContoursChecks
 import photoglyph.cli.sandbox.PreparationApiChecks
@@ -17,6 +18,7 @@ fun main() {
         "rectangularPerspectiveMatchesHandSpecifiedCrop -> rectifyPerspective" to M2Checks::rectangularPerspectiveMatchesHandSpecifiedCrop,
         "degenerateQuadsAndAllocationBoundsAreRejected -> PageQuad, rectifyPerspective" to M2Checks::degenerateQuadsAndAllocationBoundsAreRejected,
         "otsuHasHandDefinedBimodalThreshold -> otsuThreshold" to M2Checks::otsuHasHandDefinedBimodalThreshold,
+        "pagePreparationPreservesSmallMarksByDefault -> prepareImage, adaptiveThreshold, removeSmallComponents" to M2Checks::pagePreparationPreservesSmallMarksByDefault,
         "ambiguousBlankPageDoesNotInventDetection -> detectPageQuad" to M2Checks::ambiguousBlankPageDoesNotInventDetection,
         "detectAnalyticYaw30SideLightCorners -> detectPageQuad" to M2Checks::detectAnalyticYaw30SideLightCorners,
         "rectifyAnalyticPhotoAndAlignKnownGridProfiles -> prepareImage, whiteProjectionColumns, whiteProjectionRows" to M2Checks::rectifyAnalyticPhotoAndAlignKnownGridProfiles,
@@ -30,6 +32,18 @@ fun main() {
     }
     println("M2 real core checks: ${cases.size}, failures: $failures")
     check(failures == 0)
+    val inkComponentCases = listOf(
+        "componentsAreEightConnectedAndReadingOrdered -> connectedInkComponents" to InkComponentsChecks::componentsAreEightConnectedAndReadingOrdered,
+        "componentCropIsPixelExactAndNonmutating -> cropBinaryGrid" to InkComponentsChecks::componentCropIsPixelExactAndNonmutating,
+        "blankPageHasNoInkComponents -> connectedInkComponents" to InkComponentsChecks::blankPageHasNoInkComponents,
+    )
+    var inkComponentFailures = 0
+    for ((name, run) in inkComponentCases) {
+        try { run(); println("PASS InkComponentsTest.$name") }
+        catch (failure: Throwable) { inkComponentFailures++; System.err.println("FAIL InkComponentsTest.$name"); failure.printStackTrace() }
+    }
+    println("Ink component production checks: ${inkComponentCases.size}, failures: $inkComponentFailures")
+    check(inkComponentFailures == 0)
     val contourCases = listOf(
         "straightStepProducesThinBlackContourWithoutMutatingSource -> blackContourImage" to PictureContoursChecks::straightStepProducesThinBlackContourWithoutMutatingSource,
         "uniformImageProducesNoContours -> blackContourImage" to PictureContoursChecks::uniformImageProducesNoContours,

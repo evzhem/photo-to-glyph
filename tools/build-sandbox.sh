@@ -23,9 +23,10 @@ if ! command -v java >/dev/null 2>&1 || [[ ! -x "$KOTLINC" ]]; then
     exit 1
 fi
 mkdir -p build/sandbox
-printf '%s\n' '=== Compile the actual Kotlin core + diagnostic CLI (not Android/Gradle) ==='
+printf '%s\n' '=== Compile the diagnostic core + CLI subset (not Android/Gradle) ==='
 "$KOTLINC" -version
-mapfile -d '' SOURCES < <(find core/src/main/kotlin cli/src/main/kotlin -name '*.kt' -print0 | sort -z)
+# The sandbox does not consume the optional Gradle/kotlinx-serialization GlyphSet model.
+mapfile -d '' SOURCES < <(find core/src/main/kotlin cli/src/main/kotlin -name '*.kt' ! -path 'core/src/main/kotlin/photoglyph/core/model/*' -print0 | sort -z)
 "$KOTLINC" "${SOURCES[@]}" -jvm-target 17 -Werror -include-runtime -d build/sandbox/photoglyph-sandbox.jar
 python3 - <<'PY'
 from pathlib import Path

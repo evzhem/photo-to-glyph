@@ -27,9 +27,10 @@ GitHub tracking: [Issue #2 — План оставшихся работ: PhotoGl
 
 - **M0 — complete:** synthetic core spike, 21 production-function checks and SVG smoke are recorded in `docs/M0-report.md`.
 - **M1 — complete:** Gradle/CI foundation and diagnostic sandbox; PR #1 is merged.
-- **M2 — partial:** photo import/camera and page preparation are present. `./tools/m2-standalone-check.sh` passed (16 page-preparation checks, 4 picture-contour checks and 5 preparation API checks, plus M0/M1 standalone checks). Current-branch GitHub Actions run [38795281009](https://github.com/evzhem/photo-to-glyph/actions/runs/38795281009) passed the full Gradle build/tests/smoke and published debug APK artifact `photoglyph-m1-debug-apk` (ID `12001837776`, 10,634,119 bytes). Real Android device/emulator behavior is still unverified.
+- **M2 — partial:** photo import/camera and page preparation are present. The latest `./tools/m2-standalone-check.sh` passed (17 page-preparation checks, 3 ink-component checks, 4 picture-contour checks and 5 preparation API checks, plus M0/M1 standalone checks). GitHub Actions run [38795281009](https://github.com/evzhem/photo-to-glyph/actions/runs/38795281009) passed the contour/UI code before the newer component/model additions and published debug APK artifact `photoglyph-m1-debug-apk` (ID `12001837776`, 10,634,119 bytes); Gradle CI must be rerun for the newest changes. Real Android device/emulator behavior is still unverified.
 - **Picture contours — code and CI implemented:** independent Kotlin/JVM Sobel/NMS image processing, a separate Android preview mode and four synthetic production-function tests are present; current Gradle/Android CI passes. Real-photo quality and device behavior remain unverified.
-- **Not implemented end-to-end:** handwritten page → recognized alphabet, correction/editor, local partial-alphabet library and `.gfont` export.
+- **Recognition foundation only:** page preparation now preserves small marks by default; the core can return deterministic 8-connected ink components and crops. A serializable `GlyphSet` model and partial-set JSON round-trip tests are added. These are not OCR, label assignment, user correction UI or on-device persistence.
+- **Not implemented end-to-end:** handwritten page → recognized alphabet, correction/editor, local partial-alphabet library in the app and `.gfont` export.
 
 ### Ordered implementation plan
 

@@ -19,6 +19,8 @@ data class PipelineParams(
     val pageMinBrightFraction: Double = 0.15,
     val pageMaxBrightFraction: Double = 0.95,
     val pageMinQuadFraction: Double = 0.20,
+    // Preserve small marks such as dots and accents in handwriting pages by default.
+    val pageMinComponentAreaPx: Int = 1,
     val maxPreparedPixels: Int = 1_000_000,
     // Separate photo-to-black-contour mode; normalized Sobel magnitude is 0..255.
     val contourEdgeThreshold: Double = 48.0,
@@ -36,7 +38,7 @@ data class PipelineParams(
         require(svgDecimalPlaces in 0..MAX_USEFUL_DOUBLE_DECIMALS)
         require(benchmarkWarmupRuns >= 0 && benchmarkMeasuredRuns > 0)
         require(processingBudgetMs.isFinite() && processingBudgetMs > 0.0)
-        require(pageDetectionMaxEdgePx > 0 && maxPreparedPixels > 0)
+        require(pageDetectionMaxEdgePx > 0 && maxPreparedPixels > 0 && pageMinComponentAreaPx >= 0)
         require(pageMinBrightFraction.isFinite() && pageMaxBrightFraction.isFinite())
         require(pageMinBrightFraction > 0.0 && pageMaxBrightFraction < 1.0 && pageMinBrightFraction < pageMaxBrightFraction)
         require(pageMinQuadFraction.isFinite() && pageMinQuadFraction in 0.0..1.0)

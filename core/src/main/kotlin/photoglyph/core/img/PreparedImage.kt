@@ -18,7 +18,11 @@ fun prepareImage(
 ): PreparedImage {
     val rectified = rectifyPerspective(image, quad, width, height, params)
     val grayscale = toGrayscale(rectified)
-    val binary = removeSmallComponents(adaptiveThreshold(grayscale, params), params)
+    val binary =
+        removeSmallComponents(
+            adaptiveThreshold(grayscale, params),
+            params.copy(minComponentAreaPx = params.pageMinComponentAreaPx),
+        )
     return PreparedImage(rectified, grayscale, binary)
 }
 

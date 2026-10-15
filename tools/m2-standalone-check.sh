@@ -13,6 +13,7 @@ if [[ -z "$KOTLINC" ]]; then KOTLINC="$ROOT/.cache/m0-toolchain/kotlin/package/b
 python3 tools/generate_m2_fixtures.py --check
 printf '\n%s\n' '=== Compile shared M2 core and API cases against actual production JAR ==='
 "$KOTLINC" core/src/test/kotlin/photoglyph/core/M2Checks.kt \
+    core/src/test/kotlin/photoglyph/core/InkComponentsChecks.kt \
     core/src/test/kotlin/photoglyph/core/PictureContoursChecks.kt \
     cli/src/test/kotlin/photoglyph/cli/sandbox/PreparationApiChecks.kt tools/M2StandaloneTests.kt \
     -jvm-target 17 -Werror -cp build/sandbox/photoglyph-sandbox.jar -d build/sandbox/m2-tests.jar

@@ -25,6 +25,8 @@ class M2Test {
 
     @Test fun otsuHasHandDefinedBimodalThreshold() = M2Checks.otsuHasHandDefinedBimodalThreshold()
 
+    @Test fun pagePreparationPreservesSmallMarksByDefault() = M2Checks.pagePreparationPreservesSmallMarksByDefault()
+
     @Test fun ambiguousBlankPageDoesNotInventDetection() = M2Checks.ambiguousBlankPageDoesNotInventDetection()
 
     @Test fun detectAnalyticYaw30SideLightCorners() = M2Checks.detectAnalyticYaw30SideLightCorners()

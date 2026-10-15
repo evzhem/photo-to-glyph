@@ -94,6 +94,16 @@ object M2Checks {
         check(otsuThreshold(GrayImage(4, 1, doubleArrayOf(10.0, 10.0, 230.0, 230.0))) == 10.0)
     }
 
+    fun pagePreparationPreservesSmallMarksByDefault() {
+        val pixels = IntArray(81) { WHITE_ARGB }.also { it[4 * 9 + 4] = BLACK_ARGB }
+        val image = ArgbImage(9, 9, pixels)
+        val prepared = prepareImage(image, PageQuad.fullImage(image), 9, 9)
+        check(prepared.binary.foregroundCount == 1 && prepared.binary[4 * 9 + 4])
+        val filtered = prepareImage(image, PageQuad.fullImage(image), 9, 9, PipelineParams(pageMinComponentAreaPx = 2))
+        check(filtered.binary.foregroundCount == 0)
+        rejects { PipelineParams(pageMinComponentAreaPx = -1) }
+    }
+
     fun ambiguousBlankPageDoesNotInventDetection() {
         val image = ArgbImage(20, 20, IntArray(400) { 0xffffffff.toInt() })
         check(detectPageQuad(image) == null)
@@ -180,4 +190,6 @@ object M2Checks {
 
     private const val CORNER_TOLERANCE_PX = 6.0
     private const val PROFILE_TOLERANCE_PX = 3
+    private const val BLACK_ARGB = 0xff000000.toInt()
+    private const val WHITE_ARGB = 0xffffffff.toInt()
 }
