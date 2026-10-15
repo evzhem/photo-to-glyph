@@ -4,6 +4,7 @@ import org.junit.Test
 
 class M2Test {
     @Test fun transparentResizeHasNoHalo() = M2Checks.transparentResizeHasNoHalo()
+
     @Test fun mirrorIsPixelExactAndNonmutating() = M2Checks.mirrorIsPixelExactAndNonmutating()
 
     @Test fun suggestedSizeDoesNotGuessA4() = M2Checks.suggestedSizeDoesNotGuessA4()
