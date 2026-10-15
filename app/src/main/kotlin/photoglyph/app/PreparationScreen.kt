@@ -147,99 +147,97 @@ internal fun PreparationScreen() {
         val corners = quad
         if (mode == PreparationMode.PAGE) {
             PagePreparationContent(
-                current = current,
-                corners = corners,
-                prepared = prepared,
-                offset = offset,
-                a4 = a4,
-                busy = busy,
-                onQuadChange = { value ->
-                    quad = value
-                    prepared = null
-                },
-                onRotate = { current?.let { loaded(rotateQuarterTurns(it, 1)) } },
-                onDetectCorners = {
-                    current?.let { source ->
-                        val detected = detectPageQuad(source)
-                        if (detected == null) {
-                            message = R.string.corner_not_found
-                        } else {
-                            quad = detected
+                state = PagePreparationUiState(current, corners, prepared, offset, a4, busy),
+                actions =
+                    PagePreparationActions(
+                        onQuadChange = { value ->
+                            quad = value
                             prepared = null
-                            message = null
-                        }
-                    }
-                },
-                onCrop = {
-                    if (current != null && corners != null) {
-                        val left = corners.corners.minOf { it.x }.toInt().coerceAtLeast(0)
-                        val top = corners.corners.minOf { it.y }.toInt().coerceAtLeast(0)
-                        val right = corners.corners.maxOf { it.x }.roundToInt().coerceAtMost(current.width)
-                        val bottom = corners.corners.maxOf { it.y }.roundToInt().coerceAtMost(current.height)
-                        loaded(cropImage(current, left, top, right - left, bottom - top))
-                    }
-                },
-                onOffsetChange = {
-                    offset = it
-                    prepared = null
-                },
-                onA4Change = {
-                    a4 = it
-                    prepared = null
-                },
-                onPrepare = {
-                    if (current != null && corners != null) {
-                        val source = current
-                        val frame = corners
-                        val useA4 = a4
-                        val thresholdOffset = offset.toDouble()
-                        scope.launch {
-                            busy = true
-                            try {
-                                prepared =
-                                    withContext(Dispatchers.Default) {
-                                        val dimensions = if (useA4) OUTPUT_WIDTH to OUTPUT_HEIGHT else suggestedRectifiedSize(frame, OUTPUT_MAX_EDGE)
-                                        prepareImage(source, frame, dimensions.first, dimensions.second, PipelineParams(adaptiveOffset = thresholdOffset))
-                                    }
-                                message = null
-                            } catch (_: IllegalArgumentException) {
-                                message = R.string.prepare_failed
-                            } finally {
-                                busy = false
+                        },
+                        onRotate = { current?.let { loaded(rotateQuarterTurns(it, 1)) } },
+                        onDetectCorners = {
+                            current?.let { source ->
+                                val detected = detectPageQuad(source)
+                                if (detected == null) {
+                                    message = R.string.corner_not_found
+                                } else {
+                                    quad = detected
+                                    prepared = null
+                                    message = null
+                                }
                             }
-                        }
-                    }
-                },
+                        },
+                        onCrop = {
+                            if (current != null && corners != null) {
+                                val left = corners.corners.minOf { it.x }.toInt().coerceAtLeast(0)
+                                val top = corners.corners.minOf { it.y }.toInt().coerceAtLeast(0)
+                                val right = corners.corners.maxOf { it.x }.roundToInt().coerceAtMost(current.width)
+                                val bottom = corners.corners.maxOf { it.y }.roundToInt().coerceAtMost(current.height)
+                                loaded(cropImage(current, left, top, right - left, bottom - top))
+                            }
+                        },
+                        onOffsetChange = {
+                            offset = it
+                            prepared = null
+                        },
+                        onA4Change = {
+                            a4 = it
+                            prepared = null
+                        },
+                        onPrepare = {
+                            if (current != null && corners != null) {
+                                val source = current
+                                val frame = corners
+                                val useA4 = a4
+                                val thresholdOffset = offset.toDouble()
+                                scope.launch {
+                                    busy = true
+                                    try {
+                                        prepared =
+                                            withContext(Dispatchers.Default) {
+                                                val dimensions = if (useA4) OUTPUT_WIDTH to OUTPUT_HEIGHT else suggestedRectifiedSize(frame, OUTPUT_MAX_EDGE)
+                                                prepareImage(source, frame, dimensions.first, dimensions.second, PipelineParams(adaptiveOffset = thresholdOffset))
+                                            }
+                                        message = null
+                                    } catch (_: IllegalArgumentException) {
+                                        message = R.string.prepare_failed
+                                    } finally {
+                                        busy = false
+                                    }
+                                }
+                            }
+                        },
+                    ),
             )
         } else {
             ContourModeContent(
-                current = current,
-                result = contourResult,
-                threshold = contourThreshold,
-                busy = busy,
-                onThresholdChange = {
-                    contourThreshold = it
-                    contourResult = null
-                },
-                onFindContours = {
-                    current?.let { source ->
-                        val sensitivity = contourThreshold.toDouble()
-                        scope.launch {
-                            busy = true
-                            try {
-                                contourResult =
-                                    withContext(Dispatchers.Default) {
-                                        blackContourImage(source, PipelineParams(contourEdgeThreshold = sensitivity))
+                state = ContourModeUiState(current, contourResult, contourThreshold, busy),
+                actions =
+                    ContourModeActions(
+                        onThresholdChange = {
+                            contourThreshold = it
+                            contourResult = null
+                        },
+                        onFindContours = {
+                            current?.let { source ->
+                                val sensitivity = contourThreshold.toDouble()
+                                scope.launch {
+                                    busy = true
+                                    try {
+                                        contourResult =
+                                            withContext(Dispatchers.Default) {
+                                                blackContourImage(source, PipelineParams(contourEdgeThreshold = sensitivity))
+                                            }
+                                        message = null
+                                    } catch (_: IllegalArgumentException) {
+                                        message = R.string.contour_failed
+                                    } finally {
+                                        busy = false
                                     }
-                                message = null
-                            } catch (_: IllegalArgumentException) {
-                                message = R.string.contour_failed
-                            } finally {
-                                busy = false
+                                }
                             }
-                        }
-                    }
-                },
+                        },
+                    ),
             )
         }
     }
@@ -299,11 +297,6 @@ private const val PREVIEW_HEIGHT_DP = 320
 private const val PAGE_PADDING_DP = 20
 private const val SECTION_GAP_DP = 12
 private const val BUTTON_GAP_DP = 8
-private const val MAX_OFFSET = 50f
-private const val MIN_CONTOUR_THRESHOLD = 0f
-private const val MAX_CONTOUR_THRESHOLD = 255f
-private const val BLACK = 0xff000000.toInt()
-private const val WHITE = 0xffffffff.toInt()
 private const val QUAD_COLOR = 0xff2a6554
 private const val QUAD_STROKE_PX = 2f
 private const val HANDLE_RADIUS_PX = 7f
