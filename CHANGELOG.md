@@ -10,7 +10,7 @@ All notable changes are documented here. Code and commits are in English; report
 - Change the Android entry flow to request camera permission and open a full-screen CameraX preview immediately; retain gallery import as fallback and remove synthetic letter/demo controls and fixture assets from the user app.
 - Keep the browser single-glyph lab explicitly developer-only; it is not the Android product screen.
 - Continue M2 photo preparation (page corners, crop/rotation, perspective and B/W).
-- Add separate pure Kotlin/JVM Sobel + non-maximum-suppression picture contours, a Compose camera/import preview mode, and a sensitivity control. Four synthetic tests execute `blackContourImage`/`PipelineParams`; the M2 standalone suite passes. Current-branch Gradle CI and real Android/photo quality checks are pending.
+- Add separate pure Kotlin/JVM Sobel + non-maximum-suppression picture contours, a Compose camera/import preview mode, and a sensitivity control. Four synthetic tests execute `blackContourImage`/`PipelineParams`; the M2 standalone suite and current-branch Gradle CI pass. Real Android/photo quality checks remain pending.
 - Recognition, user correction, local alphabet storage, and `.gfont` export are still not implemented. The last green Actions run predates this contour change; do not treat it as verification of the current commit.
 - Fix the existing Kotlin formatting violation that caused the earlier Gradle/Android build to fail before it could publish the debug APK.
 
