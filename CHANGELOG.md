@@ -9,7 +9,7 @@ All notable changes are documented here. Code and commits are in English; report
 - Record the confirmed product outcomes: camera-first photo of a handwritten page → detected letters → a possibly incomplete alphabet; KDraw owns missing-letter substitution. A separate photo-to-image mode should return black contours only; file format/background/actions remain unspecified.
 - Change the Android entry flow to request camera permission and open a full-screen CameraX preview immediately; retain gallery import as fallback and remove synthetic letter/demo controls and fixture assets from the user app.
 - Keep the browser single-glyph lab explicitly developer-only; it is not the Android product screen.
-- Continue M2 photo preparation (page corners, crop/rotation, perspective and B/W). Recognition, alphabet storage/export and picture-contour extraction are not claimed as implemented; Android Gradle/device verification remains pending.
+- Continue M2 photo preparation (page corners, crop/rotation, perspective and B/W). GitHub Actions Gradle build/tests/smoke now pass; real Android-device verification remains pending. Recognition, alphabet storage/export and picture-contour extraction are not claimed as implemented.
 - Fix the existing Kotlin formatting violation that caused the latest GitHub Gradle/Android build to fail before it could publish the debug APK.
 
 ### M1 — 2026-10-13
