@@ -1,0 +1,4 @@
+# Preserve exact captured stdout/stderr, including tool-generated trailing spaces.
+# Source code and all other documentation retain normal whitespace checks.
+docs/m1/*.txt -whitespace
+docs/M1-report.md -whitespace

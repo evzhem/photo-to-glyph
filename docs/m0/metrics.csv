@@ -1,0 +1,6 @@
+char,codepoint,strokes,closed_polylines,graph_cycle_rank,split_closed_chains,graph_components,source_pixels,cleaned_pixels,skeleton_pixels,graph_nodes,graph_edges,pruned_edges,corner_diagonals,rdp_points,raw_points,cold_ms,median_ms,max_ms
+Ж,1046,8,0,0,0,1,4488,4488,806,806,805,0,392,181,813,192.013,23.477,192.013
+Б,1041,3,0,1,1,1,4108,4108,672,672,672,0,32,67,675,26.793,13.521,26.793
+в,1074,3,0,2,0,1,3510,3510,601,601,602,0,90,95,605,15.665,13.148,21.542
+Ш,1064,3,0,0,0,1,4324,4324,710,710,709,0,3,9,712,18.403,11.285,18.403
+ф,1092,5,0,2,0,1,4322,4322,719,719,720,0,88,139,725,11.573,16.243,17.768

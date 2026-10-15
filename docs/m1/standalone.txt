@@ -1,0 +1,66 @@
+=== Compile the actual Kotlin core + diagnostic CLI (not Android/Gradle) ===
+info: kotlinc-jvm 2.1.21 (JRE 21.0.8+9-LTS)
+PASS embedded sandbox resources (HTML/CSS/JS and ru/en strings.xml)
+PASS diagnostic production compilation
+PASS fixture: tools/fixtures/synthetic/m0/1046.png
+PASS fixture: tools/fixtures/synthetic/m0/1041.png
+PASS fixture: tools/fixtures/synthetic/m0/1074.png
+PASS fixture: tools/fixtures/synthetic/m0/1064.png
+PASS fixture: tools/fixtures/synthetic/m0/1092.png
+PASS fixture: tools/fixtures/synthetic/m0/manifest.json
+PASS fixture: tools/fixtures/synthetic/golden/bar-20-input.png
+PASS fixture: tools/fixtures/synthetic/golden/bar-20-expected.png
+
+=== Compile shared real test cases against the production JAR ===
+
+=== Execute unchanged M0 + source policy + HTTP/core recovery checks ===
+PASS GrayscaleTest.bt601 -> toGrayscale
+PASS GrayscaleTest.alphaOnWhite -> toGrayscale
+PASS AdaptiveThresholdTest.localMeanAndOffset -> adaptiveThreshold
+PASS AdaptiveThresholdTest.clippedBorderWindow -> adaptiveThreshold
+PASS DespeckleTest.strict12pxBoundary -> removeSmallComponents
+PASS DespeckleTest.eightConnectivity -> removeSmallComponents
+PASS ZhangSuenTest.golden20px -> zhangSuen
+PASS ZhangSuenTest.fixedPointAndBorder -> zhangSuen
+PASS ZhangSuenTest.preserveLoop -> zhangSuen, skeletonToPolylines
+PASS SkeletonToPolylinesTest.zheAtLeast3Open -> vectorize, skeletonToPolylines
+PASS SkeletonToPolylinesTest.cornerAndDiagonal -> skeletonToPolylines
+PASS SkeletonToPolylinesTest.cycleEdgeCoverage -> skeletonToPolylines
+PASS SkeletonToPolylinesTest.pruneStrictlyBelow2px -> skeletonToPolylines
+PASS SkeletonToPolylinesTest.dotAndEmpty -> skeletonToPolylines, strokesToSvg, requireStrokeOnlySvg
+PASS RdpTest.handSpecifiedSimplification -> simplifyRdp
+PASS RdpTest.zeroEpsilonAndShortPaths -> simplifyRdp
+PASS SvgNoFillTest.fiveActualExports -> vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SvgNoFillTest.rejectCorruptedExport -> strokesToSvg, requireStrokeOnlySvg
+PASS SvgNoFillTest.rejectClosureAndUseDecimalPoint -> strokesToSvg, requireStrokeOnlySvg
+PASS PipelineTest.deterministicAndImmutable -> vectorize
+PASS PipelineTest.blankImage -> vectorize, strokesToSvg, requireStrokeOnlySvg
+Tests: 21, passed: 21, failed: 0
+PASS CoreSourcePolicyTest.actualProductionSourcesHaveNoAndroidImports -> findForbiddenAndroidImports
+PASS CoreSourcePolicyTest.rejectsQualifiedWildcardAndAliasedAndroidImports -> findForbiddenAndroidImports
+PASS CoreSourcePolicyTest.ignoresNestedCommentsAndStringExamples -> findForbiddenAndroidImports
+PASS SandboxApiTest.fiveFixturesExecuteActualCore -> HTTP + vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SandboxApiTest.parameterChangesReachActualCore -> HTTP + vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SandboxApiTest.uploadedPngExecutesActualCore -> HTTP + vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SandboxApiTest.uploadedJpegExecutesActualCore -> HTTP + vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SandboxApiTest.invalidParametersReleaseTheCoreForRecovery -> HTTP + vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SandboxApiTest.badImagesReleaseTheCoreForRecovery -> HTTP + vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SandboxApiTest.oversizedInputsReleaseTheCoreForRecovery -> HTTP + vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SandboxApiTest.routesAndLocalesPreserveAWorkingCore -> HTTP + vectorize, strokesToSvg, requireStrokeOnlySvg
+Standalone real checks: 21 existing core + 3 source policy + 8 API; all passed
+This is NOT a Gradle/Android result. The mandatory Gradle command is reported separately.
+
+=== CLI smoke using the same production JAR ===
+INPUT: original synthetic 300x300 PNGs, 6 px strokes; not real handwriting
+TIMING: PNG decode + core + SVG serialization/validation; excludes JVM startup/output writes; 2 warmups + 5 measured runs
+char | strokes | closed | graph cycles | split chains | cold ms | median ms | max ms
+Ж | 8 | 0 | 0 | 0 | 168.276 | 17.660 | 168.276
+Б | 3 | 0 | 1 | 1 | 23.532 | 17.661 | 24.683
+в | 3 | 0 | 2 | 0 | 24.479 | 12.389 | 24.479
+Ш | 3 | 0 | 0 | 0 | 22.109 | 10.900 | 22.109
+ф | 5 | 0 | 2 | 0 | 10.825 | 7.522 | 10.825
+PASS smoke: 5/5 nonempty glyphs, zero closed polylines, explicit no-fill strokes, within budget
+Outputs: build/sandbox/smoke/<codepoint>.svg, intermediate PNGs, metrics.csv
+
+=== Browser-adapter syntax and diff checks ===
+PASS standalone diagnostic checks; NOT the mandatory Gradle/Android build

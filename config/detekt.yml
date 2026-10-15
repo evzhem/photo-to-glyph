@@ -1,0 +1,36 @@
+# Keep bug/exception/naming checks active. Pixel algorithms are deliberately
+# iterative and longer than CRUD methods; these limits do not disable detekt.
+complexity:
+  # Narrow exceptions for accepted, function-oriented M0 algorithms. Do not
+  # rewrite their predicates/early-continue structure just to satisfy heuristics.
+  ComplexCondition:
+    excludes: ['**/SkeletonToPolylines.kt']
+  TooManyFunctions:
+    thresholdInFiles: 16 # Small HTTP/codec adapter helpers share one cohesive file.
+  LongMethod:
+    threshold: 200
+  CyclomaticComplexMethod:
+    threshold: 45
+  NestedBlockDepth:
+    threshold: 8
+  LongParameterList:
+    ignoreDataClasses: true
+naming:
+  MatchingDeclarationName:
+    excludes: ['**/SkeletonToPolylines.kt', '**/ZhangSuen.kt', '**/Vectorize.kt']
+  FunctionNaming:
+    ignoreAnnotated: ['Composable'] # Compose functions conventionally use PascalCase.
+style:
+  LoopWithTooManyJumpStatements:
+    excludes: ['**/SkeletonToPolylines.kt', '**/ZhangSuen.kt']
+  MaxLineLength:
+    active: false # ktlint formatting is configured independently.
+  MagicNumber:
+    ignoreNumbers: ['-1', '0', '1', '2', '4', '6', '8', '255']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+  ReturnCount:
+    max: 6
+  ThrowsCount:
+    max: 6

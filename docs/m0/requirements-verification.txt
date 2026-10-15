@@ -1,0 +1,61 @@
+=== M0 standalone verification (no Gradle; M1 not started) ===
+openjdk version "21.0.8" 2025-07-15 LTS
+OpenJDK Runtime Environment Temurin-21.0.8+9 (build 21.0.8+9-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode)
+info: kotlinc-jvm 2.1.21 (JRE 21.0.8+9-LTS)
+
+=== Verify original synthetic fixtures ===
+PASS fixture: tools/fixtures/synthetic/m0/1046.png
+PASS fixture: tools/fixtures/synthetic/m0/1041.png
+PASS fixture: tools/fixtures/synthetic/m0/1074.png
+PASS fixture: tools/fixtures/synthetic/m0/1064.png
+PASS fixture: tools/fixtures/synthetic/m0/1092.png
+PASS fixture: tools/fixtures/synthetic/m0/manifest.json
+PASS fixture: tools/fixtures/synthetic/golden/bar-20-input.png
+PASS fixture: tools/fixtures/synthetic/golden/bar-20-expected.png
+
+=== Compile production core + CLI (JVM target 17) ===
+PASS production compilation
+
+=== Compile tests against production JAR ===
+PASS test compilation
+
+=== Real core tests ===
+PASS GrayscaleTest.bt601 -> toGrayscale
+PASS GrayscaleTest.alphaOnWhite -> toGrayscale
+PASS AdaptiveThresholdTest.localMeanAndOffset -> adaptiveThreshold
+PASS AdaptiveThresholdTest.clippedBorderWindow -> adaptiveThreshold
+PASS DespeckleTest.strict12pxBoundary -> removeSmallComponents
+PASS DespeckleTest.eightConnectivity -> removeSmallComponents
+PASS ZhangSuenTest.golden20px -> zhangSuen
+PASS ZhangSuenTest.fixedPointAndBorder -> zhangSuen
+PASS ZhangSuenTest.preserveLoop -> zhangSuen, skeletonToPolylines
+PASS SkeletonToPolylinesTest.zheAtLeast3Open -> vectorize, skeletonToPolylines
+PASS SkeletonToPolylinesTest.cornerAndDiagonal -> skeletonToPolylines
+PASS SkeletonToPolylinesTest.cycleEdgeCoverage -> skeletonToPolylines
+PASS SkeletonToPolylinesTest.pruneStrictlyBelow2px -> skeletonToPolylines
+PASS SkeletonToPolylinesTest.dotAndEmpty -> skeletonToPolylines, strokesToSvg, requireStrokeOnlySvg
+PASS RdpTest.handSpecifiedSimplification -> simplifyRdp
+PASS RdpTest.zeroEpsilonAndShortPaths -> simplifyRdp
+PASS SvgNoFillTest.fiveActualExports -> vectorize, strokesToSvg, requireStrokeOnlySvg
+PASS SvgNoFillTest.rejectCorruptedExport -> strokesToSvg, requireStrokeOnlySvg
+PASS SvgNoFillTest.rejectClosureAndUseDecimalPoint -> strokesToSvg, requireStrokeOnlySvg
+PASS PipelineTest.deterministicAndImmutable -> vectorize
+PASS PipelineTest.blankImage -> vectorize, strokesToSvg, requireStrokeOnlySvg
+Tests: 21, passed: 21, failed: 0
+
+=== CLI smoke: five original synthetic glyphs ===
+INPUT: original synthetic 300x300 PNGs, 6 px strokes; not real handwriting
+TIMING: PNG decode + core + SVG serialization/validation; excludes JVM startup/output writes; 2 warmups + 5 measured runs
+char | strokes | closed | graph cycles | split chains | cold ms | median ms | max ms
+Ж | 8 | 0 | 0 | 0 | 204.532 | 15.394 | 204.532
+Б | 3 | 0 | 1 | 1 | 20.090 | 11.192 | 58.811
+в | 3 | 0 | 2 | 0 | 17.785 | 13.847 | 19.339
+Ш | 3 | 0 | 0 | 0 | 21.967 | 8.915 | 21.967
+ф | 5 | 0 | 2 | 0 | 8.426 | 9.674 | 10.884
+PASS smoke: 5/5 nonempty glyphs, zero closed polylines, explicit no-fill strokes, within budget
+Outputs: /home/user/photo-to-glyph/.m0-work/<codepoint>.svg, intermediate PNGs, metrics.csv
+
+=== Repository whitespace check ===
+PASS git diff --check + git diff --cached --check
+M0 CHECK PASSED (synthetic evidence only; Inkscape/device not verified)

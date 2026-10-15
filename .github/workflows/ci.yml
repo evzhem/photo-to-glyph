@@ -1,0 +1,101 @@
+name: Build and verify
+
+on:
+  push:
+    branches: [main, 'arena/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+concurrency:
+  group: photoglyph-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Verify Gradle wrapper checksum
+        run: echo '2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046  gradle/wrapper/gradle-wrapper.jar' | sha256sum --check
+      - name: Build, test the core and smoke the pipeline
+        id: verification
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew --console=plain --no-daemon build :core:test :cli:smoke 2>&1 | tee verification.txt
+      - name: Publish complete verification output
+        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const text = fs.existsSync('verification.txt') ? fs.readFileSync('verification.txt', 'utf8') : 'Build step did not run.';
+            const count = Math.max(1, Math.ceil(text.length / 60000));
+            for (let part = 0; part < count; part++) {
+              await github.rest.checks.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head_sha: context.sha,
+                name: count === 1 ? 'Verification output' : `Verification output ${part + 1}/${count}`,
+                status: 'completed',
+                conclusion: '${{ steps.verification.outcome }}' === 'success' ? 'success' : 'failure',
+                output: {
+                  title: 'Actual Gradle build / core tests / CLI smoke',
+                  summary: `Complete output, part ${part + 1}/${count}; no truncation. This check does not replace the build job.`,
+                  text: '```text\n' + text.slice(part * 60000, (part + 1) * 60000) + '\n```'
+                }
+              });
+            }
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '## Verification\n\n```text\n' + text + '\n```\n');
+      - name: Report formatting suggestions without changing the verification result
+        if: failure()
+        shell: bash
+        run: |
+          ./gradlew --console=plain --no-daemon ktlintFormat > formatting.txt 2>&1 || true
+          git diff -- '*.kt' '*.kts' > formatting.patch
+      - name: Publish formatting patch for review
+        if: failure() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const text = fs.existsSync('formatting.patch') ? fs.readFileSync('formatting.patch', 'utf8') : '';
+            const count = Math.ceil(text.length / 60000);
+            for (let part = 0; part < count; part++) {
+              await github.rest.checks.create({
+                owner: context.repo.owner, repo: context.repo.repo, head_sha: context.sha,
+                name: count === 1 ? 'Formatting suggestions' : `Formatting suggestions ${part + 1}/${count}`,
+                status: 'completed', conclusion: 'neutral',
+                output: {title: 'Review-only ktlint formatting patch', summary: `Original build remains failed. Patch part ${part + 1}/${count}, without truncation.`, text: '```diff\n' + text.slice(part * 60000, (part + 1) * 60000) + '\n```'}
+              });
+            }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-evidence
+          path: |
+            verification.txt
+            formatting.txt
+            formatting.patch
+            core/build/reports/tests/
+            cli/build/reports/tests/
+            **/build/reports/detekt/
+            cli/build/smoke/
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        with:
+          name: photoglyph-m1-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
