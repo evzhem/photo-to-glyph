@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">PhotoGlyph</string>
+  <string name="page_mode">Prepare page</string>
+  <string name="contour_mode">Black contours</string>
   <string name="preparation_title">Photograph a page</string>
   <string name="preparation_note">The camera opens first when you launch the app. If Android asks for permission, allow it. After capture you can straighten the page; letter recognition is still in development. The photo stays on your phone.</string>
+  <string name="contour_title">Black contours from an image</string>
+  <string name="contour_note">Choose a photo or take one. The app finds brightness boundaries and displays an image with contours. This is not letter recognition.</string>
+  <string name="contour_import_hint">Take a photo or choose an existing image.</string>
+  <string name="contour_source">Source image</string>
+  <string name="contour_source_description">Photo to process for contours</string>
+  <string name="contour_threshold">Edge sensitivity: %1$d</string>
+  <string name="find_contours">Create contours</string>
+  <string name="contour_ready">Contour image ready: %1$d × %2$d.</string>
+  <string name="contour_result_description">Image with black contours</string>
+  <string name="contour_failed">Could not process this image. Choose another photo or try again.</string>
   <string name="import_picture">Choose a photo</string>
   <string name="camera_open">Open camera</string>
   <string name="import_failed">Could not read the image. Choose PNG/JPEG/WebP.</string>
@@ -22,7 +34,6 @@
   <string name="prepare_failed">Could not straighten the image. Check the corner order and frame size.</string>
   <string name="binary_ready">Page prepared: %1$d × %2$d, black and white. Letter recognition is the next stage.</string>
   <string name="binary_description">Straightened black-and-white page</string>
-  <string name="outlines_planned">Separate feature: photo to an image with black contours. Not implemented yet.</string>
   <string name="processing">Processing…</string>
   <string name="a4_grid_ratio">A4 / printed-grid ratio (otherwise use the frame)</string>
 </resources>

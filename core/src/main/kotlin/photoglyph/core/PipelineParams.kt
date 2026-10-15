@@ -1,6 +1,6 @@
 package photoglyph.core
 
-/** All adjustable spike parameters; image-stage distances are in raster pixels. */
+/** Algorithm configuration; image-stage distances are in raster pixels. */
 data class PipelineParams(
     val adaptiveWindowSizePx: Int = 25,
     val adaptiveOffset: Double = 10.0,
@@ -20,6 +20,8 @@ data class PipelineParams(
     val pageMaxBrightFraction: Double = 0.95,
     val pageMinQuadFraction: Double = 0.20,
     val maxPreparedPixels: Int = 1_000_000,
+    // Separate photo-to-black-contour mode; normalized Sobel magnitude is 0..255.
+    val contourEdgeThreshold: Double = 48.0,
 ) {
     init {
         require(adaptiveWindowSizePx > 0 && adaptiveWindowSizePx % 2 == 1) {
@@ -38,8 +40,10 @@ data class PipelineParams(
         require(pageMinBrightFraction.isFinite() && pageMaxBrightFraction.isFinite())
         require(pageMinBrightFraction > 0.0 && pageMaxBrightFraction < 1.0 && pageMinBrightFraction < pageMaxBrightFraction)
         require(pageMinQuadFraction.isFinite() && pageMinQuadFraction in 0.0..1.0)
+        require(contourEdgeThreshold.isFinite() && contourEdgeThreshold in 0.0..MAX_CONTOUR_EDGE_THRESHOLD)
     }
 }
 
 // Precision beyond this does not usefully describe a double coordinate in SVG.
 private const val MAX_USEFUL_DOUBLE_DECIMALS = 15
+private const val MAX_CONTOUR_EDGE_THRESHOLD = 255.0

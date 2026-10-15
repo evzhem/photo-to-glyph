@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">PhotoGlyph</string>
+  <string name="page_mode">Подготовка страницы</string>
+  <string name="contour_mode">Чёрные контуры</string>
   <string name="preparation_title">Сфотографируйте страницу</string>
   <string name="preparation_note">При запуске сначала откроется камера. Если Android запросит разрешение, подтвердите его. После снимка можно выровнять страницу; распознавание букв пока разрабатывается. Фото остаётся на телефоне.</string>
+  <string name="contour_title">Чёрные контуры изображения</string>
+  <string name="contour_note">Выберите фото или сделайте снимок. Приложение выделит границы по перепадам яркости и покажет картинку с контурами. Это не распознавание букв.</string>
+  <string name="contour_import_hint">Сделайте снимок камерой или выберите готовое изображение.</string>
+  <string name="contour_source">Исходное изображение</string>
+  <string name="contour_source_description">Фото для обработки контуров</string>
+  <string name="contour_threshold">Чувствительность к границам: %1$d</string>
+  <string name="find_contours">Получить контуры</string>
+  <string name="contour_ready">Картинка с контурами готова: %1$d × %2$d.</string>
+  <string name="contour_result_description">Результат с чёрными контурами изображения</string>
+  <string name="contour_failed">Не удалось обработать изображение. Выберите другое фото или попробуйте ещё раз.</string>
   <string name="import_picture">Выбрать фото</string>
   <string name="camera_open">Открыть камеру</string>
   <string name="import_failed">Не удалось прочитать изображение. Выберите PNG/JPEG/WebP.</string>
@@ -22,7 +34,6 @@
   <string name="prepare_failed">Не удалось выпрямить. Проверьте порядок углов и размер рамки.</string>
   <string name="binary_ready">Страница подготовлена: %1$d × %2$d, ч/б. Распознавание букв будет следующим этапом.</string>
   <string name="binary_description">Выпрямленная чёрно-белая страница</string>
-  <string name="outlines_planned">Отдельная функция: фото изображения → картинка с чёрными контурами. Пока не реализована.</string>
   <string name="processing">Обрабатываем…</string>
   <string name="a4_grid_ratio">Пропорции A4 / печатной сетки (иначе — по рамке)</string>
 </resources>

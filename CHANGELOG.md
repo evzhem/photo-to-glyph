@@ -6,11 +6,13 @@ All notable changes are documented here. Code and commits are in English; report
 
 ### M2 — 2026-10-15 (in progress)
 
-- Record the confirmed product outcomes: camera-first photo of a handwritten page → detected letters → a possibly incomplete alphabet; KDraw owns missing-letter substitution. A separate photo-to-image mode should return black contours only; file format/background/actions remain unspecified.
+- Record the confirmed product outcomes: camera-first photo of a handwritten page → detected letters → a possibly incomplete alphabet; KDraw owns missing-letter substitution. A separate photo-to-image mode returns black contours; file format/background/actions remain unspecified.
 - Change the Android entry flow to request camera permission and open a full-screen CameraX preview immediately; retain gallery import as fallback and remove synthetic letter/demo controls and fixture assets from the user app.
 - Keep the browser single-glyph lab explicitly developer-only; it is not the Android product screen.
-- Continue M2 photo preparation (page corners, crop/rotation, perspective and B/W). GitHub Actions Gradle build/tests/smoke now pass; real Android-device verification remains pending. Recognition, alphabet storage/export and picture-contour extraction are not claimed as implemented.
-- Fix the existing Kotlin formatting violation that caused the latest GitHub Gradle/Android build to fail before it could publish the debug APK.
+- Continue M2 photo preparation (page corners, crop/rotation, perspective and B/W).
+- Add separate pure Kotlin/JVM Sobel + non-maximum-suppression picture contours, a Compose camera/import preview mode, and a sensitivity control. Four synthetic tests execute `blackContourImage`/`PipelineParams`; the M2 standalone suite passes. Current-branch Gradle CI and real Android/photo quality checks are pending.
+- Recognition, user correction, local alphabet storage, and `.gfont` export are still not implemented. The last green Actions run predates this contour change; do not treat it as verification of the current commit.
+- Fix the existing Kotlin formatting violation that caused the earlier Gradle/Android build to fail before it could publish the debug APK.
 
 ### M1 — 2026-10-13
 

@@ -7,7 +7,6 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,9 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +45,7 @@ import photoglyph.core.geom.Vec2
 import photoglyph.core.img.ArgbImage
 import photoglyph.core.img.PageQuad
 import photoglyph.core.img.PreparedImage
+import photoglyph.core.img.blackContourImage
 import photoglyph.core.img.cropImage
 import photoglyph.core.img.detectPageQuad
 import photoglyph.core.img.prepareImage
@@ -56,7 +54,7 @@ import photoglyph.core.img.suggestedRectifiedSize
 import java.io.File
 import kotlin.math.roundToInt
 
-/** M2 raster preparation. Deliberately does not claim character/outline recognition. */
+/** Camera-first page preparation plus independent picture contours; page-letter recognition remains unfinished. */
 @Composable
 internal fun PreparationScreen() {
     val context = LocalContext.current
@@ -64,6 +62,9 @@ internal fun PreparationScreen() {
     var image by remember { mutableStateOf<ArgbImage?>(null) }
     var quad by remember { mutableStateOf<PageQuad?>(null) }
     var prepared by remember { mutableStateOf<PreparedImage?>(null) }
+    var contourResult by remember { mutableStateOf<ArgbImage?>(null) }
+    var mode by remember { mutableStateOf(PreparationMode.PAGE) }
+    var contourThreshold by remember { mutableStateOf(PipelineParams().contourEdgeThreshold.toFloat()) }
     var busy by remember { mutableStateOf(false) }
     var camera by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<Int?>(null) }
@@ -74,6 +75,7 @@ internal fun PreparationScreen() {
         image = value
         quad = detectPageQuad(value) ?: PageQuad.fullImage(value)
         prepared = null
+        contourResult = null
         message = null
     }
 
@@ -116,8 +118,20 @@ internal fun PreparationScreen() {
 
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(PAGE_PADDING_DP.dp), verticalArrangement = Arrangement.spacedBy(SECTION_GAP_DP.dp)) {
         Text(stringResource(R.string.app_name))
-        Text(stringResource(R.string.preparation_title))
-        Text(stringResource(R.string.preparation_note))
+        Row(horizontalArrangement = Arrangement.spacedBy(BUTTON_GAP_DP.dp)) {
+            if (mode == PreparationMode.PAGE) {
+                Button(enabled = !busy, onClick = { mode = PreparationMode.PAGE }) { Text(stringResource(R.string.page_mode)) }
+            } else {
+                OutlinedButton(enabled = !busy, onClick = { mode = PreparationMode.PAGE }) { Text(stringResource(R.string.page_mode)) }
+            }
+            if (mode == PreparationMode.CONTOURS) {
+                Button(enabled = !busy, onClick = { mode = PreparationMode.CONTOURS }) { Text(stringResource(R.string.contour_mode)) }
+            } else {
+                OutlinedButton(enabled = !busy, onClick = { mode = PreparationMode.CONTOURS }) { Text(stringResource(R.string.contour_mode)) }
+            }
+        }
+        Text(stringResource(if (mode == PreparationMode.PAGE) R.string.preparation_title else R.string.contour_title))
+        Text(stringResource(if (mode == PreparationMode.PAGE) R.string.preparation_note else R.string.contour_note))
         Row(horizontalArrangement = Arrangement.spacedBy(BUTTON_GAP_DP.dp)) {
             Button(enabled = !busy, onClick = { picker.launch(arrayOf("image/png", "image/jpeg", "image/webp")) }) { Text(stringResource(R.string.import_picture)) }
             Button(enabled = !busy, onClick = {
@@ -131,89 +145,108 @@ internal fun PreparationScreen() {
         message?.let { Text(stringResource(it)) }
         val current = image
         val corners = quad
-        if (current != null && corners != null) {
-            Text(stringResource(R.string.corner_drag_hint))
-            CornerPreview(current, corners) { value ->
-                quad = value
-                prepared = null
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(BUTTON_GAP_DP.dp)) {
-                OutlinedButton(enabled = !busy, onClick = { loaded(rotateQuarterTurns(current, 1)) }) { Text(stringResource(R.string.rotate_picture)) }
-                OutlinedButton(enabled = !busy, onClick = {
-                    val detected = detectPageQuad(current)
-                    if (detected == null) {
-                        message = R.string.corner_not_found
-                    } else {
-                        quad = detected
-                        prepared = null
-                        message = null
+        if (mode == PreparationMode.PAGE) {
+            PagePreparationContent(
+                current = current,
+                corners = corners,
+                prepared = prepared,
+                offset = offset,
+                a4 = a4,
+                busy = busy,
+                onQuadChange = { value ->
+                    quad = value
+                    prepared = null
+                },
+                onRotate = { current?.let { loaded(rotateQuarterTurns(it, 1)) } },
+                onDetectCorners = {
+                    current?.let { source ->
+                        val detected = detectPageQuad(source)
+                        if (detected == null) {
+                            message = R.string.corner_not_found
+                        } else {
+                            quad = detected
+                            prepared = null
+                            message = null
+                        }
                     }
-                }) { Text(stringResource(R.string.detect_corners)) }
-            }
-            OutlinedButton(enabled = !busy, onClick = {
-                val left =
-                    corners.corners
-                        .minOf { it.x }
-                        .toInt()
-                        .coerceAtLeast(0)
-                val top =
-                    corners.corners
-                        .minOf { it.y }
-                        .toInt()
-                        .coerceAtLeast(0)
-                val right =
-                    corners.corners
-                        .maxOf { it.x }
-                        .roundToInt()
-                        .coerceAtMost(current.width)
-                val bottom =
-                    corners.corners
-                        .maxOf { it.y }
-                        .roundToInt()
-                        .coerceAtMost(current.height)
-                loaded(cropImage(current, left, top, right - left, bottom - top))
-            }) { Text(stringResource(R.string.crop_picture)) }
-            Text(stringResource(R.string.threshold_offset, offset.roundToInt()))
-            Slider(value = offset, enabled = !busy, onValueChange = {
-                offset = it
-                prepared = null
-            }, valueRange = 0f..MAX_OFFSET)
-            Row {
-                Checkbox(checked = a4, enabled = !busy, onCheckedChange = {
+                },
+                onCrop = {
+                    if (current != null && corners != null) {
+                        val left = corners.corners.minOf { it.x }.toInt().coerceAtLeast(0)
+                        val top = corners.corners.minOf { it.y }.toInt().coerceAtLeast(0)
+                        val right = corners.corners.maxOf { it.x }.roundToInt().coerceAtMost(current.width)
+                        val bottom = corners.corners.maxOf { it.y }.roundToInt().coerceAtMost(current.height)
+                        loaded(cropImage(current, left, top, right - left, bottom - top))
+                    }
+                },
+                onOffsetChange = {
+                    offset = it
+                    prepared = null
+                },
+                onA4Change = {
                     a4 = it
                     prepared = null
-                })
-                Text(stringResource(R.string.a4_grid_ratio))
-            }
-            Button(enabled = !busy, onClick = {
-                scope.launch {
-                    busy = true
-                    try {
-                        prepared =
-                            withContext(Dispatchers.Default) {
-                                val dimensions = if (a4) OUTPUT_WIDTH to OUTPUT_HEIGHT else suggestedRectifiedSize(corners, OUTPUT_MAX_EDGE)
-                                prepareImage(current, corners, dimensions.first, dimensions.second, PipelineParams(adaptiveOffset = offset.toDouble()))
+                },
+                onPrepare = {
+                    if (current != null && corners != null) {
+                        val source = current
+                        val frame = corners
+                        val useA4 = a4
+                        val thresholdOffset = offset.toDouble()
+                        scope.launch {
+                            busy = true
+                            try {
+                                prepared =
+                                    withContext(Dispatchers.Default) {
+                                        val dimensions = if (useA4) OUTPUT_WIDTH to OUTPUT_HEIGHT else suggestedRectifiedSize(frame, OUTPUT_MAX_EDGE)
+                                        prepareImage(source, frame, dimensions.first, dimensions.second, PipelineParams(adaptiveOffset = thresholdOffset))
+                                    }
+                                message = null
+                            } catch (_: IllegalArgumentException) {
+                                message = R.string.prepare_failed
+                            } finally {
+                                busy = false
                             }
-                        message = null
-                    } catch (_: IllegalArgumentException) {
-                        message = R.string.prepare_failed
-                    } finally {
-                        busy = false
+                        }
                     }
-                }
-            }) { Text(stringResource(if (busy) R.string.processing else R.string.rectify_picture)) }
-            prepared?.let { data ->
-                Text(stringResource(R.string.binary_ready, data.binary.width, data.binary.height))
-                val bitmap = remember(data) { Bitmap.createBitmap(IntArray(data.binary.width * data.binary.height) { if (data.binary[it]) BLACK else WHITE }, data.binary.width, data.binary.height, Bitmap.Config.ARGB_8888).asImageBitmap() }
-                Image(bitmap, contentDescription = stringResource(R.string.binary_description), modifier = Modifier.fillMaxWidth().height(PREVIEW_HEIGHT_DP.dp))
-            }
+                },
+            )
+        } else {
+            ContourModeContent(
+                current = current,
+                result = contourResult,
+                threshold = contourThreshold,
+                busy = busy,
+                onThresholdChange = {
+                    contourThreshold = it
+                    contourResult = null
+                },
+                onFindContours = {
+                    current?.let { source ->
+                        val sensitivity = contourThreshold.toDouble()
+                        scope.launch {
+                            busy = true
+                            try {
+                                contourResult =
+                                    withContext(Dispatchers.Default) {
+                                        blackContourImage(source, PipelineParams(contourEdgeThreshold = sensitivity))
+                                    }
+                                message = null
+                            } catch (_: IllegalArgumentException) {
+                                message = R.string.contour_failed
+                            } finally {
+                                busy = false
+                            }
+                        }
+                    }
+                },
+            )
         }
-        Text(stringResource(R.string.outlines_planned))
     }
 }
 
 @Composable
-private fun CornerPreview(
+internal fun CornerPreview(
     image: ArgbImage,
     quad: PageQuad,
     onQuad: (PageQuad) -> Unit,
@@ -257,6 +290,8 @@ private fun CornerPreview(
     }
 }
 
+private enum class PreparationMode { PAGE, CONTOURS }
+
 private const val OUTPUT_MAX_EDGE = 800
 private const val OUTPUT_WIDTH = 420
 private const val OUTPUT_HEIGHT = 594
@@ -265,6 +300,8 @@ private const val PAGE_PADDING_DP = 20
 private const val SECTION_GAP_DP = 12
 private const val BUTTON_GAP_DP = 8
 private const val MAX_OFFSET = 50f
+private const val MIN_CONTOUR_THRESHOLD = 0f
+private const val MAX_CONTOUR_THRESHOLD = 255f
 private const val BLACK = 0xff000000.toInt()
 private const val WHITE = 0xffffffff.toInt()
 private const val QUAD_COLOR = 0xff2a6554

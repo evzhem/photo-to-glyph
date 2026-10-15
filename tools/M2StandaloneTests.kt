@@ -1,6 +1,7 @@
 package photoglyph.tools
 
 import photoglyph.core.M2Checks
+import photoglyph.core.PictureContoursChecks
 import photoglyph.cli.sandbox.PreparationApiChecks
 
 fun main() {
@@ -29,6 +30,19 @@ fun main() {
     }
     println("M2 real core checks: ${cases.size}, failures: $failures")
     check(failures == 0)
+    val contourCases = listOf(
+        "straightStepProducesThinBlackContourWithoutMutatingSource -> blackContourImage" to PictureContoursChecks::straightStepProducesThinBlackContourWithoutMutatingSource,
+        "uniformImageProducesNoContours -> blackContourImage" to PictureContoursChecks::uniformImageProducesNoContours,
+        "thresholdControlsLowContrastEdges -> blackContourImage, PipelineParams" to PictureContoursChecks::thresholdControlsLowContrastEdges,
+        "thresholdMustMatchNormalizedSobelRange -> PipelineParams" to PictureContoursChecks::thresholdMustMatchNormalizedSobelRange,
+    )
+    var contourFailures = 0
+    for ((name, run) in contourCases) {
+        try { run(); println("PASS PictureContoursTest.$name") }
+        catch (failure: Throwable) { contourFailures++; System.err.println("FAIL PictureContoursTest.$name"); failure.printStackTrace() }
+    }
+    println("Picture contour production checks: ${contourCases.size}, failures: $contourFailures")
+    check(contourFailures == 0)
     val apiCases = listOf(
         "realPageDetectionAndPreparation" to PreparationApiChecks::realPageDetectionAndPreparation,
         "manualCornersAndUploadedRasterReachCore" to PreparationApiChecks::manualCornersAndUploadedRasterReachCore,
