@@ -79,10 +79,11 @@ internal fun PagePreparationContent(
         }
         state.prepared?.let { data ->
             Text(stringResource(R.string.binary_ready, data.binary.width, data.binary.height))
-            val bitmap = remember(data) {
-                val pixels = IntArray(data.binary.width * data.binary.height) { if (data.binary[it]) BLACK else WHITE }
-                Bitmap.createBitmap(pixels, data.binary.width, data.binary.height, Bitmap.Config.ARGB_8888).asImageBitmap()
-            }
+            val bitmap =
+                remember(data) {
+                    val pixels = IntArray(data.binary.width * data.binary.height) { if (data.binary[it]) BLACK else WHITE }
+                    Bitmap.createBitmap(pixels, data.binary.width, data.binary.height, Bitmap.Config.ARGB_8888).asImageBitmap()
+                }
             Image(bitmap, contentDescription = stringResource(R.string.binary_description), modifier = Modifier.fillMaxWidth().height(PREVIEW_HEIGHT_DP.dp))
         }
     }

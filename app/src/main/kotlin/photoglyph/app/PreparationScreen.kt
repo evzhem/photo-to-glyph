@@ -169,10 +169,26 @@ internal fun PreparationScreen() {
                         },
                         onCrop = {
                             if (current != null && corners != null) {
-                                val left = corners.corners.minOf { it.x }.toInt().coerceAtLeast(0)
-                                val top = corners.corners.minOf { it.y }.toInt().coerceAtLeast(0)
-                                val right = corners.corners.maxOf { it.x }.roundToInt().coerceAtMost(current.width)
-                                val bottom = corners.corners.maxOf { it.y }.roundToInt().coerceAtMost(current.height)
+                                val left =
+                                    corners.corners
+                                        .minOf { it.x }
+                                        .toInt()
+                                        .coerceAtLeast(0)
+                                val top =
+                                    corners.corners
+                                        .minOf { it.y }
+                                        .toInt()
+                                        .coerceAtLeast(0)
+                                val right =
+                                    corners.corners
+                                        .maxOf { it.x }
+                                        .roundToInt()
+                                        .coerceAtMost(current.width)
+                                val bottom =
+                                    corners.corners
+                                        .maxOf { it.y }
+                                        .roundToInt()
+                                        .coerceAtMost(current.height)
                                 loaded(cropImage(current, left, top, right - left, bottom - top))
                             }
                         },
