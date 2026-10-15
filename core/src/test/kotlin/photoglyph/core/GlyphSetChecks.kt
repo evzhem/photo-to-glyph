@@ -49,15 +49,16 @@ object GlyphSetChecks {
     }
 
     private fun sampleSet(): GlyphSet {
-        val png = ByteArrayOutputStream().use { output ->
-            val bitmap = BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB)
-            try {
-                check(ImageIO.write(bitmap, "png", output))
-            } finally {
-                bitmap.flush()
+        val png =
+            ByteArrayOutputStream().use { output ->
+                val bitmap = BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB)
+                try {
+                    check(ImageIO.write(bitmap, "png", output))
+                } finally {
+                    bitmap.flush()
+                }
+                output.toByteArray()
             }
-            output.toByteArray()
-        }
         val uppercase =
             Glyph(
                 char = "А",
@@ -69,10 +70,11 @@ object GlyphSetChecks {
         val lowercase =
             Glyph(
                 char = "ё",
-                strokes = listOf(
-                    Stroke(Polyline(listOf(Vec2(12.0, 18.0), Vec2(32.0, 35.0))), 0, 0.25),
-                    Stroke(Polyline(listOf(Vec2(16.0, 45.0), Vec2(18.0, 46.0))), 1, 0.25),
-                ),
+                strokes =
+                    listOf(
+                        Stroke(Polyline(listOf(Vec2(12.0, 18.0), Vec2(32.0, 35.0))), 0, 0.25),
+                        Stroke(Polyline(listOf(Vec2(16.0, 45.0), Vec2(18.0, 46.0))), 1, 0.25),
+                    ),
                 advance = 570.0,
                 baselineY = 0.0,
             )
@@ -98,8 +100,11 @@ object GlyphSetChecks {
         check(rejected) { "Invalid glyph data was not rejected" }
     }
 
-    private fun ByteArray?.contentEqualsNullable(other: ByteArray?): Boolean =
-        if (this == null || other == null) this == null && other == null else contentEquals(other)
+    private fun ByteArray?.contentEqualsNullable(other: ByteArray?): Boolean = if (this == null || other == null) {
+        this == null && other == null
+    } else {
+        contentEquals(other)
+    }
 
     private const val CREATED_AT = "2026-10-15T20:00:00Z"
 }
