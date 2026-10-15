@@ -54,11 +54,13 @@ fun connectedInkComponents(binary: BinaryGrid): List<InkComponent> {
             for ((dx, dy) in NEIGHBOURS_8) {
                 val neighbourX = x + dx
                 val neighbourY = y + dy
-                if (!binary[neighbourX, neighbourY]) continue
-                val neighbour = neighbourY * width + neighbourX
-                if (visited[neighbour]) continue
-                visited[neighbour] = true
-                queue[tail++] = neighbour
+                if (binary[neighbourX, neighbourY]) {
+                    val neighbour = neighbourY * width + neighbourX
+                    if (!visited[neighbour]) {
+                        visited[neighbour] = true
+                        queue[tail++] = neighbour
+                    }
+                }
             }
         }
         components.add(InkComponent(PixelBounds(minX, minY, maxX + 1, maxY + 1), tail))
