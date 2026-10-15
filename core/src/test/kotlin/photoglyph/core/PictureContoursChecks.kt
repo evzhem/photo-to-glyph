@@ -9,9 +9,10 @@ object PictureContoursChecks {
         val sourcePixels = IntArray(49) { index -> if (index % IMAGE_WIDTH <= 2) BLACK_ARGB else WHITE_ARGB }
         val source = ArgbImage(IMAGE_WIDTH, IMAGE_HEIGHT, sourcePixels)
         val result = blackContourImage(source)
-        val expected = IntArray(49) { WHITE_ARGB }.also { pixels ->
-            for (y in 1..5) pixels[y * IMAGE_WIDTH + 2] = BLACK_ARGB
-        }
+        val expected =
+            IntArray(49) { WHITE_ARGB }.also { pixels ->
+                for (y in 1..5) pixels[y * IMAGE_WIDTH + 2] = BLACK_ARGB
+            }
         check(result.copyPixels().contentEquals(expected))
         check(source.copyPixels().contentEquals(sourcePixels))
     }
