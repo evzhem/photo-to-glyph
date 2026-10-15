@@ -105,9 +105,10 @@ internal fun sampleArgb(
     var result = alpha.roundToInt().coerceIn(0, CHANNEL_MAX) shl ALPHA_SHIFT
     // Premultiplied interpolation avoids dark/colored halos around transparent drawings.
     for (shift in RGB_SHIFTS) {
-        val channel = values.indices.sumOf { index ->
-            ((values[index] ushr shift) and CHANNEL_MAX).toDouble() * ((values[index] ushr ALPHA_SHIFT) and CHANNEL_MAX) * weights[index]
-        } / alpha
+        val channel =
+            values.indices.sumOf { index ->
+                ((values[index] ushr shift) and CHANNEL_MAX).toDouble() * ((values[index] ushr ALPHA_SHIFT) and CHANNEL_MAX) * weights[index]
+            } / alpha
         result = result or (channel.roundToInt().coerceIn(0, CHANNEL_MAX) shl shift)
     }
     return result

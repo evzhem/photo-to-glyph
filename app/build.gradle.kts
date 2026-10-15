@@ -4,14 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-val syntheticAssetsDirectory = layout.buildDirectory.dir("generated/m2-assets")
-val prepareSyntheticAssets by tasks.registering(Copy::class) {
-    from(rootProject.file("tools/fixtures/synthetic/m2")) { include("*.png") }
-    into(syntheticAssetsDirectory.map { it.dir("m2") })
-}
-
-tasks.named("preBuild") { dependsOn(prepareSyntheticAssets) }
-
 android {
     namespace = "photoglyph.app"
     compileSdk = 35
@@ -30,11 +22,6 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-    sourceSets.getByName("main") {
-        // Only our five deterministic synthetic PNGs; no user photographs.
-        assets.srcDir(rootProject.file("tools/fixtures/synthetic/m0"))
-        assets.srcDir(syntheticAssetsDirectory)
     }
 }
 

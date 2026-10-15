@@ -8,7 +8,42 @@ Estimates are person-days, not promises of elapsed time. Total for the **origina
 
 `docs/01-требования-mvp.md` records the clarified target: ordinary notebook photos, multiple **partial** handwriting sets, local phone storage without an account, and separate `.gfont` exports. KDraw owns cross-set substitution; PhotoGlyph must not merge sets or fabricate missing glyphs. Page composition/printing is not part of the requested fonts-only workflow.
 
-The table below preserves the original plan for traceability; it is **not a confirmed estimate for free-text handwriting recognition**. Reconcile M2/M3 input/segmentation and M6/M7 export/page scope with the user before implementing those stages. Do not silently delete the originally required grid/editor/no-fill features or invent a replacement recognition pipeline or estimate. The grid can remain an additional input method, not a prerequisite for every photo. No next milestone has been authorized by these clarifications.
+## User clarification — 2026-10-15: confirmed product outcomes
+
+The user confirmed two distinct PhotoGlyph workflows:
+
+1. **Handwriting alphabet:** photograph a page with handwritten letters; PhotoGlyph detects the letters and produces an alphabet/handwriting set from what is present. The set may be incomplete. KDraw supplies missing letters from other alphabets; PhotoGlyph must not invent missing glyphs or merge sets.
+2. **Picture contours:** from a photo of a picture, produce a separate picture showing black contours. This is not handwriting centerline extraction and does not create an alphabet.
+
+**Android entry flow:** when the Android app opens, request camera permission if needed and immediately show the camera preview once granted. If access is denied or the camera is unavailable, provide photo import as a fallback. The separate-letter web lab is a developer diagnostic, not the product home screen.
+
+For the contour mode, only the black-contour image result is confirmed. File format, background, editing controls, and copy/share/download actions are not specified here; do not treat earlier design proposals as approved requirements. The page layout and letter-segmentation/recognition approach also remain implementation questions.
+
+## Remaining work plan — checked 2026-10-15
+
+GitHub tracking: [Issue #2 — План оставшихся работ: PhotoGlyph](https://github.com/evzhem/photo-to-glyph/issues/2) and [Issue #3 — Android camera-first entry](https://github.com/evzhem/photo-to-glyph/issues/3). Issue #3 records the camera-first clarification and current code status.
+
+### Current baseline
+
+- **M0 — complete:** synthetic core spike, 21 production-function checks and SVG smoke are recorded in `docs/M0-report.md`.
+- **M1 — complete:** Gradle/CI foundation and diagnostic sandbox; PR #1 is merged.
+- **M2 — partial:** photo import/camera and page preparation are present. `./tools/m2-standalone-check.sh` passed (16 core checks + 5 preparation API checks, along with M0/M1 standalone checks). This is not a Gradle/Android-device verification.
+- **Not implemented end-to-end:** handwritten page → recognized alphabet, local partial-alphabet library and `.gfont` export; photo → separate black-contour image.
+
+### Ordered implementation plan
+
+1. **Finish M2 verification and camera-first entry.** On launch, request camera permission if needed and immediately open a full-screen CameraX preview; keep gallery import as fallback, and remove synthetic single-letter/demo controls from the user app. Run the required Gradle build/tests/smoke and CI; verify capture, page-corner repair, crop/rotation and rectification on an emulator/device; record manual versus automated results in an M2 report.
+2. **Specify page recognition.** Define page/layout assumptions, reading order, segmentation, how letters are identified, and how repeated/ambiguous marks are handled. Keep ordinary page photos as the primary input; do not require a grid unless the user changes that requirement. Establish original synthetic test pages and acceptance criteria before selecting an algorithm/model.
+3. **Implement letter detection and alphabet assembly.** Segment the page into glyphs, identify the symbols, and produce a set from only the letters actually found. Test detection/cropping/labels against independent synthetic expectations. Never invent missing glyphs; incomplete sets must remain valid.
+4. **Make centerline extraction production-ready.** Improve the M0 spike where needed (the synthetic «Ж» currently yields 8 chains instead of 3 and diagonals are jagged); add production tests for stroke topology, cycles, no-fill output and the per-glyph performance budget. Preserve centerlines rather than tracing both edges of a pen stroke.
+5. **Support correction and local partial sets.** Let users review/correct mistaken letter labels and strokes; create, name and persist multiple sets locally; allow saving/exporting partial sets without filling gaps or merging sets.
+6. **Export and validate with KDraw.** Resolve `.gfont` format details, implement independent export and round-trip tests, then verify separate partial sets and KDraw-owned missing-letter substitution with real files. Do not connect to the plotter or implement PhotoGlyph substitution.
+7. **Implement the separate black-contour image mode.** From a photo, produce a picture with black contours using a separate algorithm and synthetic tests. Confirm only the minimum output details needed for implementation; do not assume SVG/PNG, background, editing controls or copy/share/download actions without user confirmation.
+8. **End-to-end QA and release preparation.** Test both workflows on real Android hardware with consented test inputs; verify privacy, errors, performance and Russian/English UI; update docs and CI. Confirm the distribution channel before packaging a release.
+
+No new time estimates are assigned: recognition method and contour-output details have not been finalized.
+
+The older milestone table below is retained for traceability. Its M2/M3 recognition and M6 export/page details are draft estimates, not authoritative acceptance criteria for the clarified workflows. Existing image-preparation code does not mean page-letter recognition or picture-contour extraction is complete.
 
 | Milestone | Scope | Acceptance criteria | Person-days | Status |
 | --- | --- | --- | ---: | --- |
@@ -24,9 +59,9 @@ The table below preserves the original plan for traceability; it is **not a conf
 | **M9** | CLI `gfontInspect` on an authorized real set, resolve format unknowns, independent `GfontCodec`, round-trip test, KDraw validation, instructions, SVG/PNG fallback. | KDraw writes text on paper using our set; «Проверка недостающих слов» reports no missing characters. No direct hardware protocol integration. | 3–5 | Not started |
 | **M10** | QA: 3 handwritings × 3 lighting conditions; speed and APK-size measurements; empty/error states; signed APK in GitHub Releases; README screenshots. | QA evidence and release artifacts exist, signing secrets are not committed, known limitations are documented. Release channel requires confirmation. | 3–4 | Not started |
 
-## Planned drawing outlines — 2026-10-13
+## Separate picture-contour mode — clarified 2026-10-15
 
-The user requested a separate picture → outline → downloadable/copyable/shareable drawing mode. See `docs/05-рисунок-по-контуру.md`. Add its design/independent contour algorithm and SVG/PNG/copy/share acceptance to **M6**, before implementing that milestone. This is planned scope, not implemented functionality or permission to start M6 now. Keep handwriting centerlines, the no-fill invariant and the independent glyph/export contracts intact; graphics may naturally have closed contours.
+See `docs/05-рисунок-по-контуру.md`. The confirmed result is a separate image with black contours derived from a photo. It must not be confused with the centerline strokes used for handwriting alphabets. Keep contour extraction and its tests independent from glyph no-fill/open-polyline validation; picture contours may naturally close. The output format and any extra controls/actions are not specified, so do not add them by assumption. The feature is planned, not implemented; revise its milestone and acceptance details before starting that work.
 
 ## Gates
 
@@ -44,9 +79,8 @@ Remove, in this order if time is constrained:
 2. DXF.
 3. Writing animation.
 4. TTF (not a required outline-font implementation).
-5. Photo-without-grid mode.
 
-**Never remove:** the grid sheet, manual stroke editor or prohibition of filled glyphs.
+**Never remove:** the confirmed page-photo → detected letters → alphabet workflow, acceptance of incomplete alphabets, KDraw-owned missing-letter substitution, the separate black-contour image result, the grid sheet, the manual stroke editor, or the prohibition of filled handwriting glyphs.
 
 ## Pending decisions
 

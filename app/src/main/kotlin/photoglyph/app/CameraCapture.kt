@@ -10,8 +10,10 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import java.io.File
@@ -70,23 +73,35 @@ internal fun CameraCaptureDialog(
             provider?.unbindAll()
         }
     }
-    Dialog(onDismissRequest = { if (!busy) onDismiss() }) {
-        Surface {
-            Column(verticalArrangement = Arrangement.spacedBy(CAMERA_GAP_DP.dp)) {
+    Dialog(
+        onDismissRequest = { if (!busy) onDismiss() },
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(CAMERA_PADDING_DP.dp),
+                verticalArrangement = Arrangement.spacedBy(CAMERA_GAP_DP.dp),
+            ) {
                 Text(stringResource(R.string.camera_title))
-                AndroidView(factory = { previewView }, modifier = Modifier.fillMaxWidth().height(CAMERA_PREVIEW_DP.dp))
+                AndroidView(factory = { previewView }, modifier = Modifier.weight(1f).fillMaxWidth())
                 if (failed) Text(stringResource(R.string.camera_failed))
-                Button(enabled = ready && !busy, onClick = {
-                    busy = true
-                    takePhoto(context, capture, onSuccess = { uri, file ->
-                        busy = false
-                        onImage(uri, file)
-                    }, onFailure = {
-                        busy = false
-                        failed = true
-                    })
-                }) { Text(stringResource(if (busy) R.string.camera_capturing else R.string.camera_capture)) }
-                Button(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = ready && !busy,
+                    onClick = {
+                        busy = true
+                        takePhoto(context, capture, onSuccess = { uri, file ->
+                            busy = false
+                            onImage(uri, file)
+                        }, onFailure = {
+                            busy = false
+                            failed = true
+                        })
+                    },
+                ) { Text(stringResource(if (busy) R.string.camera_capturing else R.string.camera_capture)) }
+                Button(modifier = Modifier.fillMaxWidth(), enabled = !busy, onClick = onDismiss) {
+                    Text(stringResource(R.string.cancel))
+                }
             }
         }
     }
@@ -116,5 +131,5 @@ private fun takePhoto(
     )
 }
 
-private const val CAMERA_PREVIEW_DP = 320
+private const val CAMERA_PADDING_DP = 16
 private const val CAMERA_GAP_DP = 12

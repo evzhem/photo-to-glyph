@@ -3,7 +3,6 @@ package photoglyph.app
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +24,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,7 +58,7 @@ import kotlin.math.roundToInt
 
 /** M2 raster preparation. Deliberately does not claim character/outline recognition. */
 @Composable
-internal fun PreparationScreen(onDemo: () -> Unit) {
+internal fun PreparationScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var image by remember { mutableStateOf<ArgbImage?>(null) }
@@ -100,6 +100,13 @@ internal fun PreparationScreen(onDemo: () -> Unit) {
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) camera = true else message = R.string.camera_denied
         }
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            camera = true
+        } else {
+            permission.launch(Manifest.permission.CAMERA)
+        }
+    }
     if (camera) {
         CameraCaptureDialog(onImage = { uri, file ->
             camera = false
@@ -121,31 +128,6 @@ internal fun PreparationScreen(onDemo: () -> Unit) {
                 }
             }) { Text(stringResource(R.string.camera_open)) }
         }
-        OutlinedButton(enabled = !busy, onClick = {
-            scope.launch {
-                busy = true
-                try {
-                    loaded(
-                        withContext(Dispatchers.IO) {
-                            context.assets.open(SYNTHETIC_PAGE_ASSET).use { stream ->
-                                val bitmap = checkNotNull(BitmapFactory.decodeStream(stream))
-                                try {
-                                    ArgbImage(bitmap.width, bitmap.height, IntArray(bitmap.width * bitmap.height).also { bitmap.getPixels(it, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height) })
-                                } finally {
-                                    bitmap.recycle()
-                                }
-                            }
-                        },
-                    )
-                } catch (_: java.io.IOException) {
-                    message = R.string.import_failed
-                } catch (_: IllegalStateException) {
-                    message = R.string.import_failed
-                } finally {
-                    busy = false
-                }
-            }
-        }) { Text(stringResource(R.string.synthetic_page)) }
         message?.let { Text(stringResource(it)) }
         val current = image
         val corners = quad
@@ -219,7 +201,7 @@ internal fun PreparationScreen(onDemo: () -> Unit) {
                         busy = false
                     }
                 }
-            }) { Text(stringResource(if (busy) R.string.running_demo else R.string.rectify_picture)) }
+            }) { Text(stringResource(if (busy) R.string.processing else R.string.rectify_picture)) }
             prepared?.let { data ->
                 Text(stringResource(R.string.binary_ready, data.binary.width, data.binary.height))
                 val bitmap = remember(data) { Bitmap.createBitmap(IntArray(data.binary.width * data.binary.height) { if (data.binary[it]) BLACK else WHITE }, data.binary.width, data.binary.height, Bitmap.Config.ARGB_8888).asImageBitmap() }
@@ -227,7 +209,6 @@ internal fun PreparationScreen(onDemo: () -> Unit) {
             }
         }
         Text(stringResource(R.string.outlines_planned))
-        OutlinedButton(onClick = onDemo) { Text(stringResource(R.string.open_core_demo)) }
     }
 }
 
@@ -276,7 +257,6 @@ private fun CornerPreview(
     }
 }
 
-private const val SYNTHETIC_PAGE_ASSET = "m2/grid-yaw30-side-light.png"
 private const val OUTPUT_MAX_EDGE = 800
 private const val OUTPUT_WIDTH = 420
 private const val OUTPUT_HEIGHT = 594
