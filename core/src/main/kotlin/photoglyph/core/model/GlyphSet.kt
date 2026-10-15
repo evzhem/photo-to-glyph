@@ -65,6 +65,8 @@ data class GlyphSet(
     }
 }
 
-private fun isSingleNonWhitespaceCodePoint(value: String): Boolean = value.isNotEmpty() &&
-    value.codePointCount(0, value.length) == 1 &&
-    !value.first().isWhitespace()
+private fun isSingleNonWhitespaceCodePoint(value: String): Boolean {
+    val hasSingleCodePoint = value.isNotEmpty() && value.codePointCount(0, value.length) == 1
+    val startsWithNonWhitespace = value.firstOrNull()?.isWhitespace() == false
+    return hasSingleCodePoint && startsWithNonWhitespace
+}
