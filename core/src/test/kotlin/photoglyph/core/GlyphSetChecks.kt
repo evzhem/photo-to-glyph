@@ -100,10 +100,10 @@ object GlyphSetChecks {
         check(rejected) { "Invalid glyph data was not rejected" }
     }
 
-    private fun ByteArray?.contentEqualsNullable(other: ByteArray?): Boolean = if (this == null || other == null) {
-        this == null && other == null
-    } else {
-        contentEquals(other)
+    private fun ByteArray?.contentEqualsNullable(other: ByteArray?): Boolean {
+        val bothNull = this == null && other == null
+        val bothNonNullAndEqual = this != null && other != null && contentEquals(other)
+        return bothNull || bothNonNullAndEqual
     }
 
     private const val CREATED_AT = "2026-10-15T20:00:00Z"
