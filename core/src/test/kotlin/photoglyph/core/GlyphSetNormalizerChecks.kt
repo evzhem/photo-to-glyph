@@ -55,15 +55,35 @@ object GlyphSetNormalizerChecks {
         check(normalized.glyphs.values.all { it.baselineY == normalized.baselineY })
         check(normalized.glyphs.getValue("g").advance == 420.0)
         check(
-            normalized.glyphs.getValue("g").strokes.single().path.points ==
+            normalized.glyphs
+                .getValue("g")
+                .strokes
+                .single()
+                .path.points ==
                 listOf(
                     Vec2(0.0, 525.0),
                     Vec2(140.0, 0.0),
                     Vec2(210.0, -280.0),
                 ),
         )
-        check(normalized.glyphs.getValue("p").strokes.single().path.points.last().y == -350.0)
-        check(normalized.glyphs.getValue("y").strokes.single().path.points.last().y == -175.0)
+        check(
+            normalized.glyphs
+                .getValue("p")
+                .strokes
+                .single()
+                .path.points
+                .last()
+                .y == -350.0,
+        )
+        check(
+            normalized.glyphs
+                .getValue("y")
+                .strokes
+                .single()
+                .path.points
+                .last()
+                .y == -175.0,
+        )
         check(normalized.glyphs.values.all { it.strokes.single().widthMm == 0.35 })
     }
 
