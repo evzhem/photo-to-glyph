@@ -79,7 +79,9 @@ internal class LocalGlyphSetStore(
     private fun fileForId(id: String): File {
         require(id.isNotBlank())
         val digest = MessageDigest.getInstance("SHA-256").digest(id.toByteArray(StandardCharsets.UTF_8))
-        val hash = digest.joinToString(separator = "") { byte -> (byte.toInt() and 0xff).toString(16).padStart(2, '0') }
+        val hash = digest.joinToString(separator = "") { byte ->
+            (byte.toInt() and BYTE_MASK).toString(HEX_RADIX).padStart(HEX_WIDTH, '0')
+        }
         return File(directory, "set-$hash.json")
     }
 
@@ -90,7 +92,7 @@ internal class LocalGlyphSetStore(
         val glyphSet =
             try {
                 GlyphSetJson.decode(file.readText(StandardCharsets.UTF_8))
-            } catch (exception: RuntimeException) {
+            } catch (exception: IllegalArgumentException) {
                 throw IOException("Invalid local glyph set data", exception)
             }
         if (expectedId != null && glyphSet.id != expectedId) {
@@ -114,6 +116,10 @@ internal class LocalGlyphSetStore(
     }
 
     private companion object {
-        val STORAGE_FILE_PATTERN = Regex("set-[0-9a-f]{64}\\.json")
+        const val BYTE_MASK = 0xff
+        const val HASH_WIDTH = 64
+        const val HEX_RADIX = 16
+        const val HEX_WIDTH = 2
+        val STORAGE_FILE_PATTERN = Regex("set-[0-9a-f]{$HASH_WIDTH}\\.json")
     }
 }
