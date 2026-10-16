@@ -66,7 +66,8 @@ internal fun GlyphSetLibraryScreen(
                             ) {
                                 Text(glyphSet.name)
                                 Text(stringResource(R.string.glyph_count, glyphSet.glyphs.size))
-                                Text(glyphSet.glyphs.keys.sorted().joinToString(" "))
+                                val availableCharacters = glyphSet.glyphs.keys.sorted().joinToString(" ")
+                                Text(availableCharacters)
                             }
                         }
                     }
