@@ -42,4 +42,5 @@ dependencies {
     implementation(libs.camera.view)
     implementation(libs.exifinterface)
     implementation(libs.lifecycle.compose)
+    testImplementation(libs.junit)
 }
