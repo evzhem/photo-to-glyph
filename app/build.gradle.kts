@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.Test
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -43,4 +45,10 @@ dependencies {
     implementation(libs.exifinterface)
     implementation(libs.lifecycle.compose)
     testImplementation(libs.junit)
+}
+
+tasks.withType<Test>().configureEach {
+    testLogging {
+        events("passed", "failed", "skipped")
+    }
 }
