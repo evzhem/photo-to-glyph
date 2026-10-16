@@ -39,7 +39,7 @@ Plan contour extraction separately from the handwriting pipeline. It must not re
 | Area | Responsibility |
 | --- | --- |
 | `:core` | Pure Kotlin/JVM: `geom`, `img`, `thin`, `graph`, `norm`, `model`, `compose`, `export`, `gfont`, `plot`. No `android.*` imports, enforced by a source-scanning test in M1. No image/UI/platform I/O in production math. |
-| `:app` | Android: Compose, CameraX, Room; platform image decoding and persistence. |
+| `:app` | Android: Compose, CameraX and platform image decoding. Current set persistence is an app-private JSON file adapter under `filesDir/glyph-sets`; the planned Room backend is not wired. |
 | `:cli` | JVM pipeline runner; `smoke`, `gfontInspect`, `testFiles`. Desktop image I/O stays here, not in core. |
 | `tools/` | Original synthetic test fixtures and A4 grid-sheet generator. |
 

@@ -21,6 +21,13 @@ All notable changes are documented here. Code and commits are in English; report
 - M3 recognition remains incomplete: OCR/character assignment, correction UI, app-local storage and export are not implemented.
 - Fix the existing Kotlin formatting violation that caused the earlier Gradle/Android build to fail before it could publish the debug APK.
 
+### M5 — 2026-10-16 (local storage foundation; incomplete)
+
+- Add app-private JSON file storage for independent partial `GlyphSet` snapshots, with hashed filenames, atomic replacement and explicit corruption errors; add four JUnit tests that invoke the production store and JSON codec.
+- Add a camera-first entry point to a read-only local set list with Russian/English loading, empty and error states. The screen cannot yet create or edit a set.
+- Pass full GitHub Actions Gradle/Android verification and Debug/Release app unit tests in run `38849746285` (commit `d65829e`); all four store tests pass in both variants.
+- This is a partial storage slice, not completion of M5: baseline normalization, the planned Room backend, a user flow to create/edit/save recognized glyphs, device QA and `.gfont` export remain outstanding. See `docs/M5-report.md`.
+
 ### M1 — 2026-10-13
 
 - Add the official checksum-pinned Gradle 8.11.1 wrapper and :core/:app/:cli/:tools build structure, ktlint/detekt and Android 8.0+ Compose foundation.
