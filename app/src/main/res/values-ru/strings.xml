@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">PhotoGlyph</string>
+  <string name="my_sets">Мои наборы</string>
+  <string name="glyph_library_title">Мои наборы почерка</string>
+  <string name="library_back">Назад к камере</string>
+  <string name="glyph_library_loading">Загрузка локальных наборов…</string>
+  <string name="glyph_library_empty">Сохранённых наборов почерка пока нет.</string>
+  <string name="glyph_library_load_failed">Не удалось загрузить локальные наборы почерка.</string>
+  <string name="glyph_count">Букв: %1$d</string>
   <string name="page_mode">Подготовка страницы</string>
   <string name="contour_mode">Чёрные контуры</string>
   <string name="preparation_title">Сфотографируйте страницу</string>

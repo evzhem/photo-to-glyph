@@ -56,7 +56,7 @@ import kotlin.math.roundToInt
 
 /** Camera-first page preparation plus independent picture contours; page-letter recognition remains unfinished. */
 @Composable
-internal fun PreparationScreen() {
+internal fun PreparationScreen(onOpenLibrary: () -> Unit = {}) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var image by remember { mutableStateOf<ArgbImage?>(null) }
@@ -130,6 +130,7 @@ internal fun PreparationScreen() {
                 OutlinedButton(enabled = !busy, onClick = { mode = PreparationMode.CONTOURS }) { Text(stringResource(R.string.contour_mode)) }
             }
         }
+        OutlinedButton(enabled = !busy, onClick = onOpenLibrary) { Text(stringResource(R.string.my_sets)) }
         Text(stringResource(if (mode == PreparationMode.PAGE) R.string.preparation_title else R.string.contour_title))
         Text(stringResource(if (mode == PreparationMode.PAGE) R.string.preparation_note else R.string.contour_note))
         Row(horizontalArrangement = Arrangement.spacedBy(BUTTON_GAP_DP.dp)) {

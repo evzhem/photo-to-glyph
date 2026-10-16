@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">PhotoGlyph</string>
+  <string name="my_sets">My sets</string>
+  <string name="glyph_library_title">My handwriting sets</string>
+  <string name="library_back">Back to camera</string>
+  <string name="glyph_library_loading">Loading local sets…</string>
+  <string name="glyph_library_empty">No saved handwriting sets yet.</string>
+  <string name="glyph_library_load_failed">Could not load local handwriting sets.</string>
+  <string name="glyph_count">Glyphs: %1$d</string>
   <string name="page_mode">Prepare page</string>
   <string name="contour_mode">Black contours</string>
   <string name="preparation_title">Photograph a page</string>
