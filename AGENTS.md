@@ -96,12 +96,12 @@ Additional tunable parameters need named defaults and documented meanings; no ma
 
 - `ZhangSuenTest`: a 20 × 20 PNG input and independently specified expected skeleton, pixel-for-pixel.
 - `SkeletonToPolylinesTest`: «Ж» gives at least three strokes; none is closed. Cover branches, cycles and edge preservation as the implementation grows.
-- `BaselineTest`: three glyphs with different descenders have one common baseline.
+- `GlyphSetNormalizerTest` (M5): three raster glyphs with different, caller-supplied descender baselines map to one Y-up baseline with explicit reference metrics; this does not test automatic baseline detection.
 - `SvgNoFillTest`: only explicit no-fill strokes; corrupted export is rejected.
-- `GlyphSetRoundTripTest`: model ↔ JSON without loss.
-- `GfontRoundTripTest`: point tolerance 1e-4, identical stroke flags.
+- `GlyphSetRoundTripTest`: model ↔ JSON without loss (M3).
+- `GfontRoundTripTest`: point tolerance 1e-4, identical stroke flags (after the independent exporter exists).
 
-Do not add tests for missing production functions just to make this list look complete. Baseline/serialization/gfont tests belong to later milestones. Source import scanning is mandatory in M1.
+Do not add tests for missing production functions just to make this list look complete. Add each test alongside the production function for its milestone; source import scanning is mandatory in M1.
 
 ## Definition of Done
 

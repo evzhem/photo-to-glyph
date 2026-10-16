@@ -11,6 +11,7 @@ All notable changes are documented here. Code and commits are in English; report
 - Keep the browser single-glyph lab explicitly developer-only; it is not the Android product screen.
 - Continue M2 photo preparation (page corners, crop/rotation, perspective and B/W); page B/W now preserves small components (dots/accents) by default, with a production test.
 - Add separate pure Kotlin/JVM Sobel + non-maximum-suppression picture contours, a Compose camera/import preview mode, and a sensitivity control. Four synthetic tests execute `blackContourImage`/`PipelineParams`; full Gradle/Android CI run `38799609923` passes. Real Android/photo quality checks remain pending.
+- Re-run `./tools/m2-standalone-check.sh` on 2026-10-16: all 17 page-preparation, 3 InkComponents, 4 picture-contour and 5 preparation API checks pass; the full Gradle/Android build and tests also pass in run `38883213683`. Camera/permission/page-preparation QA on an actual Android runtime is still blocked; see `docs/M2-report.md`.
 - Automatic handwriting recognition, user correction, app-level local alphabet storage, and `.gfont` export are still not implemented.
 
 ### M3 — 2026-10-16 (foundation only; incomplete)
@@ -21,12 +22,13 @@ All notable changes are documented here. Code and commits are in English; report
 - M3 recognition remains incomplete: OCR/character assignment, correction UI, app-local storage and export are not implemented.
 - Fix the existing Kotlin formatting violation that caused the earlier Gradle/Android build to fail before it could publish the debug APK.
 
-### M5 — 2026-10-16 (local storage foundation; incomplete)
+### M5 — 2026-10-16 (local storage and reviewed-glyph normalization foundations; incomplete)
 
 - Add app-private JSON file storage for independent partial `GlyphSet` snapshots, with hashed filenames, atomic replacement and explicit corruption errors; add four JUnit tests that invoke the production store and JSON codec.
 - Add a camera-first entry point to a read-only local set list with Russian/English loading, empty and error states. The screen cannot yet create or edit a set.
-- Pass full GitHub Actions Gradle/Android verification and Debug/Release app unit tests in run `38849746285` (commit `d65829e`); all four store tests pass in both variants.
-- This is a partial storage slice, not completion of M5: baseline normalization, the planned Room backend, a user flow to create/edit/save recognized glyphs, device QA and `.gfont` export remain outstanding. See `docs/M5-report.md`.
+- Add `normalizeGlyphSet` for manually reviewed raster glyphs: caller-supplied per-glyph baselines and reference metrics are transformed from image Y-down coordinates into a shared model Y-up baseline and scale. This is not OCR or automatic baseline/metric detection.
+- Pass full GitHub Actions Gradle/Android verification, core tests, Debug/Release app unit tests, lint, formatting and synthetic CLI smoke in run `38883213683` (commit `2aedf07`); both new normalizer tests pass. The earlier storage-only run `38849746285` also passed all four store tests in both variants.
+- This is a partial foundation, not completion of M5: automatic glyph recognition/metric estimation, user flows to create/edit/save recognized glyphs, device QA and `.gfont` export remain outstanding. See `docs/M5-report.md`. The planned Room backend is not wired.
 
 ### M1 — 2026-10-13
 
