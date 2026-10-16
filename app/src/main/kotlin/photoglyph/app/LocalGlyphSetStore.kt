@@ -39,30 +39,33 @@ internal class LocalGlyphSetStore(
     }
 
     /** Returns null only when the requested set does not exist. */
-    fun load(id: String): GlyphSet? = synchronized(lock) {
-        require(id.isNotBlank())
-        val file = fileForId(id)
-        if (!file.exists()) return@synchronized null
-        if (!file.isFile) throw IOException("Local glyph set key is not a file")
-        readSet(file, id)
-    }
+    fun load(id: String): GlyphSet? =
+        synchronized(lock) {
+            require(id.isNotBlank())
+            val file = fileForId(id)
+            if (!file.exists()) return@synchronized null
+            if (!file.isFile) throw IOException("Local glyph set key is not a file")
+            readSet(file, id)
+        }
 
     /** Lists every stored set independently, in a stable name/id order. */
-    fun list(): List<GlyphSet> = synchronized(lock) {
-        val files = dataFiles()
-        files
-            .map { file -> readSet(file, expectedId = null) }
-            .sortedWith(compareBy<GlyphSet, String>(String.CASE_INSENSITIVE_ORDER) { it.name }.thenBy { it.id })
-    }
+    fun list(): List<GlyphSet> =
+        synchronized(lock) {
+            val files = dataFiles()
+            files
+                .map { file -> readSet(file, expectedId = null) }
+                .sortedWith(compareBy<GlyphSet, String>(String.CASE_INSENSITIVE_ORDER) { it.name }.thenBy { it.id })
+        }
 
     /** Deletes a set by identity; returns false if it was not present. */
-    fun delete(id: String): Boolean = synchronized(lock) {
-        require(id.isNotBlank())
-        val file = fileForId(id)
-        if (!file.exists()) return@synchronized false
-        if (!file.isFile || !file.delete()) throw IOException("Could not delete local glyph set")
-        true
-    }
+    fun delete(id: String): Boolean =
+        synchronized(lock) {
+            require(id.isNotBlank())
+            val file = fileForId(id)
+            if (!file.exists()) return@synchronized false
+            if (!file.isFile || !file.delete()) throw IOException("Could not delete local glyph set")
+            true
+        }
 
     private fun dataFiles(): List<File> {
         if (!directory.exists()) return emptyList()
@@ -79,9 +82,10 @@ internal class LocalGlyphSetStore(
     private fun fileForId(id: String): File {
         require(id.isNotBlank())
         val digest = MessageDigest.getInstance("SHA-256").digest(id.toByteArray(StandardCharsets.UTF_8))
-        val hash = digest.joinToString(separator = "") { byte ->
-            (byte.toInt() and BYTE_MASK).toString(HEX_RADIX).padStart(HEX_WIDTH, '0')
-        }
+        val hash =
+            digest.joinToString(separator = "") { byte ->
+                (byte.toInt() and BYTE_MASK).toString(HEX_RADIX).padStart(HEX_WIDTH, '0')
+            }
         return File(directory, "set-$hash.json")
     }
 

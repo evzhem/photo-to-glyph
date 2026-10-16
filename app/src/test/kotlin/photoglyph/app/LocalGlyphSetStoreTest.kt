@@ -16,65 +16,69 @@ import java.nio.file.Files
 
 class LocalGlyphSetStoreTest {
     @Test
-    fun storesIndependentPartialSetsAcrossStoreInstances() = withTemporaryDirectory { directory ->
-        val first = glyphSet(id = "first-set", name = "First", character = "А")
-        val second = glyphSet(id = "second-set", name = "Second", character = "ё")
-        LocalGlyphSetStore(directory).apply {
-            save(first)
-            save(second)
+    fun storesIndependentPartialSetsAcrossStoreInstances() =
+        withTemporaryDirectory { directory ->
+            val first = glyphSet(id = "first-set", name = "First", character = "А")
+            val second = glyphSet(id = "second-set", name = "Second", character = "ё")
+            LocalGlyphSetStore(directory).apply {
+                save(first)
+                save(second)
+            }
+
+            val reopened = LocalGlyphSetStore(directory)
+            assertEquals(first, reopened.load(first.id))
+            assertEquals(second, reopened.load(second.id))
+            assertEquals(listOf("First", "Second"), reopened.list().map { it.name })
+            assertEquals(setOf("А"), reopened.load(first.id)?.glyphs?.keys)
+            assertEquals(setOf("ё"), reopened.load(second.id)?.glyphs?.keys)
         }
 
-        val reopened = LocalGlyphSetStore(directory)
-        assertEquals(first, reopened.load(first.id))
-        assertEquals(second, reopened.load(second.id))
-        assertEquals(listOf("First", "Second"), reopened.list().map { it.name })
-        assertEquals(setOf("А"), reopened.load(first.id)?.glyphs?.keys)
-        assertEquals(setOf("ё"), reopened.load(second.id)?.glyphs?.keys)
-    }
+    @Test
+    fun replacesAndDeletesOnlyTheRequestedSet() =
+        withTemporaryDirectory { directory ->
+            val store = LocalGlyphSetStore(directory)
+            val firstVersion = glyphSet(id = "shared-id", name = "Before", character = "А")
+            val replacement = glyphSet(id = "shared-id", name = "After", character = "Б")
+            val independent = glyphSet(id = "other-id", name = "Other", character = "в")
+            store.save(firstVersion)
+            store.save(independent)
+            store.save(replacement)
+
+            assertEquals(replacement, store.load("shared-id"))
+            assertEquals(independent, store.load("other-id"))
+            assertEquals(2, store.list().size)
+            assertTrue(store.delete("shared-id"))
+            assertNull(store.load("shared-id"))
+            assertEquals(listOf(independent), store.list())
+            assertFalse(store.delete("shared-id"))
+        }
 
     @Test
-    fun replacesAndDeletesOnlyTheRequestedSet() = withTemporaryDirectory { directory ->
-        val store = LocalGlyphSetStore(directory)
-        val firstVersion = glyphSet(id = "shared-id", name = "Before", character = "А")
-        val replacement = glyphSet(id = "shared-id", name = "After", character = "Б")
-        val independent = glyphSet(id = "other-id", name = "Other", character = "в")
-        store.save(firstVersion)
-        store.save(independent)
-        store.save(replacement)
+    fun hashesIdsBeforeUsingThemAsFileNames() =
+        withTemporaryDirectory { parent ->
+            val storage = File(parent, "sets")
+            val id = "../outside"
+            val store = LocalGlyphSetStore(storage)
+            val set = glyphSet(id = id, name = "Safe", character = "Ж")
+            store.save(set)
 
-        assertEquals(replacement, store.load("shared-id"))
-        assertEquals(independent, store.load("other-id"))
-        assertEquals(2, store.list().size)
-        assertTrue(store.delete("shared-id"))
-        assertNull(store.load("shared-id"))
-        assertEquals(listOf(independent), store.list())
-        assertFalse(store.delete("shared-id"))
-    }
+            val files = checkNotNull(storage.listFiles()).filter { it.isFile }
+            assertEquals(1, files.size)
+            assertTrue(files.single().name.matches(Regex("set-[0-9a-f]{64}\\.json")))
+            assertFalse(File(parent, "outside.json").exists())
+            assertEquals(set, store.load(id))
+        }
 
     @Test
-    fun hashesIdsBeforeUsingThemAsFileNames() = withTemporaryDirectory { parent ->
-        val storage = File(parent, "sets")
-        val id = "../outside"
-        val store = LocalGlyphSetStore(storage)
-        val set = glyphSet(id = id, name = "Safe", character = "Ж")
-        store.save(set)
+    fun malformedStoredJsonIsReportedInsteadOfSilentlyDropped() =
+        withTemporaryDirectory { directory ->
+            val store = LocalGlyphSetStore(directory)
+            store.save(glyphSet(id = "broken", name = "Broken", character = "А"))
+            checkNotNull(directory.listFiles()).single { it.name.endsWith(".json") }.writeText("{")
 
-        val files = checkNotNull(storage.listFiles()).filter { it.isFile }
-        assertEquals(1, files.size)
-        assertTrue(files.single().name.matches(Regex("set-[0-9a-f]{64}\\.json")))
-        assertFalse(File(parent, "outside.json").exists())
-        assertEquals(set, store.load(id))
-    }
-
-    @Test
-    fun malformedStoredJsonIsReportedInsteadOfSilentlyDropped() = withTemporaryDirectory { directory ->
-        val store = LocalGlyphSetStore(directory)
-        store.save(glyphSet(id = "broken", name = "Broken", character = "А"))
-        checkNotNull(directory.listFiles()).single { it.name.endsWith(".json") }.writeText("{")
-
-        val failure = runCatching { store.list() }.exceptionOrNull()
-        assertTrue(failure is IOException)
-    }
+            val failure = runCatching { store.list() }.exceptionOrNull()
+            assertTrue(failure is IOException)
+        }
 
     private fun glyphSet(
         id: String,
