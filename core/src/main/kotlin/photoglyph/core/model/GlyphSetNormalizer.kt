@@ -31,27 +31,35 @@ data class RasterFontMetrics(
     }
 }
 
+data class GlyphSetNormalizationOptions(
+    val id: String,
+    val name: String,
+    val defaultStrokeWidthMm: Double,
+    val createdAt: String,
+    val targetCapHeightUnits: Double,
+    val unitsPerEm: Int = GlyphSet.DEFAULT_UNITS_PER_EM,
+) {
+    init {
+        require(id.isNotBlank() && name.isNotBlank() && createdAt.isNotBlank())
+        require(targetCapHeightUnits.isFinite() && targetCapHeightUnits > 0.0 && targetCapHeightUnits < unitsPerEm)
+        require(defaultStrokeWidthMm.isFinite() && defaultStrokeWidthMm > 0.0)
+    }
+}
+
 /**
  * Maps reviewed raster glyph paths into a shared Y-up font coordinate system.
  * The caller supplies each glyph's baseline and the set's reference heights;
  * this function does not guess page layout, labels, or handwriting metrics.
  */
 fun normalizeGlyphSet(
-    id: String,
-    name: String,
     glyphs: List<RasterGlyphInput>,
     rasterMetrics: RasterFontMetrics,
-    defaultStrokeWidthMm: Double,
-    createdAt: String,
-    targetCapHeightUnits: Double,
-    unitsPerEm: Int = GlyphSet.DEFAULT_UNITS_PER_EM,
+    options: GlyphSetNormalizationOptions,
 ): GlyphSet {
     require(glyphs.isNotEmpty())
     require(glyphs.map { it.char }.toSet().size == glyphs.size) { "Glyph labels must be unique" }
-    require(targetCapHeightUnits.isFinite() && targetCapHeightUnits > 0.0 && targetCapHeightUnits < unitsPerEm)
-    require(defaultStrokeWidthMm.isFinite() && defaultStrokeWidthMm > 0.0)
 
-    val scale = targetCapHeightUnits / rasterMetrics.capHeightPx
+    val scale = options.targetCapHeightUnits / rasterMetrics.capHeightPx
     val normalizedGlyphs =
         glyphs.associateTo(linkedMapOf()) { input ->
             val normalizedStrokes =
@@ -65,7 +73,7 @@ fun normalizeGlyphSet(
                                 )
                             },
                         )
-                    Stroke(normalizedPath, order, defaultStrokeWidthMm)
+                    Stroke(normalizedPath, order, options.defaultStrokeWidthMm)
                 }
             input.char to
                 Glyph(
@@ -78,15 +86,15 @@ fun normalizeGlyphSet(
         }
 
     return GlyphSet(
-        id = id,
-        name = name,
-        unitsPerEm = unitsPerEm,
+        id = options.id,
+        name = options.name,
+        unitsPerEm = options.unitsPerEm,
         baselineY = NORMALIZED_BASELINE_Y,
         xHeight = rasterMetrics.xHeightPx * scale,
-        capHeight = targetCapHeightUnits,
-        defaultStrokeWidthMm = defaultStrokeWidthMm,
+        capHeight = options.targetCapHeightUnits,
+        defaultStrokeWidthMm = options.defaultStrokeWidthMm,
         glyphs = normalizedGlyphs,
-        createdAt = createdAt,
+        createdAt = options.createdAt,
     )
 }
 
