@@ -82,9 +82,9 @@ Production `normalizeGlyphSet` теперь преобразует **вручн�
 
 UI пока не создаёт и не редактирует наборы, не получает распознанные буквы из pipeline и не экспортирует `.gfont`; real Android/device QA ещё не выполнен. Подробный частичный отчёт и полный CI output: `docs/M5-report.md`.
 
-## Статус проверки M2 — 2026-10-16
+## Статус проверки M2 — 2026-10-17
 
-`./tools/m2-standalone-check.sh` прошёл: 17 page-preparation core checks, 5 preparation API checks и supporting suites. Full Gradle/Android CI run `38883213683` прошёл и компилирует app. Ни permission/capture, ни CameraX fallback, ни реальная подготовка фотографии не запускались на Android-устройстве/эмуляторе: здесь нет `adb`, `emulator` или Android SDK. M2 остаётся частичным; подробный отчёт с полным stdout/CI output: `docs/M2-report.md`. Следующий этап распознавания пока не начинается по порядку `ROADMAP.md`.
+`./tools/m2-standalone-check.sh` прошёл: 17 page-preparation core checks, 5 preparation API checks и supporting suites. Full Gradle/Android CI run `38883213683` прошёл и компилирует app. Пользователь сообщил о проверке на Android: камера работает, фото импортируются из галереи; screenshots показывают подготовленный ч/б raster 601 × 800. Однако зелёная рамка на скриншотах охватывает всю фотографию, а результат содержит стол/шум выше листа. Нужно нажать «Найти углы» или вручную переместить зелёные маркеры к краям страницы и проверить результат. Отказ permission, модель/API и camera-unavailable fallback не подтверждены. Подробный отчёт с полными stdout/CI output: `docs/M2-report.md`. M2 ещё не закрыт; после подтверждения корректной rectification продолжим спецификацию распознавания по порядку `ROADMAP.md`.
 
 ## Повторная проверка существующего спайка (историческая проверка M0)
 

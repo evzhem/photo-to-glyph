@@ -1,6 +1,8 @@
-# M2 — камера, импорт и подготовка страницы (частичный результат; device QA заблокирован)
+# M2 — камера, импорт и подготовка страницы (частично проверено на устройстве)
 
-Дата: **2026-10-16**. Код M2 прошёл текущий full Gradle/Android CI run [38883213683](https://github.com/evzhem/photo-to-glyph/actions/runs/38883213683) на commit `2aedf07e9270e1200f767d97d4b87c774fad5504`; повторный `./tools/m2-standalone-check.sh` завершился с кодом `0`. M2 **не завершён**: запуск CameraX, системное разрешение, физическая съёмка и импорт/подготовка на Android-устройстве или эмуляторе не проверены. В этом окружении `adb`, `emulator`, `ANDROID_HOME` и `ANDROID_SDK_ROOT` отсутствуют; full CI build не эмулирует камеру. По порядку `ROADMAP.md` это блокирует переход к спецификации распознавания страницы и последующим этапам.
+Последнее обновление: **2026-10-17**. Код M2 прошёл full Gradle/Android CI run [38883213683](https://github.com/evzhem/photo-to-glyph/actions/runs/38883213683) на commit `2aedf07e9270e1200f767d97d4b87c774fad5504`; `./tools/m2-standalone-check.sh` завершился с кодом `0`. Пользователь проверил приложение на Android и сообщил, что камера работает и фотографии из галереи импортируются. Приложенные скриншоты показывают загруженную страницу и подготовленный ч/б raster размером 601 × 800 px. Модель телефона/версия Android и отдельный сценарий отказа permission не указаны.
+
+M2 **остаётся частичным**: в скриншотах зелёная рамка совпадает с границами фотографии, а не листа; в ч/б результате видна полоса стола/шума над страницей. Поэтому точное определение углов и ручная правка рамки на реальном фото ещё не подтверждены. В этой среде нет `adb`, `emulator`, `ANDROID_HOME` и `ANDROID_SDK_ROOT`, поэтому мы не можем повторить device QA самостоятельно. До проверки, что рамку можно довести до границ листа и получить пригодное выравнивание, следующий milestone по порядку `ROADMAP.md` не закрывается.
 
 ## 1. Файлы и назначение
 
@@ -566,7 +568,7 @@ Supporting suites также вызывают production-код: 21 legacy M0 ch
 
 | Проверено автоматически | Требует проверки человеком | Не сделано |
 | --- | --- | --- |
-| Pixel-exact crop/rotation/mirror; bounded resize; ручной page quad; analytic page detection; perspective mapping/rectification; threshold/mark preservation; projection alignment; подготовка API. Все 17 core + 5 API checks прошли standalone и current full CI. Android Debug/Release compile, app unit tests, lint и formatting прошли CI. | На реальном Android: первый запуск и системный permission prompt, grant/deny/deny-again, camera unavailable fallback, CameraX preview/capture, rotation/import, manual corner drag, реальная страница при косом свете, корректность подготовленного raster. Ни эмулятор, ни физический аппарат не доступны для этой сессии. | M2 device acceptance. Также не реализованы OCR, letter segmentation/recognition/labels, correction UI, автоматический baseline inference, сохранение результата распознавания и `.gfont` export; это последующие этапы, не скрытая часть M2. |
+| Pixel-exact crop/rotation/mirror; bounded resize; ручной page quad; analytic page detection; perspective mapping/rectification; threshold/mark preservation; projection alignment; подготовка API. Все 17 core + 5 API checks прошли standalone и current full CI. Android Debug/Release compile, app unit tests, lint и formatting прошли CI. | Пользователь подтвердил, что на Android камера работает, фото импортируются из галереи; screenshots показывают подготовленный ч/б raster 601 × 800. Не указаны модель/API и сценарий permission denial. Нужно проверить углы: зелёная рамка на скриншотах обводит всю фотографию и оставляет стол в итоговом изображении; ручное перемещение углов к листу и результат повторной подготовки не показаны. | Полная device acceptance подготовки страницы (точное выделение листа/восстановление при неудачной автодетекции); OCR, letter segmentation/recognition/labels, correction UI, автоматический baseline inference, сохранение результата распознавания и `.gfont` export — это следующие этапы. |
 
 ## 5. Предположения и неизвестное
 
@@ -574,9 +576,10 @@ Supporting suites также вызывают production-код: 21 legacy M0 ch
 - Четыре угла можно определить автоматически на некоторых страницах; `PageQuad` можно задать/исправить вручную. Аналитическая синтетическая фотография не эквивалентна реальной съемке.
 - `PreparedImage` содержит rectified raster, grayscale и binary; оно не содержит буквенных labels и не утверждает, что текст распознан.
 - Команда standalone использует только Kotlin/JVM production subset и HTTP test adapter. Успешный standalone run не заменяет обязательный full Gradle/Android CI, который прошёл отдельно.
-- Camera permission, CameraX availability, capture/import fallback, rotation сенсора, UI жестов и page quality на реальных фотографиях не проверены.
-- Для устройства нужно повторить permission/capture/import/prepare acceptance и добавить результаты сюда. До такого доступа M2 остаётся partial и следующий milestone по roadmap не начинается.
+- Пользователь подтвердил работу камеры и импорта из галереи; детали устройства, permission denial и camera-unavailable fallback неизвестны.
+- Скриншоты показывают, что исходная рамка совпадает с внешними границами фото, а подготовленный raster содержит верхнюю полосу стола/шум. Неясно, нажималась ли «Найти углы» и пробовалась ли ручная правка; страничная rectification на этом примере не принимается как подтверждённая.
+- Для завершения M2 достаточно повторить подготовку на этом фото после нажатия «Найти углы» и, если нужно, перетаскивания четырёх зелёных маркеров к углам листа. Пользовательские фотографии в репозиторий не добавлять.
 
 ## 6. Запись CHANGELOG
 
-В `CHANGELOG.md` сохранена историческая запись о M2 camera-first/photo preparation. Добавлена запись о повторном standalone прогоне и current CI run `38883213683`; этот отчёт явно оставляет Android/device QA незавершённым. См. соответствующий пункт `CHANGELOG.md`.
+В `CHANGELOG.md` сохранена историческая запись о M2 camera-first/photo preparation, автоматические проверки и user-reported manual result (camera/gallery работают). Обнаруженная на screenshot проблема с рамкой/шумной полосой явно оставлена непроверенной; см. соответствующий пункт `CHANGELOG.md`.

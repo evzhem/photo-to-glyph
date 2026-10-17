@@ -11,7 +11,8 @@ All notable changes are documented here. Code and commits are in English; report
 - Keep the browser single-glyph lab explicitly developer-only; it is not the Android product screen.
 - Continue M2 photo preparation (page corners, crop/rotation, perspective and B/W); page B/W now preserves small components (dots/accents) by default, with a production test.
 - Add separate pure Kotlin/JVM Sobel + non-maximum-suppression picture contours, a Compose camera/import preview mode, and a sensitivity control. Four synthetic tests execute `blackContourImage`/`PipelineParams`; full Gradle/Android CI run `38799609923` passes. Real Android/photo quality checks remain pending.
-- Re-run `./tools/m2-standalone-check.sh` on 2026-10-16: all 17 page-preparation, 3 InkComponents, 4 picture-contour and 5 preparation API checks pass; the full Gradle/Android build and tests also pass in run `38883213683`. Camera/permission/page-preparation QA on an actual Android runtime is still blocked; see `docs/M2-report.md`.
+- Re-run `./tools/m2-standalone-check.sh` on 2026-10-16: all 17 page-preparation, 3 InkComponents, 4 picture-contour and 5 preparation API checks pass; the full Gradle/Android build and tests also pass in run `38883213683`.
+- On 2026-10-17 the user confirmed on-device camera use and gallery import; screenshots show page preparation output at 601 × 800. They also show that the current quad still covers the whole photograph, leaving tabletop noise in the binary result; corner detection/manual correction acceptance remains open. See `docs/M2-report.md`.
 - Automatic handwriting recognition, user correction, app-level local alphabet storage, and `.gfont` export are still not implemented.
 
 ### M3 — 2026-10-16 (foundation only; incomplete)
