@@ -66,7 +66,7 @@ object GfontCodecChecks {
         val decoded = GfontCodec.decode(encoded)
 
         check(unzip(encoded).keys.toSet() == setOf("1040", "1072"))
-        check(decoded.glyphs.keys == setOf("А", "а"))
+        check(decoded.glyphs.keys == setOf("А".codePointAt(0), "а".codePointAt(0)))
         check(GfontCodec.encode(caseSet).contentEquals(encoded))
     }
 
