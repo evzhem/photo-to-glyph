@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -80,14 +82,17 @@ internal fun AlphabetBuilderScreen(
     var setName by remember { mutableStateOf("") }
     var capHeightReference by remember { mutableStateOf<String?>(null) }
     var xHeightReference by remember { mutableStateOf<String?>(null) }
+    var selectedScript by remember { mutableStateOf(HandwritingScript.CYRILLIC) }
+    var selectedCharacter by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<Int?>(null) }
 
+    val savedLabels = remember(glyphs) { glyphs.mapTo(mutableSetOf()) { it.input.char } }
     val capHeightPx = glyphs.firstOrNull { it.input.char == capHeightReference }?.input?.baselineY
     val xHeightPx = glyphs.firstOrNull { it.input.char == xHeightReference }?.input?.baselineY
     val metricsValid = capHeightPx != null && xHeightPx != null && xHeightPx > 0.0 && capHeightPx > xHeightPx
     val validPendingLabel = isSupportedGfontLabel(pendingLabel) && glyphs.none { it.input.char == pendingLabel }
-    val canSave = !busy && setName.isNotBlank() && glyphs.isNotEmpty() && metricsValid
+    val canSave = !busy && pendingGlyph == null && setName.isNotBlank() && glyphs.isNotEmpty() && metricsValid
 
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(BUILDER_PADDING_DP.dp),
@@ -98,6 +103,21 @@ internal fun AlphabetBuilderScreen(
         }
         Text(stringResource(R.string.alphabet_builder_title))
         Text(stringResource(R.string.alphabet_builder_note))
+        LetterCasePicker(
+            script = selectedScript,
+            selectedCharacter = selectedCharacter,
+            savedLabels = savedLabels,
+            enabled = !busy,
+            onScriptChange = { script ->
+                selectedScript = script
+                selectedCharacter = null
+                if (pendingGlyph != null) pendingLabel = ""
+            },
+            onCharacterSelected = { character ->
+                selectedCharacter = character
+                if (pendingGlyph != null) pendingLabel = character
+            },
+        )
         Text(stringResource(R.string.alphabet_select_hint))
         PageGlyphSelectionCanvas(
             binary = binary,
@@ -131,7 +151,7 @@ internal fun AlphabetBuilderScreen(
                             }
                         pendingGlyph = cropped
                         pendingBaseline = cropped.binary.height.toFloat()
-                        pendingLabel = ""
+                        pendingLabel = selectedCharacter.orEmpty()
                     } catch (_: IllegalArgumentException) {
                         message = R.string.alphabet_crop_failed
                     } finally {
@@ -158,7 +178,10 @@ internal fun AlphabetBuilderScreen(
                 actions =
                     PendingGlyphReviewActions(
                         onBaselineChange = { pendingBaseline = it },
-                        onLabelChange = { pendingLabel = it },
+                        onLabelChange = {
+                            pendingLabel = it
+                            selectedCharacter = null
+                        },
                         onAdd = {
                             val input =
                                 RasterGlyphInput(
@@ -170,6 +193,8 @@ internal fun AlphabetBuilderScreen(
                                 )
                             glyphs = glyphs + ReviewedGlyph(input, pending.binary.width, pending.binary.height, pending.binary)
                             pendingGlyph = null
+                            pendingLabel = ""
+                            selectedCharacter = null
                             selection = null
                             message = null
                         },
@@ -180,62 +205,42 @@ internal fun AlphabetBuilderScreen(
 
         Text(stringResource(R.string.alphabet_glyph_count, glyphs.size))
         if (glyphs.isEmpty()) Text(stringResource(R.string.alphabet_empty_draft))
-        glyphs.forEach { glyph ->
-            ReviewedGlyphCard(
-                glyph = glyph,
-                state =
-                    ReviewedGlyphCardState(
-                        isCapReference = glyph.input.char == capHeightReference,
-                        isXHeightReference = glyph.input.char == xHeightReference,
-                        enabled = !busy,
-                    ),
-                actions =
-                    ReviewedGlyphCardActions(
-                        onBaselineChange = { baseline ->
-                            glyphs =
-                                glyphs.map { current ->
-                                    if (current.input.char == glyph.input.char) {
-                                        current.copy(input = current.input.copy(baselineY = baseline.toDouble()))
-                                    } else {
-                                        current
-                                    }
-                                }
-                        },
-                        onCapReference = { capHeightReference = glyph.input.char },
-                        onXHeightReference = { xHeightReference = glyph.input.char },
-                        onRemove = {
-                            glyphs = glyphs.filterNot { it.input.char == glyph.input.char }
-                            if (capHeightReference == glyph.input.char) capHeightReference = null
-                            if (xHeightReference == glyph.input.char) xHeightReference = null
-                        },
-                    ),
-            )
-        }
-        OutlinedTextField(
-            value = setName,
-            onValueChange = { setName = it },
-            label = { Text(stringResource(R.string.alphabet_set_name)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
+        ReviewedGlyphList(
+            glyphs = glyphs,
+            capHeightReference = capHeightReference,
+            xHeightReference = xHeightReference,
+            enabled = !busy,
+            onBaselineChange = { character, baseline ->
+                glyphs =
+                    glyphs.map { current ->
+                        if (current.input.char == character) {
+                            current.copy(input = current.input.copy(baselineY = baseline.toDouble()))
+                        } else {
+                            current
+                        }
+                    }
+            },
+            onCapReference = { capHeightReference = it },
+            onXHeightReference = { xHeightReference = it },
+            onRemove = { character ->
+                glyphs = glyphs.filterNot { it.input.char == character }
+                if (capHeightReference == character) capHeightReference = null
+                if (xHeightReference == character) xHeightReference = null
+            },
         )
-        Text(stringResource(R.string.alphabet_reference_hint))
-        Text(
-            stringResource(
-                R.string.alphabet_metrics_summary,
-                capHeightReference ?: EMPTY_REFERENCE,
-                capHeightPx?.roundToInt() ?: 0,
-                xHeightReference ?: EMPTY_REFERENCE,
-                xHeightPx?.roundToInt() ?: 0,
-            ),
-        )
-        if (capHeightReference != null && xHeightReference != null && !metricsValid) {
-            Text(stringResource(R.string.alphabet_metrics_invalid))
-        }
-        Button(
-            enabled = canSave,
-            onClick = {
-                val heightCap = capHeightPx ?: return@Button
-                val heightX = xHeightPx ?: return@Button
+        AlphabetSetSaveControls(
+            setName = setName,
+            onSetNameChange = { setName = it },
+            capHeightReference = capHeightReference,
+            capHeightPx = capHeightPx,
+            xHeightReference = xHeightReference,
+            xHeightPx = xHeightPx,
+            metricsValid = metricsValid,
+            canSave = canSave,
+            busy = busy,
+            onSave = {
+                val heightCap = checkNotNull(capHeightPx)
+                val heightX = checkNotNull(xHeightPx)
                 busy = true
                 message = null
                 scope.launchSaveGlyphSet(
@@ -255,8 +260,160 @@ internal fun AlphabetBuilderScreen(
                         ),
                 )
             },
-        ) {
-            Text(stringResource(if (busy) R.string.alphabet_saving else R.string.alphabet_save))
+        )
+    }
+}
+
+@Composable
+private fun ReviewedGlyphList(
+    glyphs: List<ReviewedGlyph>,
+    capHeightReference: String?,
+    xHeightReference: String?,
+    enabled: Boolean,
+    onBaselineChange: (String, Float) -> Unit,
+    onCapReference: (String) -> Unit,
+    onXHeightReference: (String) -> Unit,
+    onRemove: (String) -> Unit,
+) {
+    glyphs.forEach { glyph ->
+        val character = glyph.input.char
+        ReviewedGlyphCard(
+            glyph = glyph,
+            state =
+                ReviewedGlyphCardState(
+                    isCapReference = character == capHeightReference,
+                    isXHeightReference = character == xHeightReference,
+                    enabled = enabled,
+                ),
+            actions =
+                ReviewedGlyphCardActions(
+                    onBaselineChange = { onBaselineChange(character, it) },
+                    onCapReference = { onCapReference(character) },
+                    onXHeightReference = { onXHeightReference(character) },
+                    onRemove = { onRemove(character) },
+                ),
+        )
+    }
+}
+
+@Composable
+private fun AlphabetSetSaveControls(
+    setName: String,
+    onSetNameChange: (String) -> Unit,
+    capHeightReference: String?,
+    capHeightPx: Double?,
+    xHeightReference: String?,
+    xHeightPx: Double?,
+    metricsValid: Boolean,
+    canSave: Boolean,
+    busy: Boolean,
+    onSave: () -> Unit,
+) {
+    OutlinedTextField(
+        value = setName,
+        onValueChange = onSetNameChange,
+        label = { Text(stringResource(R.string.alphabet_set_name)) },
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    Text(stringResource(R.string.alphabet_reference_hint))
+    Text(
+        stringResource(
+            R.string.alphabet_metrics_summary,
+            capHeightReference ?: EMPTY_REFERENCE,
+            capHeightPx?.roundToInt() ?: 0,
+            xHeightReference ?: EMPTY_REFERENCE,
+            xHeightPx?.roundToInt() ?: 0,
+        ),
+    )
+    if (capHeightReference != null && xHeightReference != null && !metricsValid) {
+        Text(stringResource(R.string.alphabet_metrics_invalid))
+    }
+    Button(enabled = canSave, onClick = onSave) {
+        Text(stringResource(if (busy) R.string.alphabet_saving else R.string.alphabet_save))
+    }
+}
+
+@Composable
+private fun LetterCasePicker(
+    script: HandwritingScript,
+    selectedCharacter: String?,
+    savedLabels: Set<String>,
+    enabled: Boolean,
+    onScriptChange: (HandwritingScript) -> Unit,
+    onCharacterSelected: (String) -> Unit,
+) {
+    val progress = AlphabetLetterForms.progress(script, savedLabels)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(BUILDER_GAP_DP.dp),
+    ) {
+        Text(stringResource(R.string.alphabet_case_picker_title))
+        Row(horizontalArrangement = Arrangement.spacedBy(BUILDER_BUTTON_GAP_DP.dp)) {
+            FilterChip(
+                selected = script == HandwritingScript.CYRILLIC,
+                enabled = enabled,
+                onClick = { onScriptChange(HandwritingScript.CYRILLIC) },
+                label = { Text(stringResource(R.string.alphabet_script_cyrillic)) },
+            )
+            FilterChip(
+                selected = script == HandwritingScript.LATIN,
+                enabled = enabled,
+                onClick = { onScriptChange(HandwritingScript.LATIN) },
+                label = { Text(stringResource(R.string.alphabet_script_latin)) },
+            )
+        }
+        Text(
+            stringResource(
+                R.string.alphabet_case_progress,
+                progress.uppercaseAdded,
+                progress.uppercaseTotal,
+                progress.lowercaseAdded,
+                progress.lowercaseTotal,
+            ),
+        )
+        Text(stringResource(R.string.alphabet_uppercase_forms))
+        LetterFormChips(
+            forms = AlphabetLetterForms.uppercase(script),
+            selectedCharacter = selectedCharacter,
+            savedLabels = savedLabels,
+            enabled = enabled,
+            onCharacterSelected = onCharacterSelected,
+        )
+        Text(stringResource(R.string.alphabet_lowercase_forms))
+        LetterFormChips(
+            forms = AlphabetLetterForms.lowercase(script),
+            selectedCharacter = selectedCharacter,
+            savedLabels = savedLabels,
+            enabled = enabled,
+            onCharacterSelected = onCharacterSelected,
+        )
+        selectedCharacter?.let { character ->
+            Text(stringResource(R.string.alphabet_case_selected, character))
+        }
+    }
+}
+
+@Composable
+private fun LetterFormChips(
+    forms: List<String>,
+    selectedCharacter: String?,
+    savedLabels: Set<String>,
+    enabled: Boolean,
+    onCharacterSelected: (String) -> Unit,
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(BUILDER_BUTTON_GAP_DP.dp),
+        verticalArrangement = Arrangement.spacedBy(BUILDER_BUTTON_GAP_DP.dp),
+    ) {
+        forms.forEach { character ->
+            val alreadyAdded = character in savedLabels
+            FilterChip(
+                selected = character == selectedCharacter,
+                enabled = enabled && !alreadyAdded,
+                onClick = { onCharacterSelected(character) },
+                label = { Text(if (alreadyAdded) "$character ✓" else character) },
+            )
         }
     }
 }

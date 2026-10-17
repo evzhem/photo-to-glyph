@@ -100,6 +100,7 @@ Additional tunable parameters need named defaults and documented meanings; no ma
 - `SvgNoFillTest`: only explicit no-fill strokes; corrupted export is rejected.
 - `GlyphSetRoundTripTest`: model ↔ JSON without loss (M3).
 - `BinaryVectorizeTest`: exercise production `vectorizeBinary` on an independently specified binary crop, preserve open centerline chains and tiny detached marks; this does not validate recognition or handwriting quality.
+- `AlphabetLetterFormsTest`: invoke the production character catalog/progress function; uppercase/lowercase and Cyrillic/Latin coverage are counted separately. This does not perform OCR.
 - `GfontRoundTripTest`: point tolerance 1e-4, identical stroke flags. Current core codec round-trips the documented ZIP glyph-record subset; KDraw scale/service-entry compatibility remains human-unverified.
 
 Do not add tests for missing production functions just to make this list look complete. Add each test alongside the production function for its milestone; source import scanning is mandatory in M1.

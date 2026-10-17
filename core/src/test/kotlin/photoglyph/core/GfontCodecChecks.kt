@@ -56,6 +56,20 @@ object GfontCodecChecks {
         check(GfontCodec.encode(glyphSet).contentEquals(encoded))
     }
 
+    fun uppercaseAndLowercaseRemainDistinctGfontEntries() {
+        val source = sampleGlyphSet()
+        val uppercase = source.glyphs.getValue("Ж").copy(char = "А")
+        val lowercase = source.glyphs.getValue("я").copy(char = "а")
+        val caseSet = source.copy(glyphs = linkedMapOf("А" to uppercase, "а" to lowercase))
+
+        val encoded = GfontCodec.encode(caseSet)
+        val decoded = GfontCodec.decode(encoded)
+
+        check(unzip(encoded).keys.toSet() == setOf("1040", "1072"))
+        check(decoded.glyphs.keys == setOf("А", "а"))
+        check(GfontCodec.encode(caseSet).contentEquals(encoded))
+    }
+
     fun malformedRecordsAndUnsupportedEntriesAreRejected() {
         rejects { GfontCodec.decode(zipOf("65" to glyphRecord(codePoint = 65, floatCount = 1))) }
         rejects {

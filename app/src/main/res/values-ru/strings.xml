@@ -14,8 +14,15 @@
   <string name="gfont_export_failed">Не удалось экспортировать .gfont.</string>
   <string name="build_handwriting_alphabet">Собрать алфавит из этой страницы</string>
   <string name="alphabet_builder_title">Сборка рукописного алфавита</string>
-  <string name="alphabet_builder_note">Выделяйте и подтверждайте по одной букве. Автоматического распознавания и разделения связанных букв пока нет; отсутствующие символы не добавляются.</string>
-  <string name="alphabet_select_hint">Обведите одну рукописную букву. Проверьте, что в обрезку не попала соседняя буква.</string>
+  <string name="alphabet_builder_note">Заглавные и строчные формы — отдельные буквы: например, А и а нужно добавить по отдельности. Автоматического распознавания и разделения связанных букв пока нет; пропуски можно оставить пустыми.</string>
+  <string name="alphabet_case_picker_title">Выберите букву и её регистр отдельно</string>
+  <string name="alphabet_script_cyrillic">Кириллица</string>
+  <string name="alphabet_script_latin">Латиница</string>
+  <string name="alphabet_uppercase_forms">Заглавные буквы</string>
+  <string name="alphabet_lowercase_forms">Строчные буквы</string>
+  <string name="alphabet_case_progress">Добавлено: заглавные %1$d/%2$d, строчные %3$d/%4$d. Набор можно сохранить неполным.</string>
+  <string name="alphabet_case_selected">Для следующей обрезки выбрана: %1$s</string>
+  <string name="alphabet_select_hint">Выберите нужную форму выше и обведите именно эту букву на странице. Не захватывайте соседние знаки.</string>
   <string name="alphabet_crop_button">Обрезать выбранную область</string>
   <string name="alphabet_crop_review">Проверьте черновые центровые линии бирюзового цвета и базовую линию буквы.</string>
   <string name="alphabet_baseline_hint">Базовая линия: %1$d px от верхнего края</string>

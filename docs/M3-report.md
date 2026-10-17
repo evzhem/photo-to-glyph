@@ -141,7 +141,7 @@ PASS M2 standalone checks; NOT an Android/Gradle success
 
 ```text
 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
-Daemon will be stopped at the end of the build 
+Daemon will be stopped at the end of the build
 > Task :assemble UP-TO-DATE
 > Task :app:detekt
 > Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED

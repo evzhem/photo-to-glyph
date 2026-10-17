@@ -47,6 +47,7 @@ All notable changes are documented here. Code and commits are in English; report
 - Connect the prepared-page screen to a manual alphabet builder: drag one crop at a time, inspect the turquoise centerline draft, enter one supported BMP character, adjust a per-glyph baseline, mark actual cap/x-height reference glyphs, and save only confirmed glyphs as a local partial set. Saving opens the local library, where each set exports separately as `.gfont`.
 - Explicitly do not call this OCR: connected cursive is not split, labels and reference samples are user-selected, the M0 centerline graph is preliminary, pen order is not recovered, and there is no path editor. No personal image was added to Git.
 - Pass full GitHub Actions build, `:core:test`, Android lint/format/detekt, app unit tests, and CLI smoke in run `39017154083`. `BinaryVectorizeTest` calls the production `vectorizeBinary` function; full six-part report: `docs/M3-manual-builder-report.md`.
+- Add a Russian/Latin character-case picker. Each uppercase and lowercase form is independently selectable and tracked (`А` and `а` are separate keys); 3 app unit tests exercise the production catalog/progress function, while core JSON and `.gfont` production-function checks preserve both forms together. Letters are still manually cropped and confirmed; no OCR is implied.
 
 ### M1 — 2026-10-13
 

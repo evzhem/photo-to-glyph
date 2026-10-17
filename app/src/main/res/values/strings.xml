@@ -14,8 +14,15 @@
   <string name="gfont_export_failed">Could not export this .gfont file.</string>
   <string name="build_handwriting_alphabet">Build an alphabet from this page</string>
   <string name="alphabet_builder_title">Assemble a handwriting alphabet</string>
-  <string name="alphabet_builder_note">Select and confirm one letter at a time. There is no automatic character recognition or connected-letter splitting yet; missing glyphs are never invented.</string>
-  <string name="alphabet_select_hint">Drag around one handwritten letter. Check that the crop does not include a neighbouring letter.</string>
+  <string name="alphabet_builder_note">Uppercase and lowercase forms are separate glyphs: for example, add A and a independently. Character recognition and connected-letter splitting are not automatic; missing glyphs may remain absent.</string>
+  <string name="alphabet_case_picker_title">Choose a letter and its case separately</string>
+  <string name="alphabet_script_cyrillic">Cyrillic</string>
+  <string name="alphabet_script_latin">Latin</string>
+  <string name="alphabet_uppercase_forms">Uppercase letters</string>
+  <string name="alphabet_lowercase_forms">Lowercase letters</string>
+  <string name="alphabet_case_progress">Added: uppercase %1$d/%2$d, lowercase %3$d/%4$d. The set may be partial.</string>
+  <string name="alphabet_case_selected">Selected for the next crop: %1$s</string>
+  <string name="alphabet_select_hint">Choose the intended form above and crop that exact letter from the page. Keep neighboring marks out.</string>
   <string name="alphabet_crop_button">Crop selected area</string>
   <string name="alphabet_crop_review">Review the turquoise centerline draft and baseline before adding this glyph.</string>
   <string name="alphabet_baseline_hint">Baseline: %1$d px from the top</string>

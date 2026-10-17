@@ -1,6 +1,6 @@
 # M5 — локальное хранилище и нормализация glyphs (частичный результат)
 
-Дата этого M5-среза: **2026-10-16**. Его статус — app-private storage, read-only список и core-нормализация явно размеченных raster glyphs; проверки прошли на ветке `arena/6d0fb259-photo-to-glyph`, commit `2aedf07e9270e1200f767d97d4b87c774fad5504`, CI run [38883213683](https://github.com/evzhem/photo-to-glyph/actions/runs/38883213683). На эту дату не было OCR, UI создания набора или `.gfont` export. **Обновление 2026-10-17:** ручной builder теперь сохраняет созданные из страницы partial sets и подаёт их в `.gfont` library export; это не добавляет OCR или KDraw validation. См. [`M3-manual-builder-report.md`](M3-manual-builder-report.md).
+Дата этого M5-среза: **2026-10-16**. Его статус — app-private storage, read-only список и core-нормализация явно размеченных raster glyphs; проверки прошли на ветке `arena/6d0fb259-photo-to-glyph`, commit `2aedf07e9270e1200f767d97d4b87c774fad5504`, CI run [38883213683](https://github.com/evzhem/photo-to-glyph/actions/runs/38883213683). На эту дату не было OCR, UI создания набора или `.gfont` export. **Обновление 2026-10-17:** ручной builder теперь сохраняет созданные из страницы partial sets, показывает независимый uppercase/lowercase прогресс для кириллицы и латиницы и подаёт наборы в `.gfont` library export; это не добавляет OCR или KDraw validation. См. [`M3-manual-builder-report.md`](M3-manual-builder-report.md) и будущий отчёт case-picker slice.
 
 ## 1. Файлы и назначение
 
@@ -29,7 +29,7 @@
 
 ```text
 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
-Daemon will be stopped at the end of the build 
+Daemon will be stopped at the end of the build
 > Task :assemble UP-TO-DATE
 > Task :app:detekt
 > Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED

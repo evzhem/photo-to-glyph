@@ -20,7 +20,7 @@ object GlyphSetChecks {
         check(decoded.unitsPerEm == source.unitsPerEm)
         check(decoded.baselineY == source.baselineY && decoded.xHeight == source.xHeight && decoded.capHeight == source.capHeight)
         check(decoded.defaultStrokeWidthMm == source.defaultStrokeWidthMm && decoded.createdAt == source.createdAt)
-        check(decoded.glyphs.keys == setOf("А", "ё"))
+        check(decoded.glyphs.keys == setOf("А", "а"))
         for (character in source.glyphs.keys) {
             val expected = checkNotNull(source.glyphs[character])
             val actual = checkNotNull(decoded.glyphs[character])
@@ -69,7 +69,7 @@ object GlyphSetChecks {
             )
         val lowercase =
             Glyph(
-                char = "ё",
+                char = "а",
                 strokes =
                     listOf(
                         Stroke(Polyline(listOf(Vec2(12.0, 18.0), Vec2(32.0, 35.0))), 0, 0.25),
@@ -85,7 +85,7 @@ object GlyphSetChecks {
             xHeight = 500.0,
             capHeight = 720.0,
             defaultStrokeWidthMm = 0.3,
-            glyphs = linkedMapOf("А" to uppercase, "ё" to lowercase),
+            glyphs = linkedMapOf("А" to uppercase, "а" to lowercase),
             createdAt = CREATED_AT,
         )
     }
