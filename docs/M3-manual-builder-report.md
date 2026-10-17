@@ -1,6 +1,6 @@
 # M3 — ручная сборка набора из страницы (частичный результат)
 
-Дата: **2026-10-17**. Статус: **сквозной ручной crop/label → partial set → `.gfont` путь реализован в коде, но автоматически распознавать страницу он не умеет**. Проверка выполнена на ветке `arena/6d0fb259-photo-to-glyph`, кодовый commit `61a5ab7fd0d725ea0851dfa8e57fb8787e24c319`; GitHub Actions run [39017154083](https://github.com/evzhem/photo-to-glyph/actions/runs/39017154083) завершился успешно. Это CI-результат, не Android device QA.
+Дата: **2026-10-17**. Статус: **сквозной ручной crop/label → partial set → `.gfont` путь реализован в коде, но автоматически распознавать страницу он не умеет**. Проверка выполнена на ветке `arena/6d0fb259-photo-to-glyph`, кодовый commit `61a5ab7fd0d725ea0851dfa8e57fb8787e24c319`; GitHub Actions run [39017154083](https://github.com/evzhem/photo-to-glyph/actions/runs/39017154083) завершился успешно. Это CI-результат, не Android device QA. Последующий case-picker с независимыми заглавными/строчными формами описан в [`M3-letter-case-picker-report.md`](M3-letter-case-picker-report.md) и проверен в CI run [39052628653](https://github.com/evzhem/photo-to-glyph/actions/runs/39052628653).
 
 ## 1. Файлы и назначение
 
