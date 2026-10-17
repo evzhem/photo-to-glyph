@@ -8,6 +8,10 @@
   <string name="glyph_library_empty">Сохранённых наборов почерка пока нет.</string>
   <string name="glyph_library_load_failed">Не удалось загрузить локальные наборы почерка.</string>
   <string name="glyph_count">Букв: %1$d</string>
+  <string name="gfont_export">Экспортировать .gfont</string>
+  <string name="gfont_exporting">Экспорт .gfont…</string>
+  <string name="gfont_export_success">Файл .gfont сохранён. Совместимость с KDraw и масштаб пока не проверены.</string>
+  <string name="gfont_export_failed">Не удалось экспортировать .gfont.</string>
   <string name="page_mode">Подготовка страницы</string>
   <string name="contour_mode">Чёрные контуры</string>
   <string name="preparation_title">Сфотографируйте страницу</string>

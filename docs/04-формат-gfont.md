@@ -47,6 +47,12 @@
 
 До получения данных разумные допущения должны быть помечены непосредственно в коде и отчёте. Не писать неизвестные служебные записи, масштаб или текстовый спутник «для совместимости» наугад. Перед M9 спросить пользователя/исследовать предоставленный с разрешения файл с помощью CLI `gfontInspect`.
 
+## Реализация известного подмножества — 2026-10-17
+
+Core `GfontCodec` now writes and reads only the documented numeric-Unicode ZIP glyph records: big-endian `uint16` code point, `uint32` scalar count, `float32` coordinates, and one `uint8` pen flag per point. It flips model Y-up coordinates to the documented `.gfont` Y-down convention, keeps model coordinate units unchanged, emits no speculative service entries/companion text, and rejects unsupported records instead of silently dropping them. `GfontRoundTripTest` uses original synthetic glyphs and invokes this production codec.
+
+The Android library screen can export an already-saved `GlyphSet` as `.gfont`. This is not yet an end-to-end handwriting alphabet flow: the app still has no workflow to create a set from a page. No real `.gfont` or KDraw installation was used. Scale, optional ZIP entries, and real-file compatibility remain unknown; the app labels exports as unverified.
+
 ## Верификация (M9)
 
 1. Прочитать разрешённый реальный набор вне Git, вывести имена записей, коды, числа координат/флагов, диапазоны X/Y, флаги и дополнительные записи. Не подключаться к устройству напрямую.

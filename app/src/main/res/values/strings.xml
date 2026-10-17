@@ -8,6 +8,10 @@
   <string name="glyph_library_empty">No saved handwriting sets yet.</string>
   <string name="glyph_library_load_failed">Could not load local handwriting sets.</string>
   <string name="glyph_count">Glyphs: %1$d</string>
+  <string name="gfont_export">Export .gfont</string>
+  <string name="gfont_exporting">Exporting .gfont…</string>
+  <string name="gfont_export_success">.gfont saved. KDraw compatibility and font scale are not yet verified.</string>
+  <string name="gfont_export_failed">Could not export this .gfont file.</string>
   <string name="page_mode">Prepare page</string>
   <string name="contour_mode">Black contours</string>
   <string name="preparation_title">Photograph a page</string>

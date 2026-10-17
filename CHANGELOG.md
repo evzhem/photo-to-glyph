@@ -4,6 +4,10 @@ All notable changes are documented here. Code and commits are in English; report
 
 ## [Unreleased]
 
+### User priority — 2026-10-17
+
+- Reaffirm the main deliverable: personal handwriting alphabets exported as separate `.gfont` files. Black-and-white preparation is an internal/supporting stage; do not spend the next implementation slice polishing picture contours instead of the alphabet-to-export workflow.
+
 ### M2 — 2026-10-15 (in progress)
 
 - Record the confirmed product outcomes: camera-first photo of a handwritten page → detected letters → a possibly incomplete alphabet; KDraw owns missing-letter substitution. A separate photo-to-image mode returns black contours; file format/background/actions remain unspecified.
@@ -30,6 +34,12 @@ All notable changes are documented here. Code and commits are in English; report
 - Add `normalizeGlyphSet` for manually reviewed raster glyphs: caller-supplied per-glyph baselines and reference metrics are transformed from image Y-down coordinates into a shared model Y-up baseline and scale. This is not OCR or automatic baseline/metric detection.
 - Pass full GitHub Actions Gradle/Android verification, core tests, Debug/Release app unit tests, lint, formatting and synthetic CLI smoke in run `38883213683` (commit `2aedf07`); both new normalizer tests pass. The earlier storage-only run `38849746285` also passed all four store tests in both variants.
 - This is a partial foundation, not completion of M5: automatic glyph recognition/metric estimation, user flows to create/edit/save recognized glyphs, device QA and `.gfont` export remain outstanding. See `docs/M5-report.md`. The planned Room backend is not wired.
+
+### M9 — 2026-10-17 (documented `.gfont` codec foundation; incomplete)
+
+- Start `.gfont` export early, following the user's reiterated priority of personal handwriting alphabets. Implement pure Kotlin/JVM ZIP record encode/decode for the documented glyph-entry subset with big-endian fields, Unicode entry names, Y-up/Y-down transform, bounds validation, and no guessed service entries or sidecar.
+- Add `GfontRoundTripTest` against the production codec, including partial alphabet preservation, exact stroke flags, malformed records, and unsupported supplementary-plane code points.
+- Add `.gfont` export from the read-only library for sets that already exist. This does not create alphabets from photos, and scale/KDraw compatibility remain unverified pending a permitted real file/device check.
 
 ### M1 — 2026-10-13
 

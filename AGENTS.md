@@ -99,7 +99,7 @@ Additional tunable parameters need named defaults and documented meanings; no ma
 - `GlyphSetNormalizerTest` (M5): three raster glyphs with different, caller-supplied descender baselines map to one Y-up baseline with explicit reference metrics; this does not test automatic baseline detection.
 - `SvgNoFillTest`: only explicit no-fill strokes; corrupted export is rejected.
 - `GlyphSetRoundTripTest`: model ↔ JSON without loss (M3).
-- `GfontRoundTripTest`: point tolerance 1e-4, identical stroke flags (after the independent exporter exists).
+- `GfontRoundTripTest`: point tolerance 1e-4, identical stroke flags. Current core codec round-trips the documented ZIP glyph-record subset; KDraw scale/service-entry compatibility remains human-unverified.
 
 Do not add tests for missing production functions just to make this list look complete. Add each test alongside the production function for its milestone; source import scanning is mandatory in M1.
 
