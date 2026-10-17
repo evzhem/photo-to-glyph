@@ -38,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -144,63 +145,37 @@ internal fun AlphabetBuilderScreen(
         message?.let { Text(stringResource(it)) }
 
         pendingGlyph?.let { pending ->
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.padding(BUILDER_CARD_PADDING_DP.dp),
-                    verticalArrangement = Arrangement.spacedBy(BUILDER_GAP_DP.dp),
-                ) {
-                    Text(stringResource(R.string.alphabet_crop_review))
-                    GlyphRasterPreview(
-                        bitmap = remember(pending.binary) { binaryBitmap(pending.binary) },
-                        rasterWidth = pending.binary.width,
-                        rasterHeight = pending.binary.height,
-                        paths = pending.paths,
+            PendingGlyphReviewCard(
+                pending = pending,
+                state =
+                    PendingGlyphReviewState(
                         baselineY = pendingBaseline,
-                    )
-                    Text(stringResource(R.string.alphabet_baseline_hint, pendingBaseline.roundToInt()))
-                    Slider(
-                        value = pendingBaseline,
-                        onValueChange = { pendingBaseline = it },
-                        valueRange = 0f..pending.binary.height.toFloat(),
-                    )
-                    OutlinedTextField(
-                        value = pendingLabel,
-                        onValueChange = { pendingLabel = it },
-                        label = { Text(stringResource(R.string.alphabet_character_label)) },
-                        singleLine = true,
-                    )
-                    if (pendingLabel.isNotEmpty() && !isSupportedGfontLabel(pendingLabel)) {
-                        Text(stringResource(R.string.alphabet_invalid_label))
-                    } else if (pendingLabel.isNotEmpty() && !validPendingLabel) {
-                        Text(stringResource(R.string.alphabet_duplicate_label))
-                    }
-                    Text(stringResource(R.string.alphabet_stroke_count, pending.paths.size))
-                    Row(horizontalArrangement = Arrangement.spacedBy(BUILDER_BUTTON_GAP_DP.dp)) {
-                        Button(
-                            enabled = !busy && validPendingLabel && pendingBaseline > 0f,
-                            onClick = {
-                                val input =
-                                    RasterGlyphInput(
-                                        char = pendingLabel,
-                                        paths = pending.paths,
-                                        originX = 0.0,
-                                        baselineY = pendingBaseline.toDouble(),
-                                        advancePx = pending.binary.width.toDouble(),
-                                    )
-                                glyphs = glyphs + ReviewedGlyph(input, pending.binary.width, pending.binary.height, pending.binary)
-                                pendingGlyph = null
-                                selection = null
-                                message = null
-                            },
-                        ) {
-                            Text(stringResource(R.string.alphabet_add_glyph))
-                        }
-                        OutlinedButton(enabled = !busy, onClick = { pendingGlyph = null }) {
-                            Text(stringResource(R.string.alphabet_discard_crop))
-                        }
-                    }
-                }
-            }
+                        label = pendingLabel,
+                        labelIsValid = isSupportedGfontLabel(pendingLabel),
+                        labelIsUnique = validPendingLabel,
+                        busy = busy,
+                    ),
+                actions =
+                    PendingGlyphReviewActions(
+                        onBaselineChange = { pendingBaseline = it },
+                        onLabelChange = { pendingLabel = it },
+                        onAdd = {
+                            val input =
+                                RasterGlyphInput(
+                                    char = pendingLabel,
+                                    paths = pending.paths,
+                                    originX = 0.0,
+                                    baselineY = pendingBaseline.toDouble(),
+                                    advancePx = pending.binary.width.toDouble(),
+                                )
+                            glyphs = glyphs + ReviewedGlyph(input, pending.binary.width, pending.binary.height, pending.binary)
+                            pendingGlyph = null
+                            selection = null
+                            message = null
+                        },
+                        onDiscard = { pendingGlyph = null },
+                    ),
+            )
         }
 
         Text(stringResource(R.string.alphabet_glyph_count, glyphs.size))
@@ -262,36 +237,94 @@ internal fun AlphabetBuilderScreen(
                 val heightX = xHeightPx ?: return@Button
                 busy = true
                 message = null
-                scope.launch {
-                    try {
-                        val normalized =
-                            withContext(Dispatchers.Default) {
-                                normalizeGlyphSet(
-                                    glyphs = glyphs.map { it.input },
-                                    rasterMetrics = RasterFontMetrics(xHeightPx = heightX, capHeightPx = heightCap),
-                                    options =
-                                        GlyphSetNormalizationOptions(
-                                            id = UUID.randomUUID().toString(),
-                                            name = setName.trim(),
-                                            defaultStrokeWidthMm = DEFAULT_STROKE_WIDTH_MM,
-                                            createdAt = Instant.now().toString(),
-                                            targetCapHeightUnits = TARGET_CAP_HEIGHT_UNITS,
-                                        ),
-                                )
-                            }
-                        withContext(Dispatchers.IO) { store.save(normalized) }
-                        onSaved()
-                    } catch (_: IOException) {
-                        message = R.string.alphabet_save_failed
-                    } catch (_: IllegalArgumentException) {
-                        message = R.string.alphabet_save_failed
-                    } finally {
-                        busy = false
-                    }
-                }
+                scope.launchSaveGlyphSet(
+                    request =
+                        GlyphSetSaveRequest(
+                            glyphs = glyphs.map { it.input },
+                            name = setName.trim(),
+                            xHeightPx = heightX,
+                            capHeightPx = heightCap,
+                        ),
+                    store = store,
+                    actions =
+                        GlyphSetSaveActions(
+                            onSaved = onSaved,
+                            onFailure = { message = R.string.alphabet_save_failed },
+                            onComplete = { busy = false },
+                        ),
+                )
             },
         ) {
             Text(stringResource(if (busy) R.string.alphabet_saving else R.string.alphabet_save))
+        }
+    }
+}
+
+private data class PendingGlyphReviewState(
+    val baselineY: Float,
+    val label: String,
+    val labelIsValid: Boolean,
+    val labelIsUnique: Boolean,
+    val busy: Boolean,
+)
+
+private data class PendingGlyphReviewActions(
+    val onBaselineChange: (Float) -> Unit,
+    val onLabelChange: (String) -> Unit,
+    val onAdd: () -> Unit,
+    val onDiscard: () -> Unit,
+)
+
+@Composable
+private fun PendingGlyphReviewCard(
+    pending: PendingGlyph,
+    state: PendingGlyphReviewState,
+    actions: PendingGlyphReviewActions,
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(BUILDER_CARD_PADDING_DP.dp),
+            verticalArrangement = Arrangement.spacedBy(BUILDER_GAP_DP.dp),
+        ) {
+            Text(stringResource(R.string.alphabet_crop_review))
+            GlyphRasterPreview(
+                bitmap = remember(pending.binary) { binaryBitmap(pending.binary) },
+                rasterWidth = pending.binary.width,
+                rasterHeight = pending.binary.height,
+                paths = pending.paths,
+                baselineY = state.baselineY,
+            )
+            Text(stringResource(R.string.alphabet_baseline_hint, state.baselineY.roundToInt()))
+            Slider(
+                value = state.baselineY,
+                enabled = !state.busy,
+                onValueChange = actions.onBaselineChange,
+                valueRange = 0f..pending.binary.height.toFloat(),
+            )
+            OutlinedTextField(
+                value = state.label,
+                enabled = !state.busy,
+                onValueChange = actions.onLabelChange,
+                label = { Text(stringResource(R.string.alphabet_character_label)) },
+                singleLine = true,
+            )
+            if (state.label.isNotEmpty() && !state.labelIsValid) {
+                Text(stringResource(R.string.alphabet_invalid_label))
+            } else if (state.label.isNotEmpty() && !state.labelIsUnique) {
+                Text(stringResource(R.string.alphabet_duplicate_label))
+            }
+            Text(stringResource(R.string.alphabet_stroke_count, pending.paths.size))
+            Row(horizontalArrangement = Arrangement.spacedBy(BUILDER_BUTTON_GAP_DP.dp)) {
+                Button(
+                    enabled = !state.busy && state.labelIsValid && state.labelIsUnique && state.baselineY > 0f,
+                    onClick = actions.onAdd,
+                ) {
+                    Text(stringResource(R.string.alphabet_add_glyph))
+                }
+                OutlinedButton(enabled = !state.busy, onClick = actions.onDiscard) {
+                    Text(stringResource(R.string.alphabet_discard_crop))
+                }
+            }
         }
     }
 }
@@ -446,6 +479,53 @@ private fun ReviewedGlyphCard(
             OutlinedButton(enabled = state.enabled, onClick = actions.onRemove) {
                 Text(stringResource(R.string.alphabet_remove_glyph))
             }
+        }
+    }
+}
+
+private data class GlyphSetSaveRequest(
+    val glyphs: List<RasterGlyphInput>,
+    val name: String,
+    val xHeightPx: Double,
+    val capHeightPx: Double,
+)
+
+private data class GlyphSetSaveActions(
+    val onSaved: () -> Unit,
+    val onFailure: () -> Unit,
+    val onComplete: () -> Unit,
+)
+
+private fun CoroutineScope.launchSaveGlyphSet(
+    request: GlyphSetSaveRequest,
+    store: LocalGlyphSetStore,
+    actions: GlyphSetSaveActions,
+) {
+    launch {
+        try {
+            val normalized =
+                withContext(Dispatchers.Default) {
+                    normalizeGlyphSet(
+                        glyphs = request.glyphs,
+                        rasterMetrics = RasterFontMetrics(xHeightPx = request.xHeightPx, capHeightPx = request.capHeightPx),
+                        options =
+                            GlyphSetNormalizationOptions(
+                                id = UUID.randomUUID().toString(),
+                                name = request.name,
+                                defaultStrokeWidthMm = DEFAULT_STROKE_WIDTH_MM,
+                                createdAt = Instant.now().toString(),
+                                targetCapHeightUnits = TARGET_CAP_HEIGHT_UNITS,
+                            ),
+                    )
+                }
+            withContext(Dispatchers.IO) { store.save(normalized) }
+            actions.onSaved()
+        } catch (_: IOException) {
+            actions.onFailure()
+        } catch (_: IllegalArgumentException) {
+            actions.onFailure()
+        } finally {
+            actions.onComplete()
         }
     }
 }
