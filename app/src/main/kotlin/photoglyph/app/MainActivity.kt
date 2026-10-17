@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
                     if (showLibrary) {
                         GlyphSetLibraryScreen(glyphSetStore) { showLibrary = false }
                     } else {
-                        PreparationScreen(onOpenLibrary = { showLibrary = true })
+                        PreparationScreen(store = glyphSetStore, onOpenLibrary = { showLibrary = true })
                     }
                 }
             }

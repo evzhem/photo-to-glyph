@@ -54,9 +54,12 @@ import photoglyph.core.img.suggestedRectifiedSize
 import java.io.File
 import kotlin.math.roundToInt
 
-/** Camera-first page preparation plus independent picture contours; page-letter recognition remains unfinished. */
+/** Camera-first page preparation, a manual crop-and-label builder, and independent picture contours; OCR is absent. */
 @Composable
-internal fun PreparationScreen(onOpenLibrary: () -> Unit = {}) {
+internal fun PreparationScreen(
+    store: LocalGlyphSetStore,
+    onOpenLibrary: () -> Unit = {},
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var image by remember { mutableStateOf<ArgbImage?>(null) }
@@ -67,6 +70,7 @@ internal fun PreparationScreen(onOpenLibrary: () -> Unit = {}) {
     var contourThreshold by remember { mutableStateOf(PipelineParams().contourEdgeThreshold.toFloat()) }
     var busy by remember { mutableStateOf(false) }
     var camera by remember { mutableStateOf(false) }
+    var showAlphabetBuilder by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<Int?>(null) }
     var a4 by remember { mutableStateOf(false) }
     var offset by remember { mutableStateOf(PipelineParams().adaptiveOffset.toFloat()) }
@@ -76,6 +80,7 @@ internal fun PreparationScreen(onOpenLibrary: () -> Unit = {}) {
         quad = detectPageQuad(value) ?: PageQuad.fullImage(value)
         prepared = null
         contourResult = null
+        showAlphabetBuilder = false
         message = null
     }
 
@@ -116,7 +121,19 @@ internal fun PreparationScreen(onOpenLibrary: () -> Unit = {}) {
         }, onDismiss = { camera = false })
     }
 
-    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(PAGE_PADDING_DP.dp), verticalArrangement = Arrangement.spacedBy(SECTION_GAP_DP.dp)) {
+    val preparedPage = prepared
+    if (showAlphabetBuilder && preparedPage != null) {
+        AlphabetBuilderScreen(
+            binary = preparedPage.binary,
+            store = store,
+            onBack = { showAlphabetBuilder = false },
+            onSaved = {
+                showAlphabetBuilder = false
+                onOpenLibrary()
+            },
+        )
+    } else {
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(PAGE_PADDING_DP.dp), verticalArrangement = Arrangement.spacedBy(SECTION_GAP_DP.dp)) {
         Text(stringResource(R.string.app_name))
         Row(horizontalArrangement = Arrangement.spacedBy(BUTTON_GAP_DP.dp)) {
             if (mode == PreparationMode.PAGE) {
@@ -226,6 +243,11 @@ internal fun PreparationScreen(onOpenLibrary: () -> Unit = {}) {
                         },
                     ),
             )
+            if (prepared != null) {
+                Button(enabled = !busy, onClick = { showAlphabetBuilder = true }) {
+                    Text(stringResource(R.string.build_handwriting_alphabet))
+                }
+            }
         } else {
             ContourModeContent(
                 state = ContourModeUiState(current, contourResult, contourThreshold, busy),
@@ -256,6 +278,7 @@ internal fun PreparationScreen(onOpenLibrary: () -> Unit = {}) {
                         },
                     ),
             )
+        }
         }
     }
 }

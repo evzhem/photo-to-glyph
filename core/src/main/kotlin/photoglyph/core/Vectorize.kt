@@ -20,6 +20,13 @@ data class VectorizationResult(
     val strokes: StrokeExtraction,
 )
 
+/** Binary input path for manually selected prepared glyphs; it does not detect labels or recover pen order. */
+data class BinaryVectorizationResult(
+    val cleaned: BinaryGrid,
+    val skeleton: SkeletonPixels,
+    val strokes: StrokeExtraction,
+)
+
 /** Pure M0 spike: no perspective/deskew, smoothing, normalization or stroke-order recovery. */
 fun vectorize(
     image: ArgbImage,
@@ -32,3 +39,19 @@ fun vectorize(
     val strokes = skeletonToPolylines(skeleton, params)
     return VectorizationResult(grayscale, thresholded, cleaned, skeleton, strokes)
 }
+
+/**
+ * Thins a user-selected binary crop and extracts open centerline chains without thresholding it again.
+ * Tiny disconnected marks are retained by default; this is not character recognition or pen-order recovery.
+ */
+fun vectorizeBinary(
+    binary: BinaryGrid,
+    params: PipelineParams = PipelineParams(minComponentAreaPx = MIN_BINARY_COMPONENT_AREA_PX),
+): BinaryVectorizationResult {
+    val cleaned = removeSmallComponents(binary, params)
+    val skeleton = zhangSuen(cleaned)
+    val strokes = skeletonToPolylines(skeleton, params)
+    return BinaryVectorizationResult(cleaned, skeleton, strokes)
+}
+
+private const val MIN_BINARY_COMPONENT_AREA_PX = 1
