@@ -21,8 +21,7 @@ internal object AlphabetLetterForms {
             HandwritingScript.LATIN -> LATIN_UPPERCASE.map { character -> character.toString() }
         }
 
-    fun lowercase(script: HandwritingScript): List<String> =
-        uppercase(script).map { character -> character.lowercase() }
+    fun lowercase(script: HandwritingScript): List<String> = uppercase(script).map { character -> character.lowercase() }
 
     fun progress(
         script: HandwritingScript,

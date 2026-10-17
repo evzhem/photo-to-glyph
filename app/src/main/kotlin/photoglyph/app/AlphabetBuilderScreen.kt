@@ -98,25 +98,29 @@ internal fun AlphabetBuilderScreen(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(BUILDER_PADDING_DP.dp),
         verticalArrangement = Arrangement.spacedBy(BUILDER_GAP_DP.dp),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(BUILDER_BUTTON_GAP_DP.dp)) {
-            OutlinedButton(enabled = !busy, onClick = onBack) { Text(stringResource(R.string.alphabet_cancel)) }
-        }
+        OutlinedButton(enabled = !busy, onClick = onBack) { Text(stringResource(R.string.alphabet_cancel)) }
         Text(stringResource(R.string.alphabet_builder_title))
         Text(stringResource(R.string.alphabet_builder_note))
         LetterCasePicker(
-            script = selectedScript,
-            selectedCharacter = selectedCharacter,
-            savedLabels = savedLabels,
-            enabled = !busy,
-            onScriptChange = { script ->
-                selectedScript = script
-                selectedCharacter = null
-                if (pendingGlyph != null) pendingLabel = ""
-            },
-            onCharacterSelected = { character ->
-                selectedCharacter = character
-                if (pendingGlyph != null) pendingLabel = character
-            },
+            state =
+                LetterCasePickerState(
+                    script = selectedScript,
+                    selectedCharacter = selectedCharacter,
+                    savedLabels = savedLabels,
+                    enabled = !busy,
+                ),
+            actions =
+                LetterCasePickerActions(
+                    onScriptChange = { script ->
+                        selectedScript = script
+                        selectedCharacter = null
+                        if (pendingGlyph != null) pendingLabel = ""
+                    },
+                    onCharacterSelected = { character ->
+                        selectedCharacter = character
+                        if (pendingGlyph != null) pendingLabel = character
+                    },
+                ),
         )
         Text(stringResource(R.string.alphabet_select_hint))
         PageGlyphSelectionCanvas(
@@ -132,186 +136,199 @@ internal fun AlphabetBuilderScreen(
                 val bounds = selection ?: return@Button
                 busy = true
                 message = null
-                scope.launch {
-                    try {
-                        val cropped =
-                            withContext(Dispatchers.Default) {
-                                val looseCrop = cropBinaryGrid(binary, bounds)
-                                val components = connectedInkComponents(looseCrop)
-                                require(components.isNotEmpty()) { "The selected area contains no ink" }
-                                val tightBounds = componentUnionBounds(components)
-                                val glyphCrop = cropBinaryGrid(looseCrop, tightBounds)
-                                val extracted =
-                                    vectorizeBinary(
-                                        glyphCrop,
-                                        PipelineParams(minComponentAreaPx = 1, pruningIterations = 0),
-                                    )
-                                require(extracted.strokes.polylines.isNotEmpty()) { "No centerline could be extracted" }
-                                PendingGlyph(glyphCrop, extracted.strokes.polylines)
-                            }
-                        pendingGlyph = cropped
-                        pendingBaseline = cropped.binary.height.toFloat()
-                        pendingLabel = selectedCharacter.orEmpty()
-                    } catch (_: IllegalArgumentException) {
-                        message = R.string.alphabet_crop_failed
-                    } finally {
-                        busy = false
-                    }
-                }
+                scope.launchCropGlyphReview(
+                    binary = binary,
+                    bounds = bounds,
+                    actions =
+                        GlyphCropActions(
+                            onSuccess = { cropped ->
+                                pendingGlyph = cropped
+                                pendingBaseline = cropped.binary.height.toFloat()
+                                pendingLabel = selectedCharacter.orEmpty()
+                            },
+                            onFailure = { message = R.string.alphabet_crop_failed },
+                            onComplete = { busy = false },
+                        ),
+                )
             },
         ) {
             Text(stringResource(if (busy) R.string.processing else R.string.alphabet_crop_button))
         }
         message?.let { Text(stringResource(it)) }
 
-        pendingGlyph?.let { pending ->
-            PendingGlyphReviewCard(
-                pending = pending,
-                state =
-                    PendingGlyphReviewState(
-                        baselineY = pendingBaseline,
-                        label = pendingLabel,
-                        labelIsValid = isSupportedGfontLabel(pendingLabel),
-                        labelIsUnique = validPendingLabel,
-                        busy = busy,
-                    ),
-                actions =
-                    PendingGlyphReviewActions(
-                        onBaselineChange = { pendingBaseline = it },
-                        onLabelChange = {
-                            pendingLabel = it
-                            selectedCharacter = null
-                        },
-                        onAdd = {
-                            val input =
-                                RasterGlyphInput(
-                                    char = pendingLabel,
-                                    paths = pending.paths,
-                                    originX = 0.0,
-                                    baselineY = pendingBaseline.toDouble(),
-                                    advancePx = pending.binary.width.toDouble(),
-                                )
-                            glyphs = glyphs + ReviewedGlyph(input, pending.binary.width, pending.binary.height, pending.binary)
-                            pendingGlyph = null
-                            pendingLabel = ""
-                            selectedCharacter = null
-                            selection = null
-                            message = null
-                        },
-                        onDiscard = { pendingGlyph = null },
-                    ),
-            )
-        }
+        PendingGlyphReviewSection(
+            state =
+                PendingGlyphSectionState(
+                    pending = pendingGlyph,
+                    baselineY = pendingBaseline,
+                    label = pendingLabel,
+                    labelIsUnique = validPendingLabel,
+                    busy = busy,
+                ),
+            actions =
+                PendingGlyphSectionActions(
+                    onBaselineChange = { pendingBaseline = it },
+                    onLabelChange = {
+                        pendingLabel = it
+                        selectedCharacter = null
+                    },
+                    onAdd = { pending ->
+                        val input =
+                            RasterGlyphInput(
+                                char = pendingLabel,
+                                paths = pending.paths,
+                                originX = 0.0,
+                                baselineY = pendingBaseline.toDouble(),
+                                advancePx = pending.binary.width.toDouble(),
+                            )
+                        glyphs = glyphs + ReviewedGlyph(input, pending.binary.width, pending.binary.height, pending.binary)
+                        pendingGlyph = null
+                        pendingLabel = ""
+                        selectedCharacter = null
+                        selection = null
+                        message = null
+                    },
+                    onDiscard = { pendingGlyph = null },
+                ),
+        )
 
         Text(stringResource(R.string.alphabet_glyph_count, glyphs.size))
         if (glyphs.isEmpty()) Text(stringResource(R.string.alphabet_empty_draft))
         ReviewedGlyphList(
-            glyphs = glyphs,
-            capHeightReference = capHeightReference,
-            xHeightReference = xHeightReference,
-            enabled = !busy,
-            onBaselineChange = { character, baseline ->
-                glyphs =
-                    glyphs.map { current ->
-                        if (current.input.char == character) {
-                            current.copy(input = current.input.copy(baselineY = baseline.toDouble()))
-                        } else {
-                            current
-                        }
-                    }
-            },
-            onCapReference = { capHeightReference = it },
-            onXHeightReference = { xHeightReference = it },
-            onRemove = { character ->
-                glyphs = glyphs.filterNot { it.input.char == character }
-                if (capHeightReference == character) capHeightReference = null
-                if (xHeightReference == character) xHeightReference = null
-            },
+            state =
+                ReviewedGlyphListState(
+                    glyphs = glyphs,
+                    capHeightReference = capHeightReference,
+                    xHeightReference = xHeightReference,
+                    enabled = !busy,
+                ),
+            actions =
+                ReviewedGlyphListActions(
+                    onBaselineChange = { character, baseline ->
+                        glyphs =
+                            glyphs.map { current ->
+                                if (current.input.char == character) {
+                                    current.copy(input = current.input.copy(baselineY = baseline.toDouble()))
+                                } else {
+                                    current
+                                }
+                            }
+                    },
+                    onCapReference = { capHeightReference = it },
+                    onXHeightReference = { xHeightReference = it },
+                    onRemove = { character ->
+                        glyphs = glyphs.filterNot { it.input.char == character }
+                        if (capHeightReference == character) capHeightReference = null
+                        if (xHeightReference == character) xHeightReference = null
+                    },
+                ),
         )
         AlphabetSetSaveControls(
-            setName = setName,
-            onSetNameChange = { setName = it },
-            capHeightReference = capHeightReference,
-            capHeightPx = capHeightPx,
-            xHeightReference = xHeightReference,
-            xHeightPx = xHeightPx,
-            metricsValid = metricsValid,
-            canSave = canSave,
-            busy = busy,
-            onSave = {
-                val heightCap = checkNotNull(capHeightPx)
-                val heightX = checkNotNull(xHeightPx)
-                busy = true
-                message = null
-                scope.launchSaveGlyphSet(
-                    request =
-                        GlyphSetSaveRequest(
-                            glyphs = glyphs.map { it.input },
-                            name = setName.trim(),
-                            xHeightPx = heightX,
-                            capHeightPx = heightCap,
-                        ),
-                    store = store,
-                    actions =
-                        GlyphSetSaveActions(
-                            onSaved = onSaved,
-                            onFailure = { message = R.string.alphabet_save_failed },
-                            onComplete = { busy = false },
-                        ),
-                )
-            },
+            state =
+                AlphabetSetSaveControlsState(
+                    setName = setName,
+                    capHeightReference = capHeightReference,
+                    capHeightPx = capHeightPx,
+                    xHeightReference = xHeightReference,
+                    xHeightPx = xHeightPx,
+                    metricsValid = metricsValid,
+                    canSave = canSave,
+                    busy = busy,
+                ),
+            actions =
+                AlphabetSetSaveControlsActions(
+                    onSetNameChange = { setName = it },
+                    onSave = {
+                        val heightCap = checkNotNull(capHeightPx)
+                        val heightX = checkNotNull(xHeightPx)
+                        busy = true
+                        message = null
+                        scope.launchSaveGlyphSet(
+                            request =
+                                GlyphSetSaveRequest(
+                                    glyphs = glyphs.map { it.input },
+                                    name = setName.trim(),
+                                    xHeightPx = heightX,
+                                    capHeightPx = heightCap,
+                                ),
+                            store = store,
+                            actions =
+                                GlyphSetSaveActions(
+                                    onSaved = onSaved,
+                                    onFailure = { message = R.string.alphabet_save_failed },
+                                    onComplete = { busy = false },
+                                ),
+                        )
+                    },
+                ),
         )
     }
 }
 
+private data class ReviewedGlyphListState(
+    val glyphs: List<ReviewedGlyph>,
+    val capHeightReference: String?,
+    val xHeightReference: String?,
+    val enabled: Boolean,
+)
+
+private data class ReviewedGlyphListActions(
+    val onBaselineChange: (String, Float) -> Unit,
+    val onCapReference: (String) -> Unit,
+    val onXHeightReference: (String) -> Unit,
+    val onRemove: (String) -> Unit,
+)
+
 @Composable
 private fun ReviewedGlyphList(
-    glyphs: List<ReviewedGlyph>,
-    capHeightReference: String?,
-    xHeightReference: String?,
-    enabled: Boolean,
-    onBaselineChange: (String, Float) -> Unit,
-    onCapReference: (String) -> Unit,
-    onXHeightReference: (String) -> Unit,
-    onRemove: (String) -> Unit,
+    state: ReviewedGlyphListState,
+    actions: ReviewedGlyphListActions,
 ) {
-    glyphs.forEach { glyph ->
+    state.glyphs.forEach { glyph ->
         val character = glyph.input.char
         ReviewedGlyphCard(
             glyph = glyph,
             state =
                 ReviewedGlyphCardState(
-                    isCapReference = character == capHeightReference,
-                    isXHeightReference = character == xHeightReference,
-                    enabled = enabled,
+                    isCapReference = character == state.capHeightReference,
+                    isXHeightReference = character == state.xHeightReference,
+                    enabled = state.enabled,
                 ),
             actions =
                 ReviewedGlyphCardActions(
-                    onBaselineChange = { onBaselineChange(character, it) },
-                    onCapReference = { onCapReference(character) },
-                    onXHeightReference = { onXHeightReference(character) },
-                    onRemove = { onRemove(character) },
+                    onBaselineChange = { actions.onBaselineChange(character, it) },
+                    onCapReference = { actions.onCapReference(character) },
+                    onXHeightReference = { actions.onXHeightReference(character) },
+                    onRemove = { actions.onRemove(character) },
                 ),
         )
     }
 }
 
+private data class AlphabetSetSaveControlsState(
+    val setName: String,
+    val capHeightReference: String?,
+    val capHeightPx: Double?,
+    val xHeightReference: String?,
+    val xHeightPx: Double?,
+    val metricsValid: Boolean,
+    val canSave: Boolean,
+    val busy: Boolean,
+)
+
+private data class AlphabetSetSaveControlsActions(
+    val onSetNameChange: (String) -> Unit,
+    val onSave: () -> Unit,
+)
+
 @Composable
 private fun AlphabetSetSaveControls(
-    setName: String,
-    onSetNameChange: (String) -> Unit,
-    capHeightReference: String?,
-    capHeightPx: Double?,
-    xHeightReference: String?,
-    xHeightPx: Double?,
-    metricsValid: Boolean,
-    canSave: Boolean,
-    busy: Boolean,
-    onSave: () -> Unit,
+    state: AlphabetSetSaveControlsState,
+    actions: AlphabetSetSaveControlsActions,
 ) {
     OutlinedTextField(
-        value = setName,
-        onValueChange = onSetNameChange,
+        value = state.setName,
+        onValueChange = actions.onSetNameChange,
         label = { Text(stringResource(R.string.alphabet_set_name)) },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
@@ -320,30 +337,38 @@ private fun AlphabetSetSaveControls(
     Text(
         stringResource(
             R.string.alphabet_metrics_summary,
-            capHeightReference ?: EMPTY_REFERENCE,
-            capHeightPx?.roundToInt() ?: 0,
-            xHeightReference ?: EMPTY_REFERENCE,
-            xHeightPx?.roundToInt() ?: 0,
+            state.capHeightReference ?: EMPTY_REFERENCE,
+            state.capHeightPx?.roundToInt() ?: 0,
+            state.xHeightReference ?: EMPTY_REFERENCE,
+            state.xHeightPx?.roundToInt() ?: 0,
         ),
     )
-    if (capHeightReference != null && xHeightReference != null && !metricsValid) {
+    if (state.capHeightReference != null && state.xHeightReference != null && !state.metricsValid) {
         Text(stringResource(R.string.alphabet_metrics_invalid))
     }
-    Button(enabled = canSave, onClick = onSave) {
-        Text(stringResource(if (busy) R.string.alphabet_saving else R.string.alphabet_save))
+    Button(enabled = state.canSave, onClick = actions.onSave) {
+        Text(stringResource(if (state.busy) R.string.alphabet_saving else R.string.alphabet_save))
     }
 }
 
+private data class LetterCasePickerState(
+    val script: HandwritingScript,
+    val selectedCharacter: String?,
+    val savedLabels: Set<String>,
+    val enabled: Boolean,
+)
+
+private data class LetterCasePickerActions(
+    val onScriptChange: (HandwritingScript) -> Unit,
+    val onCharacterSelected: (String) -> Unit,
+)
+
 @Composable
 private fun LetterCasePicker(
-    script: HandwritingScript,
-    selectedCharacter: String?,
-    savedLabels: Set<String>,
-    enabled: Boolean,
-    onScriptChange: (HandwritingScript) -> Unit,
-    onCharacterSelected: (String) -> Unit,
+    state: LetterCasePickerState,
+    actions: LetterCasePickerActions,
 ) {
-    val progress = AlphabetLetterForms.progress(script, savedLabels)
+    val progress = AlphabetLetterForms.progress(state.script, state.savedLabels)
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(BUILDER_GAP_DP.dp),
@@ -351,15 +376,15 @@ private fun LetterCasePicker(
         Text(stringResource(R.string.alphabet_case_picker_title))
         Row(horizontalArrangement = Arrangement.spacedBy(BUILDER_BUTTON_GAP_DP.dp)) {
             FilterChip(
-                selected = script == HandwritingScript.CYRILLIC,
-                enabled = enabled,
-                onClick = { onScriptChange(HandwritingScript.CYRILLIC) },
+                selected = state.script == HandwritingScript.CYRILLIC,
+                enabled = state.enabled,
+                onClick = { actions.onScriptChange(HandwritingScript.CYRILLIC) },
                 label = { Text(stringResource(R.string.alphabet_script_cyrillic)) },
             )
             FilterChip(
-                selected = script == HandwritingScript.LATIN,
-                enabled = enabled,
-                onClick = { onScriptChange(HandwritingScript.LATIN) },
+                selected = state.script == HandwritingScript.LATIN,
+                enabled = state.enabled,
+                onClick = { actions.onScriptChange(HandwritingScript.LATIN) },
                 label = { Text(stringResource(R.string.alphabet_script_latin)) },
             )
         }
@@ -374,21 +399,21 @@ private fun LetterCasePicker(
         )
         Text(stringResource(R.string.alphabet_uppercase_forms))
         LetterFormChips(
-            forms = AlphabetLetterForms.uppercase(script),
-            selectedCharacter = selectedCharacter,
-            savedLabels = savedLabels,
-            enabled = enabled,
-            onCharacterSelected = onCharacterSelected,
+            forms = AlphabetLetterForms.uppercase(state.script),
+            selectedCharacter = state.selectedCharacter,
+            savedLabels = state.savedLabels,
+            enabled = state.enabled,
+            onCharacterSelected = actions.onCharacterSelected,
         )
         Text(stringResource(R.string.alphabet_lowercase_forms))
         LetterFormChips(
-            forms = AlphabetLetterForms.lowercase(script),
-            selectedCharacter = selectedCharacter,
-            savedLabels = savedLabels,
-            enabled = enabled,
-            onCharacterSelected = onCharacterSelected,
+            forms = AlphabetLetterForms.lowercase(state.script),
+            selectedCharacter = state.selectedCharacter,
+            savedLabels = state.savedLabels,
+            enabled = state.enabled,
+            onCharacterSelected = actions.onCharacterSelected,
         )
-        selectedCharacter?.let { character ->
+        state.selectedCharacter?.let { character ->
             Text(stringResource(R.string.alphabet_case_selected, character))
         }
     }
@@ -416,6 +441,84 @@ private fun LetterFormChips(
             )
         }
     }
+}
+
+private data class GlyphCropActions(
+    val onSuccess: (PendingGlyph) -> Unit,
+    val onFailure: () -> Unit,
+    val onComplete: () -> Unit,
+)
+
+private fun CoroutineScope.launchCropGlyphReview(
+    binary: BinaryGrid,
+    bounds: PixelBounds,
+    actions: GlyphCropActions,
+) {
+    launch {
+        try {
+            val pending =
+                withContext(Dispatchers.Default) {
+                    val looseCrop = cropBinaryGrid(binary, bounds)
+                    val components = connectedInkComponents(looseCrop)
+                    require(components.isNotEmpty()) { "The selected area contains no ink" }
+                    val tightBounds = componentUnionBounds(components)
+                    val glyphCrop = cropBinaryGrid(looseCrop, tightBounds)
+                    val extracted =
+                        vectorizeBinary(
+                            glyphCrop,
+                            PipelineParams(minComponentAreaPx = 1, pruningIterations = 0),
+                        )
+                    require(extracted.strokes.polylines.isNotEmpty()) { "No centerline could be extracted" }
+                    PendingGlyph(glyphCrop, extracted.strokes.polylines)
+                }
+            actions.onSuccess(pending)
+        } catch (_: IllegalArgumentException) {
+            actions.onFailure()
+        } finally {
+            actions.onComplete()
+        }
+    }
+}
+
+private data class PendingGlyphSectionState(
+    val pending: PendingGlyph?,
+    val baselineY: Float,
+    val label: String,
+    val labelIsUnique: Boolean,
+    val busy: Boolean,
+)
+
+private data class PendingGlyphSectionActions(
+    val onBaselineChange: (Float) -> Unit,
+    val onLabelChange: (String) -> Unit,
+    val onAdd: (PendingGlyph) -> Unit,
+    val onDiscard: () -> Unit,
+)
+
+@Composable
+private fun PendingGlyphReviewSection(
+    state: PendingGlyphSectionState,
+    actions: PendingGlyphSectionActions,
+) {
+    val pending = state.pending ?: return
+    PendingGlyphReviewCard(
+        pending = pending,
+        state =
+            PendingGlyphReviewState(
+                baselineY = state.baselineY,
+                label = state.label,
+                labelIsValid = isSupportedGfontLabel(state.label),
+                labelIsUnique = state.labelIsUnique,
+                busy = state.busy,
+            ),
+        actions =
+            PendingGlyphReviewActions(
+                onBaselineChange = actions.onBaselineChange,
+                onLabelChange = actions.onLabelChange,
+                onAdd = { actions.onAdd(pending) },
+                onDiscard = actions.onDiscard,
+            ),
+    )
 }
 
 private data class PendingGlyphReviewState(
