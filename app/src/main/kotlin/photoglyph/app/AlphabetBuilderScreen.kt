@@ -379,7 +379,7 @@ private fun PageGlyphSelectionCanvas(
         )
         selection?.let { bounds ->
             drawRect(
-                color = SELECTION_COLOR,
+                color = Color(SELECTION_COLOR),
                 topLeft = Offset(left + bounds.left * scale, top + bounds.top * scale),
                 size =
                     androidx.compose.ui.geometry
@@ -393,7 +393,7 @@ private fun PageGlyphSelectionCanvas(
         val end = dragEnd
         if (start != null && end != null && selection == null) {
             drawRect(
-                color = SELECTION_COLOR,
+                color = Color(SELECTION_COLOR),
                 topLeft = Offset(left + minOf(start.x, end.x) * scale, top + minOf(start.y, end.y) * scale),
                 size =
                     androidx.compose.ui.geometry
