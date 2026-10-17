@@ -90,7 +90,11 @@ object GfontCodec {
 
     private fun glyphPoints(glyph: photoglyph.core.model.Glyph): List<GfontPoint> {
         val orderedStrokes = glyph.strokes.sortedBy { it.order }
-        val pointCount = orderedStrokes.sumOf { it.path.points.size.toLong() }
+        val pointCount =
+            orderedStrokes.sumOf {
+                it.path.points.size
+                    .toLong()
+            }
         require(pointCount in 1..MAX_POINTS_PER_GLYPH.toLong()) { "Invalid glyph point count" }
         return buildList(pointCount.toInt()) {
             orderedStrokes.forEach { stroke ->

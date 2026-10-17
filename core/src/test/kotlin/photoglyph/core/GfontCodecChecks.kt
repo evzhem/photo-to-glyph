@@ -46,7 +46,13 @@ object GfontCodecChecks {
                     photoglyph.core.export.GfontPoint(5.0f, -100.0f, STROKE_START),
                 ),
         )
-        check(decoded.glyphs.getValue(YA_CODE_POINT).points.single().flag == STROKE_START)
+        check(
+            decoded.glyphs
+                .getValue(YA_CODE_POINT)
+                .points
+                .single()
+                .flag == STROKE_START,
+        )
         check(GfontCodec.encode(glyphSet).contentEquals(encoded))
     }
 

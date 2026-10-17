@@ -56,8 +56,9 @@ internal fun GlyphSetLibraryScreen(
                 scope.launch {
                     try {
                         withContext(Dispatchers.IO) {
-                            val output = context.contentResolver.openOutputStream(destination, WRITE_MODE)
-                                ?: throw IOException("Could not open export destination")
+                            val output =
+                                context.contentResolver.openOutputStream(destination, WRITE_MODE)
+                                    ?: throw IOException("Could not open export destination")
                             output.use { it.write(GfontCodec.encode(glyphSet)) }
                         }
                         exportMessage = R.string.gfont_export_success
@@ -133,7 +134,12 @@ internal fun GlyphSetLibraryScreen(
 }
 
 private fun suggestedGfontFilename(name: String): String {
-    val safeName = name.trim().replace(INVALID_FILENAME_CHARACTERS, "_").trim('_').ifBlank { DEFAULT_EXPORT_NAME }
+    val safeName =
+        name
+            .trim()
+            .replace(INVALID_FILENAME_CHARACTERS, "_")
+            .trim('_')
+            .ifBlank { DEFAULT_EXPORT_NAME }
     return "$safeName$GFONT_EXTENSION"
 }
 
