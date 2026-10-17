@@ -36,7 +36,7 @@
   <string name="alphabet_xheight_reference_selected">Lowercase reference ✓</string>
   <string name="alphabet_remove_glyph">Remove</string>
   <string name="alphabet_set_name">Set name</string>
-  <string name="alphabet_reference_hint">Choose one sample for capital height and one for lowercase height. Adjust each glyph's baseline if it has a descender.</string>
+  <string name="alphabet_reference_hint">Choose one sample for capital height and one for lowercase height. Adjust the baseline of each glyph if it has a descender.</string>
   <string name="alphabet_metrics_summary">Capital %1$s: %2$d px; lowercase %3$s: %4$d px</string>
   <string name="alphabet_metrics_invalid">The capital-height sample must be taller than the lowercase-height sample.</string>
   <string name="alphabet_save">Save partial set</string>
