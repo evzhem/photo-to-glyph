@@ -192,13 +192,14 @@ internal fun AlphabetBuilderScreen(
                 actions =
                     ReviewedGlyphCardActions(
                         onBaselineChange = { baseline ->
-                            glyphs = glyphs.map { current ->
-                                if (current.input.char == glyph.input.char) {
-                                    current.copy(input = current.input.copy(baselineY = baseline.toDouble()))
-                                } else {
-                                    current
+                            glyphs =
+                                glyphs.map { current ->
+                                    if (current.input.char == glyph.input.char) {
+                                        current.copy(input = current.input.copy(baselineY = baseline.toDouble()))
+                                    } else {
+                                        current
+                                    }
                                 }
-                            }
                         },
                         onCapReference = { capHeightReference = glyph.input.char },
                         onXHeightReference = { xHeightReference = glyph.input.char },
@@ -380,8 +381,12 @@ private fun PageGlyphSelectionCanvas(
             drawRect(
                 color = SELECTION_COLOR,
                 topLeft = Offset(left + bounds.left * scale, top + bounds.top * scale),
-                size = androidx.compose.ui.geometry.Size(bounds.width * scale, bounds.height * scale),
-                style = androidx.compose.ui.graphics.drawscope.Stroke(SELECTION_STROKE_PX),
+                size =
+                    androidx.compose.ui.geometry
+                        .Size(bounds.width * scale, bounds.height * scale),
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(SELECTION_STROKE_PX),
             )
         }
         val start = dragStart
@@ -390,8 +395,12 @@ private fun PageGlyphSelectionCanvas(
             drawRect(
                 color = SELECTION_COLOR,
                 topLeft = Offset(left + minOf(start.x, end.x) * scale, top + minOf(start.y, end.y) * scale),
-                size = androidx.compose.ui.geometry.Size(kotlin.math.abs(end.x - start.x) * scale, kotlin.math.abs(end.y - start.y) * scale),
-                style = androidx.compose.ui.graphics.drawscope.Stroke(SELECTION_STROKE_PX),
+                size =
+                    androidx.compose.ui.geometry
+                        .Size(kotlin.math.abs(end.x - start.x) * scale, kotlin.math.abs(end.y - start.y) * scale),
+                style =
+                    androidx.compose.ui.graphics.drawscope
+                        .Stroke(SELECTION_STROKE_PX),
             )
         }
     }

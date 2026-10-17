@@ -8,11 +8,12 @@ object BinaryVectorizeChecks {
             BinaryGrid(
                 width = 9,
                 height = 9,
-                pixels = BooleanArray(81) { index ->
-                    val x = index % 9
-                    val y = index / 9
-                    y == 4 && x in 1..7
-                },
+                pixels =
+                    BooleanArray(81) { index ->
+                        val x = index % 9
+                        val y = index / 9
+                        y == 4 && x in 1..7
+                    },
             )
         val result = vectorizeBinary(binary, PipelineParams(minComponentAreaPx = 1, pruningIterations = 0, rdpEpsilonPx = 0.0))
 
@@ -31,11 +32,12 @@ object BinaryVectorizeChecks {
             BinaryGrid(
                 width = 5,
                 height = 3,
-                pixels = BooleanArray(15) { index ->
-                    val x = index % 5
-                    val y = index / 5
-                    y == 1 && x == 0 || y == 1 && x in 2..4
-                },
+                pixels =
+                    BooleanArray(15) { index ->
+                        val x = index % 5
+                        val y = index / 5
+                        y == 1 && x == 0 || y == 1 && x in 2..4
+                    },
             )
         val result = vectorizeBinary(binary)
 
