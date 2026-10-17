@@ -17,7 +17,7 @@ All notable changes are documented here. Code and commits are in English; report
 - Add separate pure Kotlin/JVM Sobel + non-maximum-suppression picture contours, a Compose camera/import preview mode, and a sensitivity control. Four synthetic tests execute `blackContourImage`/`PipelineParams`; full Gradle/Android CI run `38799609923` passes. Real Android/photo quality checks remain pending.
 - Re-run `./tools/m2-standalone-check.sh` on 2026-10-16: all 17 page-preparation, 3 InkComponents, 4 picture-contour and 5 preparation API checks pass; the full Gradle/Android build and tests also pass in run `38883213683`.
 - On 2026-10-17 the user confirmed on-device camera use and gallery import; screenshots show page preparation output at 601 × 800. They also show that the current quad still covers the whole photograph, leaving tabletop noise in the binary result; corner detection/manual correction acceptance remains open. See `docs/M2-report.md`.
-- Automatic handwriting recognition, user correction, app-level local alphabet storage, and `.gfont` export are still not implemented.
+- Automatic handwriting recognition and connected-letter splitting remain unimplemented. Manual set assembly, local storage and `.gfont` export were added in later slices; do not infer OCR from M2 page preparation.
 
 ### M3 — 2026-10-16 (foundation only; incomplete)
 
@@ -39,7 +39,14 @@ All notable changes are documented here. Code and commits are in English; report
 
 - Start `.gfont` export early, following the user's reiterated priority of personal handwriting alphabets. Implement pure Kotlin/JVM ZIP record encode/decode for the documented glyph-entry subset with big-endian fields, Unicode entry names, Y-up/Y-down transform, bounds validation, and no guessed service entries or sidecar.
 - Add `GfontRoundTripTest` against the production codec, including partial alphabet preservation, exact stroke flags, malformed records, and unsupported supplementary-plane code points.
-- Add `.gfont` export from the read-only library for sets that already exist. This does not create alphabets from photos, and scale/KDraw compatibility remain unverified pending a permitted real file/device check.
+- Add `.gfont` export from the library for every saved set. Scale/KDraw compatibility remain unverified; the codec does not guess service entries or sidecars.
+
+### M3 — 2026-10-17 (manual page-to-alphabet path; incomplete)
+
+- Add `vectorizeBinary` to pass an already prepared binary crop through component cleanup, Zhang–Suen thinning and graph-to-open-chain extraction without applying a second threshold. Keep small detached marks by default; add synthetic production-function tests for line preservation and detached marks.
+- Connect the prepared-page screen to a manual alphabet builder: drag one crop at a time, inspect the turquoise centerline draft, enter one supported BMP character, adjust a per-glyph baseline, mark actual cap/x-height reference glyphs, and save only confirmed glyphs as a local partial set. Saving opens the local library, where each set exports separately as `.gfont`.
+- Explicitly do not call this OCR: connected cursive is not split, labels and reference samples are user-selected, the M0 centerline graph is preliminary, pen order is not recovered, and there is no path editor. No personal image was added to Git.
+- Pass full GitHub Actions build, `:core:test`, Android lint/format/detekt, app unit tests, and CLI smoke in run `39017154083`. `BinaryVectorizeTest` calls the production `vectorizeBinary` function; full six-part report: `docs/M3-manual-builder-report.md`.
 
 ### M1 — 2026-10-13
 

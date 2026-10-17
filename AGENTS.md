@@ -99,6 +99,7 @@ Additional tunable parameters need named defaults and documented meanings; no ma
 - `GlyphSetNormalizerTest` (M5): three raster glyphs with different, caller-supplied descender baselines map to one Y-up baseline with explicit reference metrics; this does not test automatic baseline detection.
 - `SvgNoFillTest`: only explicit no-fill strokes; corrupted export is rejected.
 - `GlyphSetRoundTripTest`: model ↔ JSON without loss (M3).
+- `BinaryVectorizeTest`: exercise production `vectorizeBinary` on an independently specified binary crop, preserve open centerline chains and tiny detached marks; this does not validate recognition or handwriting quality.
 - `GfontRoundTripTest`: point tolerance 1e-4, identical stroke flags. Current core codec round-trips the documented ZIP glyph-record subset; KDraw scale/service-entry compatibility remains human-unverified.
 
 Do not add tests for missing production functions just to make this list look complete. Add each test alongside the production function for its milestone; source import scanning is mandatory in M1.
@@ -116,7 +117,7 @@ The milestone report follows exactly:
 5. Assumptions and unknowns.
 6. The `CHANGELOG.md` entry.
 
-One milestone at a time, strictly M0 → M10. The user authorized continuing the remaining work sequentially without intermediate replies, and has reaffirmed “Продолжай”. Continue in order without asking for another confirmation; still write a report for each milestone. Stop only at an objective blocker that requires a user/device/KDraw decision or access, and report unverified human checks honestly. If one pass is insufficient, keep the current boundary truthful; do not claim a partial milestone complete.
+Default to the M0 → M10 sequence. The user authorized continuing without intermediate replies and, on 2026-10-17, explicitly reprioritized personal handwriting alphabets and `.gfont` export over contour polish. A documented M9 codec/export foundation was therefore started early; it is not M9 acceptance. Continue the manual/automatic alphabet-to-set path next without asking for another confirmation; still write a six-part report for each implemented slice. Stop only at an objective blocker that truly requires user/device/KDraw input, and report human checks honestly. If one pass is insufficient, keep the current boundary truthful; do not claim a partial milestone complete.
 
 Commits: English, e.g. `M3: add baseline estimation with projection profile`, at most 15 per milestone. The first project commit creates these specification documents. The active Arena session is attached to one fixed branch; all commits and pushes use `arena/6d0fb259-photo-to-glyph`. Do not create milestone branches or rewrite `main`. A PR, if requested, must originate from this branch.
 
@@ -125,6 +126,6 @@ Commits: English, e.g. `M3: add baseline estimation with projection profile`, at
 - `.gfont`: units, font size, service entries, and whether `.gfont.txt` is mandatory (M9).
 - Minimum Android version: API 26 (Android 8.0), following the proposal and the user's instruction to continue with M1. M1 uses compile/target SDK 35; release target requirements must be revisited before M10.
 - Distribution: GitHub Releases APK or Google Play (before release work).
-- Ordinary notebook photos without a mandatory grid are now the requested primary workflow (`docs/01-требования-mvp.md`). Resolve its segmentation/recognition approach and the affected original milestone scope before implementation; do not ask the already answered product-direction question again.
+- Ordinary notebook photos without a mandatory grid are now the requested primary workflow (`docs/01-требования-mvp.md`). A manual crop-and-label path exists; resolve automatic segmentation/recognition approach and affected milestone scope before implementing automation. Do not ask the already answered product-direction question again.
 
 Do not block the authorized M0 synthetic spike on these future decisions.

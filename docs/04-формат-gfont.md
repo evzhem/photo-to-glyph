@@ -45,13 +45,13 @@
 3. Обязателен ли файл-спутник `.gfont.txt` и каково его содержимое.
 4. Дополнительные ограничения значений, пустых глифов и флагов.
 
-До получения данных разумные допущения должны быть помечены непосредственно в коде и отчёте. Не писать неизвестные служебные записи, масштаб или текстовый спутник «для совместимости» наугад. Перед M9 спросить пользователя/исследовать предоставленный с разрешения файл с помощью CLI `gfontInspect`.
+До получения данных разумные допущения должны быть помечены непосредственно в коде и отчёте. Не писать неизвестные служебные записи, масштаб или текстовый спутник «для совместимости» наугад. При дальнейшем M9 acceptance реальный файл (если он будет доступен с разрешением) можно исследовать через CLI `gfontInspect`; до этого неизвестные остаются явно открытыми.
 
 ## Реализация известного подмножества — 2026-10-17
 
 Core `GfontCodec` now writes and reads only the documented numeric-Unicode ZIP glyph records: big-endian `uint16` code point, `uint32` scalar count, `float32` coordinates, and one `uint8` pen flag per point. It flips model Y-up coordinates to the documented `.gfont` Y-down convention, keeps model coordinate units unchanged, emits no speculative service entries/companion text, and rejects unsupported records instead of silently dropping them. `GfontRoundTripTest` uses original synthetic glyphs and invokes this production codec.
 
-The Android library screen can export an already-saved `GlyphSet` as `.gfont`. This is not yet an end-to-end handwriting alphabet flow: the app still has no workflow to create a set from a page. No real `.gfont` or KDraw installation was used. Scale, optional ZIP entries, and real-file compatibility remain unknown; the app labels exports as unverified.
+В Android доступен ручной путь от подготовленной страницы к сохранённому `GlyphSet`: пользователь выделяет каждую букву, подтверждает её символ, проверяет centerline-черновик и метрики, затем экспортирует отдельный набор из библиотеки. Это не OCR и не автоматическая сегментация; связанные курсивные буквы не разделяются. `flagCount == pointCount` реализовано как явно обозначенное рабочее допущение на основании документированной структуры. Реальный `.gfont`/KDraw не проверяли. Масштаб, дополнительные ZIP-записи и совместимость остаются неизвестными; UI предупреждает об этом.
 
 ## Верификация (M9)
 

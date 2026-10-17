@@ -1,6 +1,6 @@
 # M5 — локальное хранилище и нормализация glyphs (частичный результат)
 
-Дата: **2026-10-16**. Статус: **app-private хранилище, read-only список и core-нормализация явно размеченных raster glyphs прошли CI; M5 и приложение не завершены**. Последняя проверка выполнена на ветке `arena/6d0fb259-photo-to-glyph`, commit `2aedf07e9270e1200f767d97d4b87c774fad5504`, CI run [38883213683](https://github.com/evzhem/photo-to-glyph/actions/runs/38883213683). Это не OCR/автоматическое определение метрик, не пользовательское создание/редактирование набора и не экспорт `.gfont`.
+Дата этого M5-среза: **2026-10-16**. Его статус — app-private storage, read-only список и core-нормализация явно размеченных raster glyphs; проверки прошли на ветке `arena/6d0fb259-photo-to-glyph`, commit `2aedf07e9270e1200f767d97d4b87c774fad5504`, CI run [38883213683](https://github.com/evzhem/photo-to-glyph/actions/runs/38883213683). На эту дату не было OCR, UI создания набора или `.gfont` export. **Обновление 2026-10-17:** ручной builder теперь сохраняет созданные из страницы partial sets и подаёт их в `.gfont` library export; это не добавляет OCR или KDraw validation. См. [`M3-manual-builder-report.md`](M3-manual-builder-report.md).
 
 ## 1. Файлы и назначение
 
